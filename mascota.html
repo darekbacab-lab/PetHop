@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+        <link rel="icon" type="image/png" href="img/favicon.png?v=2">
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Conoce el perfil y la información de una mascota disponible para adopción en PetHop.">
+    <title>Chino | PetHop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css?v=20261013-nav-fix-2">
+</head>
+
+<body>
+
+ <header class="site-header">
+
+    <div class="header-container">
+
+        <button
+            type="button"
+            class="menu-toggle"
+            aria-label="Abrir menú"
+            aria-expanded="false"
+            aria-controls="main-menu"
+        >
+            <i data-lucide="menu" aria-hidden="true"></i>
+        </button>
+
+        <a
+            href="index.html"
+            class="brand"
+            aria-label="PetHop"
+        >
+            <img
+                src="img/image1.png"
+                alt="PetHop"
+            >
+        </a>
+
+         <nav id="main-menu" class="main-nav" aria-label="Navegación principal">
+            <span class="nav-active-indicator" aria-hidden="true"></span>
+            <a class="nav-link" href="index.html"><i class="nav-item-icon" data-lucide="house" aria-hidden="true"></i><span>Inicio</span></a>
+            <a class="nav-link" href="explorar.html"><i class="nav-item-icon" data-lucide="search" aria-hidden="true"></i><span>Explorar</span></a>
+            <a class="nav-link" href="proveedor.html"><i class="nav-item-icon" data-lucide="hand-heart" aria-hidden="true"></i><span>Dar en adopción</span></a>
+            <a class="nav-link" href="seguimiento.html"><i class="nav-item-icon" data-lucide="paw-print" aria-hidden="true"></i><span>Seguimiento</span></a>
+            <button type="button" class="favorites-button menu-favorites"><i class="nav-item-icon" data-lucide="heart" aria-hidden="true"></i><span class="favorites-label">Favoritos</span><span class="favorites-count">0</span></button>
+        </nav>
+        <div class="header-right">
+
+            <a
+                href="#como-funciona"
+                class="how-button"
+            >
+                Cómo funciona
+            </a>
+
+            <a href="acceso.html" class="login-button">
+                <i data-lucide="log-in" aria-hidden="true"></i>
+                Ingresar
+            </a>
+
+        </div>
+
+    </div>
+
+</header>
+
+    <main>
+
+        <section class="pet-profile" data-description="Chino es un perro adulto de tamaño mediano. El refugio puede contarte cómo convive, qué actividades disfruta y qué tipo de hogar se adapta mejor a él.">
+
+            <div class="pet-profile-container">
+
+                <a
+                    href="explorar.html"
+                    class="back-link"
+                >
+                    <i data-lucide="search" aria-hidden="true"></i>
+                    Volver a explorar
+                </a>
+
+                <div class="pet-profile-grid">
+
+                    <div class="pet-gallery-column">
+
+                        <div class="pet-profile-heading">
+                            <h1>Chino</h1>
+                        </div>
+
+                        <div class="pet-gallery pet-profile-photo" id="petGallery">
+                            <div class="gallery-viewport" role="region" aria-roledescription="carrusel" aria-label="Imágenes de referencia">
+                                <div class="gallery-track" aria-live="polite"></div>
+                            </div>
+                            <button class="gallery-arrow gallery-prev" type="button" aria-label="Ver imagen anterior"><i data-lucide="chevron-left" aria-hidden="true"></i></button>
+                            <button class="gallery-arrow gallery-next" type="button" aria-label="Ver imagen siguiente"><i data-lucide="chevron-right" aria-hidden="true"></i></button>
+                            <button
+                                class="gallery-favorite"
+                                type="button"
+                                data-favorite
+                                data-pet-id="chino"
+                                aria-label="Agregar Chino a favoritos"
+                            >
+                                <i class="favorite-icon" data-lucide="heart" aria-hidden="true"></i>
+                            </button>
+
+                        </div>
+
+                        <p class="gallery-caption">Fotografía de referencia.</p>
+
+                        <section class="pet-story" aria-label="Descripción de Chino">
+                            <h2 class="pet-story-title">Detalles extra de Chino</h2>
+                            <p>Chino es un perro adulto de tamaño mediano. El refugio puede contarte cómo convive, qué actividades disfruta y qué tipo de hogar se adapta mejor a él.</p>
+                        </section>
+
+                    </div>
+
+                    <div class="pet-profile-info">
+                        <div class="pet-information">
+
+                            <span class="profile-eyebrow">
+                                INFORMACIÓN
+                            </span>
+
+                            <h2>
+                                Datos de Chino
+                            </h2>
+
+                            <div class="information-grid">
+
+                                <div class="information-item">
+                                    <div class="information-icon"><i data-lucide="map-pin" aria-hidden="true"></i></div>
+                                    <div>
+                                        <strong>Ubicación</strong>
+                                        <span>Playa del Carmen, Quintana Roo</span>
+                                    </div>
+                                </div>
+
+                                <div class="information-item">
+                                    <div class="information-icon"><i data-lucide="dog" aria-hidden="true"></i></div>
+                                    <div>
+                                        <strong>Especie</strong>
+                                        <span>Perro</span>
+                                    </div>
+                                </div>
+
+                                <div class="information-item">
+
+                                    <div class="information-icon">
+                                        A
+                                    </div>
+
+                                    <div>
+                                        <strong>
+                                            Edad
+                                        </strong>
+
+                                        <span>
+                                            Adulto
+                                        </span>
+                                    </div>
+
+                                </div>
+
+                                <div class="information-item">
+
+                                    <div class="information-icon">
+                                        M
+                                    </div>
+
+                                    <div>
+                                        <strong>
+                                            Sexo
+                                        </strong>
+
+                                        <span>
+                                            Macho
+                                        </span>
+                                    </div>
+
+                                </div>
+
+                                <div class="information-item">
+
+                                    <div class="information-icon">
+                                        T
+                                    </div>
+
+                                    <div>
+                                        <strong>
+                                            Tamaño
+                                        </strong>
+
+                                        <span>
+                                            Mediano
+                                        </span>
+                                    </div>
+
+                                </div>
+
+                                <div class="information-item">
+
+                                    <div class="information-icon">
+                                        V
+                                    </div>
+
+                                    <div>
+                                        <strong>
+                                            Vacunación
+                                        </strong>
+
+                                        <span>
+                                            Pendiente de confirmar
+                                        </span>
+                                    </div>
+
+                                </div>
+
+                                <div class="information-item">
+
+                                    <div class="information-icon">
+                                        D
+                                    </div>
+
+                                    <div>
+                                        <strong>
+                                            Desparasitación
+                                        </strong>
+
+                                        <span>
+                                            Pendiente de confirmar
+                                        </span>
+                                    </div>
+
+                                </div>
+
+                                <div class="information-item">
+
+                                    <div class="information-icon">
+                                        E
+                                    </div>
+
+                                    <div>
+                                        <strong>
+                                            Esterilización
+                                        </strong>
+
+                                        <span>
+                                            Pendiente de confirmar
+                                        </span>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="adoption-notice">
+
+                            <div class="notice-icon">
+                                <i data-lucide="check" aria-hidden="true"></i>
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Adopción responsable
+                                </strong>
+
+                                <p>
+                                    Antes de enviar tu solicitud,
+                                    asegúrate de contar con las
+                                    condiciones necesarias para
+                                    brindar a Chino un hogar seguro.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <button type="button" class="message-shelter-button" data-chat-pet data-pet-id="chino"><i data-lucide="message-circle" aria-hidden="true"></i> Preguntar al refugio</button>
+
+                        <a
+                            href="solicitud.html"
+                            class="pet-apply-button"
+                        >
+                            Solicitar adopción
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+</main>
+
+    <footer class="site-footer">
+
+        <div class="footer-container">
+
+            <div class="footer-brand">
+
+                <a
+                    href="index.html"
+                    class="brand"
+                    aria-label="PetHop"
+                >
+                    <img
+                        src="img/image1.png"
+                        alt="PetHop"
+                    >
+                </a>
+
+                <p>
+                    Plataforma digital para facilitar
+                    procesos de adopción responsable.
+                </p>
+
+            </div>
+
+            <div class="footer-column">
+
+                <h2>
+                    Explorar
+                </h2>
+
+                <a href="explorar.html">
+                    Mascotas
+                </a>
+
+                <a href="index.html#como-funciona">
+                    Cómo funciona
+                </a>
+
+                <a href="seguimiento.html">
+                    Seguimiento
+                </a>
+
+            </div>
+
+            <div class="footer-column">
+
+                <h2>
+                    Organizaciones
+                </h2>
+
+                <a href="index.html#registrar">
+                    Registrar refugio
+                </a>
+
+                <a href="acceso.html">
+                    Iniciar sesión
+                </a>
+
+            </div>
+
+        </div>
+
+        <div class="footer-bottom">
+
+            <span>
+                © 2026 PetHop
+            </span>
+
+            <span>
+                Adopción responsable
+            </span>
+
+        </div>
+
+    </footer>
+
+    <script src="js/vendor/lucide.min.js"></script>
+    <script src="js/site-navigation.js?v=20261013-site-menu-1"></script>
+    <script src="js/pethop-data.js?v=20261013-data-1"></script>
+    <script src="app.js?v=20261013-nav-fix-2"></script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+

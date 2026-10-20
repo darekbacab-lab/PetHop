@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+        <link rel="icon" type="image/png" href="img/favicon.png?v=2">
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Explora mascotas disponibles para adopción responsable en PetHop.">
+    <title>Explorar mascotas | PetHop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css?v=20261013-nav-fix-2">
+</head>
+
+<body>
+
+    <header class="site-header">
+
+    <div class="header-container">
+
+        <button
+            type="button"
+            class="menu-toggle"
+            aria-label="Abrir menú"
+            aria-expanded="false"
+            aria-controls="main-menu"
+        >
+            <i data-lucide="menu" aria-hidden="true"></i>
+        </button>
+
+        <a
+            href="index.html"
+            class="brand"
+            aria-label="PetHop"
+        >
+            <img
+                src="img/image1.png"
+                alt="PetHop"
+            >
+        </a>
+
+         <nav id="main-menu" class="main-nav" aria-label="Navegación principal">
+            <span class="nav-active-indicator" aria-hidden="true"></span>
+            <a class="nav-link" href="index.html"><i class="nav-item-icon" data-lucide="house" aria-hidden="true"></i><span>Inicio</span></a>
+            <a class="nav-link" href="explorar.html"><i class="nav-item-icon" data-lucide="search" aria-hidden="true"></i><span>Explorar</span></a>
+            <a class="nav-link" href="proveedor.html"><i class="nav-item-icon" data-lucide="hand-heart" aria-hidden="true"></i><span>Dar en adopción</span></a>
+            <a class="nav-link" href="seguimiento.html"><i class="nav-item-icon" data-lucide="paw-print" aria-hidden="true"></i><span>Seguimiento</span></a>
+            <button type="button" class="favorites-button menu-favorites"><i class="nav-item-icon" data-lucide="heart" aria-hidden="true"></i><span class="favorites-label">Favoritos</span><span class="favorites-count">0</span></button>
+        </nav>
+        <div class="header-right">
+
+            <a
+                href="#como-funciona"
+                class="how-button"
+            >
+                Cómo funciona
+            </a>
+
+            <a href="acceso.html" class="login-button">
+                <i data-lucide="log-in" aria-hidden="true"></i>
+                Ingresar
+            </a>
+
+        </div>
+
+    </div>
+
+</header>
+    <main>
+
+        <section class="catalog-header">
+
+            <div class="catalog-header-container">
+
+                <div class="catalog-header-copy">
+                    <h1>
+                        Encuentra una mascota que conecte
+                        <span>contigo.</span>
+                    </h1>
+                </div>
+
+            </div>
+
+        </section>
+
+        <section class="catalog-section">
+
+            <div class="catalog-container">
+
+                <form
+                    class="catalog-search"
+                    id="catalogSearchForm"
+                >
+
+                    <div class="catalog-search-input">
+
+                        <span
+                            class="search-symbol"
+                            aria-hidden="true"
+                        ><i data-lucide="search"></i></span>
+
+                        <label
+                            class="sr-only"
+                            for="catalogSearch"
+                        >
+                            Buscar mascotas
+                        </label>
+
+                        <input
+                            id="catalogSearch"
+                            name="search"
+                            type="search"
+                            placeholder="Buscar por nombre, especie o ubicación"
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="search-button"
+                    >
+                        Buscar
+                    </button>
+
+                </form>
+
+                <div class="catalog-layout">
+
+                    <aside class="filter-panel">
+
+                        <div class="filter-panel-header">
+
+                            <span class="eyebrow">
+                                FILTROS
+                            </span>
+
+                            <h2>
+                                Encuentra mejor
+                                coincidencias.
+                            </h2>
+
+                        </div>
+
+                        <div class="catalog-filter-group">
+
+                            <label for="speciesFilter">
+                                Especie
+                            </label>
+
+                            <select id="speciesFilter">
+                                <option value="">Todas</option>
+                                <option value="perro">Perro</option>
+                                <option value="gato">Gato</option>
+                                <option value="otro">Otro</option>
+                            </select>
+
+                        </div>
+
+                        <div class="catalog-filter-group">
+
+                            <label for="ageFilter">
+                                Edad
+                            </label>
+
+                            <select id="ageFilter">
+                                <option value="">Todas</option>
+                                <option value="cachorro">Cachorro</option>
+                                <option value="joven">Joven</option>
+                                <option value="adulto">Adulto</option>
+                                <option value="senior">Senior</option>
+                            </select>
+
+                        </div>
+
+                        <div class="catalog-filter-group">
+
+                            <label for="genderFilter">
+                                Sexo
+                            </label>
+
+                            <select id="genderFilter">
+                                <option value="">Todos</option>
+                                <option value="macho">Macho</option>
+                                <option value="hembra">Hembra</option>
+                            </select>
+
+                        </div>
+
+                        <div class="catalog-filter-group">
+
+                            <label for="sizeFilter">
+                                Tamaño
+                            </label>
+
+                            <select id="sizeFilter">
+                                <option value="">Todos</option>
+                                <option value="pequeno">Pequeño</option>
+                                <option value="mediano">Mediano</option>
+                                <option value="grande">Grande</option>
+                            </select>
+
+                        </div>
+
+                        <div class="catalog-filter-group">
+
+                            <label for="locationFilter">
+                                Ubicación
+                            </label>
+
+                            <select id="locationFilter">
+                                <option value="">Todas</option>
+                                <option value="playa del carmen">Playa del Carmen</option>
+                                <option value="cancun">Cancún</option>
+                                <option value="cozumel">Cozumel</option>
+                            </select>
+
+                        </div>
+
+                        <div class="filter-actions">
+
+                            <button
+                                type="button"
+                                class="btn btn-primary catalog-apply"
+                                id="applyFilters"
+                            >
+                                Aplicar filtros
+                            </button>
+
+                            <button
+                                type="button"
+                                class="clear-filters"
+                                id="clearFilters"
+                            >
+                                Limpiar filtros
+                            </button>
+
+                        </div>
+
+                    </aside>
+
+                    <div class="catalog-results">
+
+                        <div class="results-header">
+
+                            <div>
+
+                                <span class="eyebrow">
+                                    RESULTADOS
+                                </span>
+
+                                <h2>
+                                    Mascotas disponibles
+                                </h2>
+
+                                <p class="results-count">
+                                    <span id="resultsCount">6</span>
+                                    mascotas encontradas
+                                </p>
+
+                            </div>
+
+                            <div class="sort-control">
+
+                                <label for="sortPets">
+                                    Ordenar
+                                </label>
+
+                                <select id="sortPets">
+                                    <option value="recommended">
+                                        Recomendadas
+                                    </option>
+                                    <option value="name">
+                                        Nombre
+                                    </option>
+                                    <option value="age">
+                                        Edad
+                                    </option>
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                        <div
+                            class="catalog-grid"
+                            id="catalogGrid"
+                        >
+
+                            <article
+                                class="catalog-card"
+                                data-pet
+                                data-name="Chino"
+                                data-species="Perro"
+                                data-age="Adulto"
+                                data-gender="Macho"
+                                data-size="Mediano"
+                                data-location="Playa del Carmen"
+                        data-description="Chino es un perro adulto de tamaño mediano. El refugio puede contarte cómo convive, qué actividades disfruta y qué tipo de hogar se adapta mejor a él."
+                            >
+
+                                <div class="catalog-card-image" data-photo-slot="img2.jpeg">
+
+                                    <span class="sr-only">Imagen de Chino</span>
+
+                                    <button
+                                        class="favorite"
+                                        type="button"
+                                        data-favorite
+                                        data-pet-id="chino"
+                                        aria-label="Agregar Chino a favoritos"
+                                    >
+                                <i class="favorite-icon" data-lucide="heart" aria-hidden="true"></i>
+                            </button>
+
+                                </div>
+
+                                <div class="catalog-card-content">
+
+                                    <div class="catalog-card-top">
+
+                                        <div>
+                                            <span class="pet-species"><i class="pet-species-icon" data-lucide="dog" aria-hidden="true"></i>PERRO</span>
+
+                                            <h3>
+                                                Chino
+                                            </h3>
+                                        </div>
+
+                                        <span class="available">
+                                            Disponible
+                                        </span>
+
+                                    </div>
+
+                                    <div class="catalog-details">
+                                        <span>Adulto</span>
+                                        <span>Macho</span>
+                                        <span>Mediano</span>
+                                    </div>
+
+                                    <div class="catalog-location">
+                                        <i data-lucide="map-pin" aria-hidden="true"></i>
+                                        Playa del Carmen
+                                    </div>
+
+                                    
+
+                                </div>
+
+                            </article>
+
+                            <article
+                                class="catalog-card"
+                                data-pet
+                                data-name="Luna"
+                                data-species="Perro"
+                                data-age="Joven"
+                                data-gender="Hembra"
+                                data-size="Mediano"
+                                data-location="Playa del Carmen"
+                            >
+
+                                <div class="catalog-card-image" data-photo-slot="img3.jpeg">
+
+                                    <span class="sr-only">Imagen de Luna</span>
+
+                                    <button
+                                        class="favorite"
+                                        type="button"
+                                        data-favorite
+                                        data-pet-id="luna"
+                                        aria-label="Agregar Luna a favoritos"
+                                    >
+                                <i class="favorite-icon" data-lucide="heart" aria-hidden="true"></i>
+                            </button>
+
+                                </div>
+
+                                <div class="catalog-card-content">
+
+                                    <div class="catalog-card-top">
+
+                                        <div>
+                                            <span class="pet-species"><i class="pet-species-icon" data-lucide="dog" aria-hidden="true"></i>PERRO</span>
+
+                                            <h3>
+                                                Luna
+                                            </h3>
+                                        </div>
+
+                                        <span class="available">
+                                            Disponible
+                                        </span>
+
+                                    </div>
+
+                                    <div class="catalog-details">
+                                        <span>Joven</span>
+                                        <span>Hembra</span>
+                                        <span>Mediano</span>
+                                    </div>
+
+                                    <div class="catalog-location">
+                                        <i data-lucide="map-pin" aria-hidden="true"></i>
+                                        Playa del Carmen
+                                    </div>
+
+                                    
+
+                                </div>
+
+                            </article>
+
+                            <article
+                                class="catalog-card"
+                                data-pet
+                                data-name="Milo"
+                                data-species="Gato"
+                                data-age="Joven"
+                                data-gender="Macho"
+                                data-size="Pequeño"
+                                data-location="Cancún"
+                            >
+
+                                <div class="catalog-card-image" data-photo-slot="img5.jpg">
+
+                                    <span class="sr-only">Imagen de Milo</span>
+
+                                    <button
+                                        class="favorite"
+                                        type="button"
+                                        data-favorite
+                                        data-pet-id="milo"
+                                        aria-label="Agregar Milo a favoritos"
+                                    >
+                                <i class="favorite-icon" data-lucide="heart" aria-hidden="true"></i>
+                            </button>
+
+                                </div>
+
+                                <div class="catalog-card-content">
+
+                                    <div class="catalog-card-top">
+
+                                        <div>
+                                            <span class="pet-species"><i class="pet-species-icon" data-lucide="cat" aria-hidden="true"></i>GATO</span>
+
+                                            <h3>
+                                                Milo
+                                            </h3>
+                                        </div>
+
+                                        <span class="available">
+                                            Disponible
+                                        </span>
+
+                                    </div>
+
+                                    <div class="catalog-details">
+                                        <span>Joven</span>
+                                        <span>Macho</span>
+                                        <span>Pequeño</span>
+                                    </div>
+
+                                    <div class="catalog-location">
+                                        <i data-lucide="map-pin" aria-hidden="true"></i>
+                                        Cancún
+                                    </div>
+
+                                    
+
+                                </div>
+
+                            </article>
+
+                            <article
+                                class="catalog-card"
+                                data-pet
+                                data-name="Nala"
+                                data-species="Gato"
+                                data-age="Adulto"
+                                data-gender="Hembra"
+                                data-size="Pequeño"
+                                data-location="Cozumel"
+                            >
+
+                                <div class="catalog-card-image" data-photo-slot="img6.jpg">
+
+                                    <span class="sr-only">Imagen de Nala</span>
+
+                                    <button
+                                        class="favorite"
+                                        type="button"
+                                        data-favorite
+                                        data-pet-id="nala"
+                                        aria-label="Agregar Nala a favoritos"
+                                    >
+                                <i class="favorite-icon" data-lucide="heart" aria-hidden="true"></i>
+                            </button>
+
+                                </div>
+
+                                <div class="catalog-card-content">
+
+                                    <div class="catalog-card-top">
+
+                                        <div>
+                                            <span class="pet-species"><i class="pet-species-icon" data-lucide="cat" aria-hidden="true"></i>GATO</span>
+
+                                            <h3>
+                                                Nala
+                                            </h3>
+                                        </div>
+
+                                        <span class="available">
+                                            Disponible
+                                        </span>
+
+                                    </div>
+
+                                    <div class="catalog-details">
+                                        <span>Adulto</span>
+                                        <span>Hembra</span>
+                                        <span>Pequeño</span>
+                                    </div>
+
+                                    <div class="catalog-location">
+                                        <i data-lucide="map-pin" aria-hidden="true"></i>
+                                        Cozumel
+                                    </div>
+
+                                    
+
+                                </div>
+
+                            </article>
+
+                            <article
+                                class="catalog-card"
+                                data-pet
+                                data-name="Max"
+                                data-species="Perro"
+                                data-age="Senior"
+                                data-gender="Macho"
+                                data-size="Grande"
+                                data-location="Cancún"
+                            >
+
+                                <div class="catalog-card-image" data-photo-slot="img4.jpeg">
+
+                                    <span class="sr-only">Imagen de Max</span>
+
+                                    <button
+                                        class="favorite"
+                                        type="button"
+                                        data-favorite
+                                        data-pet-id="max"
+                                        aria-label="Agregar Max a favoritos"
+                                    >
+                                <i class="favorite-icon" data-lucide="heart" aria-hidden="true"></i>
+                            </button>
+
+                                </div>
+
+                                <div class="catalog-card-content">
+
+                                    <div class="catalog-card-top">
+
+                                        <div>
+                                            <span class="pet-species"><i class="pet-species-icon" data-lucide="dog" aria-hidden="true"></i>PERRO</span>
+
+                                            <h3>
+                                                Max
+                                            </h3>
+                                        </div>
+
+                                        <span class="available">
+                                            Disponible
+                                        </span>
+
+                                    </div>
+
+                                    <div class="catalog-details">
+                                        <span>Senior</span>
+                                        <span>Macho</span>
+                                        <span>Grande</span>
+                                    </div>
+
+                                    <div class="catalog-location">
+                                        <i data-lucide="map-pin" aria-hidden="true"></i>
+                                        Cancún
+                                    </div>
+
+                                    
+
+                                </div>
+
+                            </article>
+
+                            <article
+                                class="catalog-card"
+                                data-pet
+                                data-name="Kira"
+                                data-species="Perro"
+                                data-age="Cachorro"
+                                data-gender="Hembra"
+                                data-size="Pequeño"
+                                data-location="Playa del Carmen"
+                            >
+
+                                <div class="catalog-card-image" data-photo-slot="img2.jpeg">
+
+                                    <span class="sr-only">Imagen de Kira</span>
+
+                                    <button
+                                        class="favorite"
+                                        type="button"
+                                        data-favorite
+                                        data-pet-id="kira"
+                                        aria-label="Agregar Kira a favoritos"
+                                    >
+                                <i class="favorite-icon" data-lucide="heart" aria-hidden="true"></i>
+                            </button>
+
+                                </div>
+
+                                <div class="catalog-card-content">
+
+                                    <div class="catalog-card-top">
+
+                                        <div>
+                                            <span class="pet-species"><i class="pet-species-icon" data-lucide="dog" aria-hidden="true"></i>PERRO</span>
+
+                                            <h3>
+                                                Kira
+                                            </h3>
+                                        </div>
+
+                                        <span class="available">
+                                            Disponible
+                                        </span>
+
+                                    </div>
+
+                                    <div class="catalog-details">
+                                        <span>Cachorro</span>
+                                        <span>Hembra</span>
+                                        <span>Pequeño</span>
+                                    </div>
+
+                                    <div class="catalog-location">
+                                        <i data-lucide="map-pin" aria-hidden="true"></i>
+                                        Playa del Carmen
+                                    </div>
+
+                                    
+
+                                </div>
+
+                            </article>
+
+                        </div>
+
+                        <div
+                            class="catalog-empty"
+                            id="catalogEmpty"
+                        >
+
+                            <div class="empty-icon">
+                                <i data-lucide="search" aria-hidden="true"></i>
+                            </div>
+
+                            <h3>
+                                No encontramos coincidencias.
+                            </h3>
+
+                            <p>
+                                Prueba modificando alguno de los filtros
+                                o realiza una búsqueda diferente.
+                            </p>
+
+                        </div>
+
+                        <div class="catalog-bottom">
+                            Mostrando las mascotas disponibles para adopción.
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <section class="catalog-info-section">
+
+            <div class="catalog-info-container">
+
+                <div class="catalog-info-copy">
+
+                    <span class="eyebrow">
+                        INFORMACIÓN
+                    </span>
+
+                    <h2>
+                        Conocer antes de adoptar
+                        también es cuidar.
+                    </h2>
+
+                    <p>
+                        Cada perfil está pensado para concentrar la
+                        información relevante que una persona necesita
+                        conocer antes de iniciar una solicitud.
+                    </p>
+
+                </div>
+
+                <div class="catalog-info-points">
+
+                    <div>
+
+                        <span>01</span>
+
+                        <div>
+                            <h3>
+                                Características
+                            </h3>
+
+                            <p>
+                                Edad, tamaño, sexo y características
+                                generales de cada mascota.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div>
+
+                        <span>02</span>
+
+                        <div>
+                            <h3>
+                                Información sanitaria
+                            </h3>
+
+                            <p>
+                                Datos disponibles sobre vacunación,
+                                desparasitación y esterilización.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div>
+
+                        <span>03</span>
+
+                        <div>
+                            <h3>
+                                Solicitud estructurada
+                            </h3>
+
+                            <p>
+                                Un proceso organizado para iniciar
+                                la adopción.
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="site-footer">
+
+        <div class="footer-container">
+
+            <div class="footer-brand">
+
+                <a
+                    href="index.html"
+                    class="brand"
+                    aria-label="PetHop"
+                >
+                    <img
+                        src="img/image1.png"
+                        alt="PetHop"
+                    >
+                </a>
+
+                <p>
+                    Plataforma digital para facilitar
+                    procesos de adopción responsable.
+                </p>
+
+            </div>
+
+            <div class="footer-column">
+
+                <h2>Explorar</h2>
+
+                <a href="explorar.html">
+                    Mascotas
+                </a>
+
+                <a href="index.html#como-funciona">
+                    Cómo funciona
+                </a>
+
+                <a href="seguimiento.html">
+                    Seguimiento
+                </a>
+
+            </div>
+
+            <div class="footer-column">
+
+                <h2>Organizaciones</h2>
+
+                <a href="index.html#registrar">
+                    Registrar refugio
+                </a>
+
+                <a href="acceso.html">
+                    Iniciar sesión
+                </a>
+
+            </div>
+
+        </div>
+
+        <div class="footer-bottom">
+
+            <span>
+                © 2026 PetHop
+            </span>
+
+            <span>
+                Adopción responsable
+            </span>
+
+        </div>
+
+    </footer>
+
+    <script src="js/vendor/lucide.min.js"></script>
+    <script src="js/site-navigation.js?v=20261013-site-menu-1"></script>
+    <script src="js/pethop-data.js?v=20261013-data-1"></script>
+    <script src="app.js?v=20261013-nav-fix-2"></script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+

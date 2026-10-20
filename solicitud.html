@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+        <link rel="icon" type="image/png" href="img/favicon.png?v=2">
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Solicitud de adopción responsable en PetHop.">
+    <title>Solicitud de adopción | PetHop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css?v=20261013-nav-fix-2">
+</head>
+
+<body>
+
+    <header class="site-header">
+
+    <div class="header-container">
+
+        <button
+            type="button"
+            class="menu-toggle"
+            aria-label="Abrir menú"
+            aria-expanded="false"
+            aria-controls="main-menu"
+        >
+            <i data-lucide="menu" aria-hidden="true"></i>
+        </button>
+
+        <a
+            href="index.html"
+            class="brand"
+            aria-label="PetHop"
+        >
+            <img
+                src="img/image1.png"
+                alt="PetHop"
+            >
+        </a>
+
+         <nav id="main-menu" class="main-nav" aria-label="Navegación principal">
+            <span class="nav-active-indicator" aria-hidden="true"></span>
+            <a class="nav-link" href="index.html"><i class="nav-item-icon" data-lucide="house" aria-hidden="true"></i><span>Inicio</span></a>
+            <a class="nav-link" href="explorar.html"><i class="nav-item-icon" data-lucide="search" aria-hidden="true"></i><span>Explorar</span></a>
+            <a class="nav-link" href="proveedor.html"><i class="nav-item-icon" data-lucide="hand-heart" aria-hidden="true"></i><span>Dar en adopción</span></a>
+            <a class="nav-link" href="seguimiento.html"><i class="nav-item-icon" data-lucide="paw-print" aria-hidden="true"></i><span>Seguimiento</span></a>
+            <button type="button" class="favorites-button menu-favorites"><i class="nav-item-icon" data-lucide="heart" aria-hidden="true"></i><span class="favorites-label">Favoritos</span><span class="favorites-count">0</span></button>
+        </nav>
+        <div class="header-right">
+
+            <a
+                href="#como-funciona"
+                class="how-button"
+            >
+                Cómo funciona
+            </a>
+
+            <a href="acceso.html" class="login-button">
+                <i data-lucide="log-in" aria-hidden="true"></i>
+                Ingresar
+            </a>
+
+        </div>
+
+    </div>
+
+</header>
+
+    <main>
+
+        <section class="application-header">
+
+            <div class="application-header-container">
+
+                <a
+                    href="mascota.html"
+                    class="back-link"
+                >
+                    <i data-lucide="user-round" aria-hidden="true"></i>
+                    Volver al perfil
+                </a>
+
+                <span class="eyebrow">
+                    SOLICITUD DE ADOPCIÓN
+                </span>
+
+                <h1>
+                    Da el siguiente paso.
+                </h1>
+
+                <p>
+                    Completa la información necesaria para iniciar
+                    el proceso de adopción de Chino.
+                </p>
+
+            </div>
+
+        </section>
+
+        <section class="application-section">
+
+            <div class="application-container">
+
+                <div class="application-main">
+
+                    <form
+                        id="adoptionForm"
+                        data-adoption-form
+                        class="application-form"
+                    >
+
+                        <div class="form-section">
+
+                            <div class="form-section-heading">
+
+                                <span>
+                                    01
+                                </span>
+
+                                <div>
+
+                                    <span class="eyebrow">
+                                        INFORMACIÓN PERSONAL
+                                    </span>
+
+                                    <h2>
+                                        Cuéntanos sobre ti.
+                                    </h2>
+
+                                    <p>
+                                        Estos datos permitirán
+                                        identificar a la persona
+                                        que realiza la solicitud.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                            <div class="form-grid">
+
+                                <div class="form-field">
+
+                                    <label for="fullName">
+                                        Nombre completo
+                                    </label>
+
+                                    <input
+                                        id="fullName"
+                                        name="fullName"
+                                        type="text"
+                                        required
+                                        placeholder="Escribe tu nombre"
+                                    >
+
+                                </div>
+
+                                <div class="form-field">
+
+                                    <label for="email">
+                                        Correo electrónico
+                                    </label>
+
+                                    <input
+                                        id="email"
+                                        name="email"
+                                        type="email"
+                                        required
+                                        placeholder="correo@ejemplo.com"
+                                    >
+
+                                </div>
+
+                                <div class="form-field">
+
+                                    <label for="phone">
+                                        Teléfono
+                                    </label>
+
+                                    <input
+                                        id="phone"
+                                        name="phone"
+                                        type="tel"
+                                        required
+                                        placeholder="Número de contacto"
+                                    >
+
+                                </div>
+
+                                <div class="form-field">
+
+                                    <label for="age">
+                                        Edad
+                                    </label>
+
+                                    <input
+                                        id="age"
+                                        name="age"
+                                        type="number"
+                                        min="18"
+                                        required
+                                        placeholder="18"
+                                    >
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="form-section">
+
+                            <div class="form-section-heading">
+
+                                <span>
+                                    02
+                                </span>
+
+                                <div>
+
+                                    <span class="eyebrow">
+                                        HOGAR
+                                    </span>
+
+                                    <h2>
+                                        Cuéntanos sobre tu hogar.
+                                    </h2>
+
+                                    <p>
+                                        Queremos conocer las condiciones
+                                        en las que viviría la mascota.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                            <div class="form-grid">
+
+                                <div class="form-field">
+
+                                    <label for="housing">
+                                        Tipo de vivienda
+                                    </label>
+
+                                    <select
+                                        id="housing"
+                                        name="housing"
+                                        required
+                                    >
+                                        <option value="">
+                                            Selecciona una opción
+                                        </option>
+                                        <option value="casa">
+                                            Casa
+                                        </option>
+                                        <option value="departamento">
+                                            Departamento
+                                        </option>
+                                        <option value="otro">
+                                            Otro
+                                        </option>
+                                    </select>
+
+                                </div>
+
+                                <div class="form-field">
+
+                                    <label for="outdoorSpace">
+                                        ¿Cuenta con espacio exterior?
+                                    </label>
+
+                                    <select
+                                        id="outdoorSpace"
+                                        name="outdoorSpace"
+                                        required
+                                    >
+                                        <option value="">
+                                            Selecciona una opción
+                                        </option>
+                                        <option value="si">
+                                            Sí
+                                        </option>
+                                        <option value="no">
+                                            No
+                                        </option>
+                                    </select>
+
+                                </div>
+
+                                <div class="form-field">
+
+                                    <label for="people">
+                                        Personas en el hogar
+                                    </label>
+
+                                    <input
+                                        id="people"
+                                        name="people"
+                                        type="number"
+                                        min="1"
+                                        required
+                                        placeholder="Número de personas"
+                                    >
+
+                                </div>
+
+                                <div class="form-field">
+
+                                    <label for="permission">
+                                        ¿Todos están de acuerdo?
+                                    </label>
+
+                                    <select
+                                        id="permission"
+                                        name="permission"
+                                        required
+                                    >
+                                        <option value="">
+                                            Selecciona una opción
+                                        </option>
+                                        <option value="si">
+                                            Sí
+                                        </option>
+                                        <option value="no">
+                                            No
+                                        </option>
+                                    </select>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="form-section">
+
+                            <div class="form-section-heading">
+
+                                <span>
+                                    03
+                                </span>
+
+                                <div>
+
+                                    <span class="eyebrow">
+                                        OTROS ANIMALES
+                                    </span>
+
+                                    <h2>
+                                        ¿Hay otros compañeros en casa?
+                                    </h2>
+
+                                    <p>
+                                        Esta información ayuda a evaluar
+                                        la adaptación de la mascota.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                            <div class="form-grid">
+
+                                <div class="form-field">
+
+                                    <label for="otherPets">
+                                        ¿Tienes otras mascotas?
+                                    </label>
+
+                                    <select
+                                        id="otherPets"
+                                        name="otherPets"
+                                        required
+                                    >
+                                        <option value="">
+                                            Selecciona una opción
+                                        </option>
+                                        <option value="si">
+                                            Sí
+                                        </option>
+                                        <option value="no">
+                                            No
+                                        </option>
+                                    </select>
+
+                                </div>
+
+                                <div class="form-field">
+
+                                    <label for="otherPetsType">
+                                        ¿Qué animales tienes?
+                                    </label>
+
+                                    <input
+                                        id="otherPetsType"
+                                        name="otherPetsType"
+                                        type="text"
+                                        placeholder="Perros, gatos, etc."
+                                    >
+
+                                </div>
+
+                                <div class="form-field form-field-full">
+
+                                    <label for="otherPetsDetails">
+                                        Cuéntanos un poco más
+                                    </label>
+
+                                    <textarea
+                                        id="otherPetsDetails"
+                                        name="otherPetsDetails"
+                                        placeholder="Describe brevemente a tus mascotas actuales."
+                                    ></textarea>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="form-section">
+
+                            <div class="form-section-heading">
+
+                                <span>
+                                    04
+                                </span>
+
+                                <div>
+
+                                    <span class="eyebrow">
+                                        MOTIVO
+                                    </span>
+
+                                    <h2>
+                                        ¿Por qué quieres adoptar?
+                                    </h2>
+
+                                    <p>
+                                        Comparte tus motivos y expectativas
+                                        sobre la adopción.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                            <div class="form-grid">
+
+                                <div class="form-field form-field-full">
+
+                                    <label for="reason">
+                                        Motivo de adopción
+                                    </label>
+
+                                    <textarea
+                                        id="reason"
+                                        name="reason"
+                                        required
+                                        placeholder="Cuéntanos por qué quieres adoptar a Chino."
+                                    ></textarea>
+
+                                </div>
+
+                                <div class="form-field form-field-full">
+
+                                    <label for="experience">
+                                        Experiencia previa con mascotas
+                                    </label>
+
+                                    <textarea
+                                        id="experience"
+                                        name="experience"
+                                        placeholder="Cuéntanos brevemente sobre tu experiencia."
+                                    ></textarea>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="form-section form-section-confirm">
+
+                            <label class="checkbox-field">
+
+                                <input
+                                    type="checkbox"
+                                    id="responsibleAdoption"
+                                    name="responsibleAdoption"
+                                    required
+                                >
+
+                                <span>
+                                    Confirmo que la información proporcionada
+                                    es verdadera y que comprendo que la adopción
+                                    implica un compromiso de cuidado responsable.
+                                </span>
+
+                            </label>
+
+                            <button
+                                type="submit"
+                                class="application-submit"
+                            >
+                                Enviar solicitud
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+                <aside class="application-sidebar">
+
+                    <div class="application-pet-card">
+
+                        <div class="application-pet-image">
+                            <span class="sr-only">
+                                Imagen de Chino
+                            </span>
+                        </div>
+
+                        <div class="application-pet-content">
+
+                            <span class="pet-species">
+                                PERRO
+                            </span>
+
+                            <h2>
+                                Chino
+                            </h2>
+
+                            <p>
+                                Playa del Carmen
+                            </p>
+
+                            <div class="application-health">
+
+                                <div>
+                                    Vacunación:
+                                    <span>
+                                        Pendiente de confirmar
+                                    </span>
+                                </div>
+
+                                <div>
+                                    Desparasitación:
+                                    <span>
+                                        Pendiente de confirmar
+                                    </span>
+                                </div>
+
+                                <div>
+                                    Esterilización:
+                                    <span>
+                                        Pendiente de confirmar
+                                    </span>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="application-process">
+
+                        <span class="eyebrow">
+                            PROCESO
+                        </span>
+
+                        <h2>
+                            ¿Qué sucede después?
+                        </h2>
+
+                        <div class="application-process-step">
+
+                            <span>
+                                01
+                            </span>
+
+                            <div>
+                                <strong>
+                                    Revisamos tu solicitud
+                                </strong>
+
+                                <p>
+                                    La información será evaluada
+                                    por la organización responsable.
+                                </p>
+                            </div>
+
+                        </div>
+
+                        <div class="application-process-step">
+
+                            <span>
+                                02
+                            </span>
+
+                            <div>
+                                <strong>
+                                    Contacto
+                                </strong>
+
+                                <p>
+                                    La organización podrá comunicarse
+                                    contigo para continuar el proceso.
+                                </p>
+                            </div>
+
+                        </div>
+
+                        <div class="application-process-step">
+
+                            <span>
+                                03
+                            </span>
+
+                            <div>
+                                <strong>
+                                    Seguimiento
+                                </strong>
+
+                                <p>
+                                    Podrás consultar el estado de tu
+                                    solicitud desde PetHop.
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <a
+                        href="mascota.html"
+                        class="application-back-button"
+                    >
+                        <i data-lucide="user-round" aria-hidden="true"></i>
+                        Volver al perfil
+                    </a>
+
+                </aside>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="site-footer">
+
+        <div class="footer-container">
+
+            <div class="footer-brand">
+
+                <a
+                    href="index.html"
+                    class="brand"
+                    aria-label="PetHop"
+                >
+                    <img
+                        src="img/image1.png"
+                        alt="PetHop"
+                    >
+                </a>
+
+                <p>
+                    Plataforma digital para facilitar
+                    procesos de adopción responsable.
+                </p>
+
+            </div>
+
+            <div class="footer-column">
+
+                <h2>Explorar</h2>
+
+                <a href="explorar.html">
+                    Mascotas
+                </a>
+
+                <a href="index.html#como-funciona">
+                    Cómo funciona
+                </a>
+
+                <a href="seguimiento.html">
+                    Seguimiento
+                </a>
+
+            </div>
+
+            <div class="footer-column">
+
+                <h2>Organizaciones</h2>
+
+                <a href="index.html#registrar">
+                    Registrar refugio
+                </a>
+
+                <a href="acceso.html">
+                    Iniciar sesión
+                </a>
+
+            </div>
+
+        </div>
+
+        <div class="footer-bottom">
+
+            <span>
+                © 2026 PetHop
+            </span>
+
+            <span>
+                Adopción responsable
+            </span>
+
+        </div>
+
+    </footer>
+
+    <script src="js/vendor/lucide.min.js"></script>
+    <script src="js/site-navigation.js?v=20261013-site-menu-1"></script>
+    <script src="js/pethop-data.js?v=20261013-data-1"></script>
+    <script src="app.js?v=20261013-nav-fix-2"></script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+        <link rel="icon" type="image/png" href="img/favicon.png?v=2">
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Consulta el estado y seguimiento de tus procesos de adopción en PetHop.">
+    <title>Seguimiento | PetHop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css?v=20261013-nav-fix-2">
+</head>
+
+<body class="follow-up-page">
+
+   <header class="site-header">
+
+    <div class="header-container">
+
+        <button
+            type="button"
+            class="menu-toggle"
+            aria-label="Abrir menú"
+            aria-expanded="false"
+            aria-controls="main-menu"
+        >
+            <i data-lucide="menu" aria-hidden="true"></i>
+        </button>
+
+        <a
+            href="index.html"
+            class="brand"
+            aria-label="PetHop"
+        >
+            <img
+                src="img/image1.png"
+                alt="PetHop"
+            >
+        </a>
+
+         <nav id="main-menu" class="main-nav" aria-label="Navegación principal">
+            <span class="nav-active-indicator" aria-hidden="true"></span>
+            <a class="nav-link" href="index.html"><i class="nav-item-icon" data-lucide="house" aria-hidden="true"></i><span>Inicio</span></a>
+            <a class="nav-link" href="explorar.html"><i class="nav-item-icon" data-lucide="search" aria-hidden="true"></i><span>Explorar</span></a>
+            <a class="nav-link" href="proveedor.html"><i class="nav-item-icon" data-lucide="hand-heart" aria-hidden="true"></i><span>Dar en adopción</span></a>
+            <a class="nav-link" href="seguimiento.html"><i class="nav-item-icon" data-lucide="paw-print" aria-hidden="true"></i><span>Seguimiento</span></a>
+            <button type="button" class="favorites-button menu-favorites"><i class="nav-item-icon" data-lucide="heart" aria-hidden="true"></i><span class="favorites-label">Favoritos</span><span class="favorites-count">0</span></button>
+        </nav>
+        <div class="header-right">
+
+            <a
+                href="#como-funciona"
+                class="how-button"
+            >
+                Cómo funciona
+            </a>
+
+            <a href="acceso.html" class="login-button">
+                <i data-lucide="log-in" aria-hidden="true"></i>
+                Ingresar
+            </a>
+
+        </div>
+
+    </div>
+
+</header>
+
+    <main class="follow-up-main">
+
+        <section class="follow-up-header">
+
+            <div class="follow-up-header-container">
+
+                <h1>
+                    Consulta el avance
+                    <span>de tu adopción.</span>
+                </h1>
+
+                <p>
+                    Revisa el estado de tus solicitudes y guarda notas
+                    personales sobre el bienestar de tu mascota.
+                </p>
+
+            </div>
+
+        </section>
+
+        <section class="follow-up-section">
+
+            <div class="follow-up-container">
+
+                <div class="follow-up-main">
+
+                    <div class="status-card">
+
+                        <div class="status-card-header">
+
+                            <div>
+
+                                <span class="eyebrow">
+                                    ESTADO ACTUAL
+                                </span>
+
+                                <h2>
+                                    Proceso de adopción
+                                </h2>
+
+                            </div>
+
+                            <span class="status-pending" data-application-status>
+                                Sin solicitud activa
+                            </span>
+
+                        </div>
+
+                        <div class="status-timeline">
+
+                            <div class="status-step">
+
+                                <div class="status-step-marker">
+                                    <i data-lucide="check" aria-hidden="true"></i>
+                                </div>
+
+                                <div class="status-step-content">
+
+                                    <strong>
+                                        Solicitud guardada
+                                    </strong>
+
+                                    <p>
+                                        Quedó guardada en este dispositivo.
+                                        El refugio aún debe confirmar su recepción.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                            <div class="status-step">
+
+                                <div class="status-step-marker">
+                                    2
+                                </div>
+
+                                <div class="status-step-content">
+
+                                    <strong>
+                                        Revisión de solicitud
+                                    </strong>
+
+                                    <p>
+                                        Pendiente de confirmación de la organización.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                            <div class="status-step">
+
+                                <div class="status-step-marker">
+                                    3
+                                </div>
+
+                                <div class="status-step-content">
+
+                                    <strong>
+                                        Contacto
+                                    </strong>
+
+                                    <p>
+                                        Se establecerá comunicación
+                                        para continuar el proceso.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                            <div class="status-step">
+
+                                <div class="status-step-marker">
+                                    4
+                                </div>
+
+                                <div class="status-step-content">
+
+                                    <strong>
+                                        Adopción
+                                    </strong>
+
+                                    <p>
+                                        Registro de la adopción
+                                        y comienzo del seguimiento.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="follow-up-pet-card">
+
+                        <div class="follow-up-pet-image">
+                            <span class="sr-only">
+                                Imagen de Chino
+                            </span>
+                        </div>
+
+                        <div class="follow-up-pet-info">
+
+                            <span class="pet-species">
+                                SOLICITUD ACTIVA
+                            </span>
+
+                            <h2>
+                                Chino
+                            </h2>
+
+                            <p>
+                                Solicitud de adopción
+                            </p>
+
+                            <div class="follow-up-health">
+
+                                <span>
+                                    Información registrada
+                                </span>
+
+                                <span>
+                                    Proceso activo
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="follow-up-record-card">
+
+                        <div class="follow-up-record-header">
+
+                            <div>
+
+                                <span class="eyebrow">
+                                    REGISTRO
+                                </span>
+
+                                <h2>
+                                    Actualización de seguimiento
+                                </h2>
+
+                                <p>
+                                    Tus notas se guardan en este dispositivo
+                                    y no cambian el estado oficial de la solicitud.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <form id="followUpForm">
+
+                            <div class="follow-up-form-grid">
+
+                                <div class="form-field">
+
+                                    <label for="followUpStatus">
+                                        Estado
+                                    </label>
+
+                                    <select
+                                        id="followUpStatus"
+                                        name="status"
+                                        required
+                                    >
+                                        <option value="">
+                                            Selecciona una opción
+                                        </option>
+                                        <option value="bien">
+                                            Todo marcha bien
+                                        </option>
+                                        <option value="adaptacion">
+                                            En proceso de adaptación
+                                        </option>
+                                        <option value="atencion">
+                                            Requiere atención
+                                        </option>
+                                    </select>
+
+                                </div>
+
+                                <div class="form-field">
+
+                                    <label for="followUpDate">
+                                        Fecha
+                                    </label>
+
+                                    <input
+                                        id="followUpDate"
+                                        name="date"
+                                        type="date"
+                                        required
+                                    >
+
+                                </div>
+
+                                <div class="form-field form-field-full">
+
+                                    <label for="followUpNotes">
+                                        Notas
+                                    </label>
+
+                                    <textarea
+                                        id="followUpNotes"
+                                        name="notes"
+                                        required
+                                        placeholder="Describe cómo se encuentra la mascota."
+                                    ></textarea>
+
+                                </div>
+
+                            </div>
+
+                            <div class="follow-up-form-actions">
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary"
+                                >
+                                    Guardar actualización
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                    <div class="follow-up-history-card">
+
+                        <div class="follow-up-record-header">
+
+                            <div>
+
+                                <span class="eyebrow">
+                                    HISTORIAL
+                                </span>
+
+                                <h2>
+                                    Actualizaciones registradas
+                                </h2>
+
+                            </div>
+
+                        </div>
+
+                        <div
+                            class="follow-up-list"
+                            id="followUpList"
+                        >
+
+                            <div class="follow-up-empty">
+
+                                <span>
+                                    <i data-lucide="check" aria-hidden="true"></i>
+                                </span>
+
+                                <h3>
+                                    Aún no hay actualizaciones.
+                                </h3>
+
+                                <p>
+                                    Las actualizaciones que registres
+                                    aparecerán aquí.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <aside class="follow-up-sidebar">
+
+                    <div class="follow-up-summary">
+
+                        <span class="eyebrow">
+                            RESUMEN
+                        </span>
+
+                        <h2>
+                            Chino
+                        </h2>
+
+                        <p>
+                            Solicitud activa
+                        </p>
+
+                        <div class="summary-divider"></div>
+
+                        <div class="summary-row">
+
+                            <span>
+                                Estado
+                            </span>
+
+                            <strong>
+                                En revisión
+                            </strong>
+
+                        </div>
+
+                        <div class="summary-row">
+
+                            <span>
+                                Solicitud
+                            </span>
+
+                            <strong>
+                                Registrada
+                            </strong>
+
+                        </div>
+
+                        <div class="summary-row">
+
+                            <span>
+                                Ubicación
+                            </span>
+
+                            <strong>
+                                Playa del Carmen
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="follow-up-help">
+
+                        <span class="eyebrow">
+                            IMPORTANTE
+                        </span>
+
+                        <h2>
+                            Mantén actualizada
+                            la información.
+                        </h2>
+
+                        <p>
+                            El seguimiento permite conservar un registro
+                            organizado del proceso posterior a la adopción
+                            y facilita la comunicación con la organización.
+                        </p>
+
+                    </div>
+
+                </aside>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="site-footer">
+
+        <div class="footer-container">
+
+            <div class="footer-brand">
+
+                <a
+                    href="index.html"
+                    class="brand"
+                    aria-label="PetHop"
+                >
+                    <img
+                        src="img/image1.png"
+                        alt="PetHop"
+                    >
+                </a>
+
+                <p>
+                    Plataforma digital para facilitar
+                    procesos de adopción responsable.
+                </p>
+
+            </div>
+
+            <div class="footer-column">
+
+                <h2>Explorar</h2>
+
+                <a href="explorar.html">
+                    Mascotas
+                </a>
+
+                <a href="index.html#como-funciona">
+                    Cómo funciona
+                </a>
+
+                <a href="seguimiento.html">
+                    Seguimiento
+                </a>
+
+            </div>
+
+            <div class="footer-column">
+
+                <h2>Organizaciones</h2>
+
+                <a href="index.html#registrar">
+                    Registrar refugio
+                </a>
+
+                <a href="acceso.html">
+                    Iniciar sesión
+                </a>
+
+            </div>
+
+        </div>
+
+        <div class="footer-bottom">
+
+            <span>
+                © 2026 PetHop
+            </span>
+
+            <span>
+                Adopción responsable
+            </span>
+
+        </div>
+
+    </footer>
+
+    <script src="js/vendor/lucide.min.js"></script>
+    <script src="js/site-navigation.js?v=20261013-site-menu-1"></script>
+    <script src="js/pethop-data.js?v=20261013-data-1"></script>
+    <script src="app.js?v=20261013-nav-fix-2"></script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
