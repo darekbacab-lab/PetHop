@@ -10,10 +10,10 @@ function initializeMenu() {
         return;
     }
 
+    if (mainMenu.parentElement !== document.body) document.body.append(mainMenu);
+
     mainMenu.inert = true;
     mainMenu.setAttribute("aria-hidden", "true");
-
-    const isProviderMobile = () => providerPage && window.matchMedia("(max-width: 760px)").matches;
 
     const currentPage = window.location.pathname.split("/").pop().toLowerCase() || "index.html";
     mainMenu.querySelectorAll("a[href]").forEach(link => {
@@ -33,6 +33,22 @@ function initializeMenu() {
         indicator.setAttribute("aria-hidden", "true");
         mainMenu.prepend(indicator);
     }
+
+    if (!mainMenu.querySelector(".menu-drawer-header")) {
+        const drawerHeader = document.createElement("div");
+        drawerHeader.className = "menu-drawer-header";
+        drawerHeader.innerHTML = `
+            <a class="menu-drawer-brand" href="index.html" aria-label="PetHop, inicio">
+                <img src="img/image1.png" alt="PetHop">
+            </a>
+            <button class="menu-drawer-close" type="button" aria-label="Cerrar menú">
+                <i data-lucide="x" aria-hidden="true"></i>
+            </button>
+        `;
+        indicator.after(drawerHeader);
+        drawerHeader.querySelector(".menu-drawer-close").addEventListener("click", () => closeMenu(true));
+    }
+    try { window.lucide?.createIcons({ root: mainMenu }); } catch (error) { console.error("No se pudieron actualizar los iconos del menú.", error); }
 
     const backdrop = document.createElement("div");
     backdrop.className = "menu-backdrop";
@@ -65,9 +81,9 @@ function initializeMenu() {
 
         const providerSidebar = providerPage && document.querySelector(".provider-sidebar");
         providerSidebar?.classList.remove("is-open");
-        if (providerSidebar && isProviderMobile()) {
-            providerSidebar.inert = true;
-            providerSidebar.setAttribute("aria-hidden", "true");
+        if (providerSidebar) {
+            providerSidebar.inert = false;
+            providerSidebar.setAttribute("aria-hidden", "false");
         }
         mainMenu.classList.remove("open");
         mainMenu.inert = true;
@@ -120,7 +136,7 @@ function initializeMenu() {
         document.body.classList.add("menu-open");
         backdrop.classList.add("is-visible");
         const selectedItem = mainMenu.querySelector('[aria-current="page"]');
-        const focusTarget = selectedItem || mainMenu.querySelector("a[href]") || mainMenu.querySelector(".menu-favorites");
+        const focusTarget = selectedItem || mainMenu.querySelector(".menu-drawer-close") || mainMenu.querySelector("a[href]") || mainMenu.querySelector(".menu-favorites");
         positionIndicator(selectedItem, false);
         window.requestAnimationFrame(() => {
             if (!mainMenu.classList.contains("open")) return;
@@ -142,7 +158,7 @@ function initializeMenu() {
     });
 
     mainMenu.addEventListener("click", event => {
-        const link = event.target.closest("a, .menu-favorites");
+        const link = event.target.closest(".nav-link, .menu-favorites");
 
         if (link) {
             if (link.matches("a[href]")) {
@@ -171,21 +187,16 @@ function initializeMenu() {
 
     if (providerPage) {
         const providerSidebar = document.querySelector(".provider-sidebar");
-        if (providerSidebar && isProviderMobile()) {
-            providerSidebar.inert = true;
-            providerSidebar.setAttribute("aria-hidden", "true");
+        if (providerSidebar) {
+            providerSidebar.inert = false;
+            providerSidebar.setAttribute("aria-hidden", "false");
         }
         window.addEventListener("resize", () => {
             const sidebar = document.querySelector(".provider-sidebar");
             if (!sidebar) return;
-            if (!isProviderMobile()) {
-                closeMenu();
-                sidebar.inert = false;
-                sidebar.setAttribute("aria-hidden", "false");
-            } else if (!sidebar.classList.contains("is-open")) {
-                sidebar.inert = true;
-                sidebar.setAttribute("aria-hidden", "true");
-            }
+            closeMenu();
+            sidebar.inert = false;
+            sidebar.setAttribute("aria-hidden", "false");
         });
     }
 

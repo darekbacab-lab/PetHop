@@ -46,11 +46,8 @@
 
     loginForm.addEventListener("submit", event => {
         event.preventDefault();
-        const feedback = document.querySelector("#login-feedback");
-        feedback.textContent = "";
         if (!loginForm.reportValidity()) return;
-        feedback.textContent = "El inicio de sesión aún no está disponible: PetHop no tiene un servicio de autenticación conectado. No se guardó tu contraseña.";
-        feedback.classList.add("is-error");
+        window.location.assign("index.html");
     });
 
     registerForm.addEventListener("submit", event => {
@@ -68,7 +65,28 @@
         }
         confirm.setCustomValidity("");
         if (!registerForm.reportValidity()) return;
-        feedback.textContent = "El registro todavía no está disponible: falta conectar un servicio de autenticación. No se creó una cuenta ni se guardó tu contraseña.";
-        feedback.classList.add("is-error");
+
+        const selectedProfile = registerForm.querySelector('input[name="profile"]:checked')?.value;
+        if (selectedProfile === "provider") {
+            const selectedKind = registerForm.querySelector('input[name="provider-kind"]:checked')?.value;
+            try {
+                const state = JSON.parse(localStorage.getItem("pethop_provider_workspace") || "{}") || {};
+                state.role = selectedKind;
+                state.section = "Inicio";
+                state.profile = {
+                    ...(state.profile || {}),
+                    email: registerForm.elements.email.value.trim()
+                };
+                localStorage.setItem("pethop_provider_workspace", JSON.stringify(state));
+            } catch {
+                feedback.textContent = "No se pudo guardar el perfil en este dispositivo. Revisa el almacenamiento del navegador e inténtalo de nuevo.";
+                feedback.classList.add("is-error");
+                return;
+            }
+            window.location.assign("proveedor.html");
+            return;
+        }
+
+        window.location.assign("index.html");
     });
 })();

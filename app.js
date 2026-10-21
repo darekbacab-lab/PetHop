@@ -986,6 +986,16 @@ function initializeAdoptionForm() {
         return;
     }
 
+    const responsibilityCheckbox = form.querySelector("#responsibleAdoption");
+    const submitButton = form.querySelector('button[type="submit"]');
+    if (responsibilityCheckbox && submitButton) {
+        const syncSubmitAvailability = () => {
+            submitButton.disabled = !responsibilityCheckbox.checked;
+        };
+        responsibilityCheckbox.addEventListener("change", syncSubmitAvailability);
+        syncSubmitAvailability();
+    }
+
     const dateInputs = form.querySelectorAll(
         'input[type="date"]'
     );
@@ -1200,7 +1210,7 @@ function initializeFollowUpForm() {
 function initializeOrganizationRegistration() {
     document.addEventListener("click", event => {
         const button = event.target.closest(
-            '[href="#registrar"], [data-register-organization], #registerOrganizationButton, .organization-button'
+            '[href="#registrar"], [data-register-organization], #registerOrganizationButton'
         );
 
         if (!button) {
@@ -1267,7 +1277,7 @@ function initializeOrganizationRegistration() {
                     required
                 ></textarea>
 
-                <button type="submit">
+                <button type="submit" class="organization-button organization-submit">
                     Enviar registro
                 </button>
 
@@ -1285,14 +1295,27 @@ function initializeOrganizationRegistration() {
                 return;
             }
 
-            document
-                .querySelector(".dynamic-modal")
-                ?.remove();
+            const data = new FormData(form);
+            let state = {};
+            try {
+                state = JSON.parse(localStorage.getItem("pethop_provider_workspace") || "{}") || {};
+                state.role = "organization";
+                state.section = "Inicio";
+                state.profile = {
+                    ...(state.profile || {}),
+                    name: String(data.get("organization") || "").trim(),
+                    contact: String(data.get("contact") || "").trim(),
+                    email: String(data.get("email") || "").trim(),
+                    phone: String(data.get("phone") || "").trim(),
+                    description: String(data.get("description") || "").trim()
+                };
+                localStorage.setItem("pethop_provider_workspace", JSON.stringify(state));
+            } catch {
+                showToast("No se pudo guardar el registro en este dispositivo. Inténtalo de nuevo.", "error");
+                return;
+            }
 
-            showToast(
-                "Este formulario pertenece al prototipo y todavía no se envía a una organización.",
-                "normal"
-            );
+            window.location.assign("proveedor.html");
         });
     });
 }

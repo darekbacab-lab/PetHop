@@ -1,0 +1,571 @@
+/* Styles for the adoption request page. */
+.application-page {
+    background: var(--white);
+}
+
+/* The shared sticky header covered fields while scrolling through this long form. */
+.application-page .site-header {
+    position: relative;
+}
+
+.application-page .header-container,
+.application-page .application-header-container,
+.application-page .application-container,
+.application-page .footer-container {
+    width: min(var(--container-width), calc(100% - 48px));
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.application-page .application-header {
+    padding: clamp(36px, 5vw, 64px) 0 28px;
+    margin: 0;
+    background: var(--background);
+}
+
+.application-page .application-header-container {
+    max-width: var(--container-width);
+}
+
+.application-page .application-header h1 {
+    max-width: 780px;
+    margin-bottom: 12px;
+    font-size: clamp(2.35rem, 5vw, 4rem);
+    line-height: 1.08;
+    letter-spacing: -0.045em;
+    overflow-wrap: break-word;
+}
+
+.application-page .application-header p {
+    max-width: 660px;
+    color: var(--text-soft);
+    font-size: clamp(1rem, 1.6vw, 1.15rem);
+    line-height: 1.65;
+}
+
+.application-page .application-section {
+    padding: 32px 0 clamp(48px, 7vw, 88px);
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    background: var(--white);
+}
+
+.application-page .application-container {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
+    align-items: start;
+    gap: clamp(32px, 5vw, 72px);
+    max-width: var(--container-width);
+}
+
+.application-page .application-main {
+    min-width: 0;
+    padding: 0;
+    background: transparent;
+}
+
+.application-page .application-form {
+    display: grid;
+    gap: 0;
+    min-width: 0;
+}
+
+.application-page .form-section {
+    min-width: 0;
+    padding: 0 0 30px;
+    margin: 0 0 30px;
+    border: 0;
+    border-bottom: 1px solid var(--border);
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.application-page .form-section-heading {
+    margin: 0 0 22px;
+}
+
+.application-page .form-section-heading > div {
+    min-width: 0;
+}
+
+.application-page .form-section-heading .eyebrow {
+    display: block;
+    margin: 0 0 7px;
+    color: var(--primary-dark);
+    font-size: .73rem;
+    font-weight: 800;
+    letter-spacing: .09em;
+    line-height: 1.4;
+}
+
+.application-page .form-section-heading h2 {
+    margin: 0 0 7px;
+    color: var(--text);
+    font-size: clamp(1.3rem, 2.3vw, 1.65rem);
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+
+.application-page .form-section-heading p {
+    max-width: 620px;
+    color: var(--text-soft);
+    line-height: 1.6;
+}
+
+.application-page .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 18px;
+}
+
+.application-page .form-field {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.application-page .form-field-full {
+    grid-column: 1 / -1;
+}
+
+.application-page .form-field > label {
+    color: var(--text);
+    font-size: .9rem;
+    font-weight: 700;
+    line-height: 1.45;
+}
+
+.application-page .form-field:has(:required) > label::after {
+    content: " *";
+    color: var(--primary-strong);
+}
+
+.application-page .form-field input,
+.application-page .form-field select,
+.application-page .form-field textarea {
+    width: 100%;
+    min-width: 0;
+    min-height: 50px;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--background);
+    color: var(--text);
+    font: inherit;
+    font-size: .9rem;
+    line-height: 1.5;
+    transition: border-color var(--transition), box-shadow var(--transition), background-color var(--transition);
+}
+
+.application-page .form-field textarea {
+    min-height: 132px;
+    resize: vertical;
+}
+
+.application-page .form-field input:focus-visible,
+.application-page .form-field select:focus-visible,
+.application-page .form-field textarea:focus-visible {
+    border-color: var(--primary-strong);
+    background: var(--white);
+    outline: 3px solid rgba(22, 127, 135, .2);
+    outline-offset: 1px;
+    box-shadow: none;
+}
+
+.application-page .application-pet-card {
+    display: grid;
+    grid-template-columns: minmax(180px, 34%) minmax(0, 1fr);
+    overflow: hidden;
+    margin: 0 0 30px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--background);
+    box-shadow: none;
+}
+
+.application-page .application-pet-image {
+    width: 100%;
+    height: 100%;
+    min-height: 190px;
+    background-position: center 38%;
+    background-size: cover;
+}
+
+.application-page .application-pet-content {
+    min-width: 0;
+    padding: 20px 22px;
+}
+
+.application-page .application-pet-content .pet-species {
+    color: var(--text-soft);
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+}
+
+.application-page .application-pet-content h2 {
+    margin: 3px 0 2px;
+    color: var(--text);
+    font-size: 1.45rem;
+    line-height: 1.3;
+}
+
+.application-page .application-pet-content > p {
+    margin-bottom: 12px;
+    color: var(--text-soft);
+    font-size: .85rem;
+}
+
+.application-page .application-health {
+    display: grid;
+    gap: 4px;
+    color: var(--text);
+    font-size: .82rem;
+    line-height: 1.5;
+}
+
+.application-page .application-health span {
+    color: var(--text-soft);
+}
+
+.application-page .form-section-confirm {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: transparent;
+}
+
+.application-page .form-section-confirm .form-section-heading {
+    margin-bottom: 16px;
+}
+
+.application-page .checkbox-field {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    color: var(--text);
+    font-size: .92rem;
+    line-height: 1.6;
+}
+
+.application-page .checkbox-field input {
+    width: 19px;
+    height: 19px;
+    min-height: 19px;
+    flex: 0 0 19px;
+    margin: 3px 0 0;
+    accent-color: var(--primary-strong);
+}
+
+.application-page .checkbox-field span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.application-page .application-submit {
+    width: 100%;
+    min-height: 52px;
+    margin-top: 20px;
+    border-color: var(--button-primary-bg);
+    background: var(--button-primary-bg);
+    color: var(--button-primary-text);
+}
+
+.application-page .application-submit:hover:not(:disabled) {
+    border-color: var(--button-primary-hover-bg);
+    background: var(--button-primary-hover-bg);
+    color: var(--button-primary-text);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.application-page .application-submit:disabled {
+    cursor: not-allowed;
+    border-color: var(--disabled);
+    background: var(--disabled);
+    color: var(--white);
+    opacity: 1;
+    pointer-events: none;
+    transform: none;
+}
+
+.application-page .application-sidebar {
+    position: static;
+    min-width: 0;
+}
+
+.application-page .application-process {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    margin: 0;
+}
+
+.application-page .application-process-heading {
+    margin: 0 0 4px;
+}
+
+.application-page .application-process-heading .eyebrow {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--primary-dark);
+    font-size: .73rem;
+    font-weight: 800;
+    letter-spacing: .09em;
+}
+
+.application-page .application-process-heading h2 {
+    font-size: 1.45rem;
+    line-height: 1.3;
+}
+
+.application-page .application-process-step {
+    align-items: flex-start;
+    min-width: 0;
+    padding: 16px;
+    border-radius: var(--radius-md);
+}
+
+.application-page .application-process-step > div {
+    min-width: 0;
+}
+
+.application-page .application-process-step strong {
+    display: block;
+    margin: 1px 0 4px;
+    font-size: .84rem;
+    line-height: 1.45;
+}
+
+.application-page .application-process-step p {
+    color: var(--text-soft);
+    font-size: .88rem;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+}
+
+.application-page .site-footer {
+    padding: 48px 0 24px;
+}
+
+.application-page .footer-container {
+    display: grid;
+    grid-template-columns: minmax(220px, 1.5fr) repeat(2, minmax(150px, 1fr));
+    align-items: start;
+    gap: 40px;
+}
+
+.application-page .footer-brand {
+    max-width: 360px;
+}
+
+.application-page .footer-column h2 {
+    margin-bottom: 8px;
+    color: var(--white);
+    font-size: 1rem;
+    line-height: 1.4;
+}
+
+.application-page .footer-column a {
+    font-size: .86rem;
+    line-height: 1.6;
+}
+
+.application-page .footer-bottom {
+    width: min(var(--container-width), calc(100% - 48px));
+    margin: 36px auto 0;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255, 255, 255, .25);
+    color: rgba(255, 255, 255, .8);
+}
+
+.application-page #adoptionForm :focus-visible {
+    scroll-margin-top: 20px;
+}
+
+@media (max-width: 900px) {
+    .application-page .application-container {
+        grid-template-columns: minmax(0, 1fr) minmax(250px, 300px);
+        gap: 28px;
+    }
+
+    .application-page .application-pet-card {
+        grid-template-columns: 1fr;
+    }
+
+    .application-page .application-pet-image {
+        height: 180px;
+        min-height: 0;
+        background-position: center 36%;
+    }
+}
+
+@media (max-width: 760px) {
+    .application-page .header-container,
+    .application-page .application-header-container,
+    .application-page .application-container,
+    .application-page .footer-container,
+    .application-page .footer-bottom {
+        width: calc(100% - 32px);
+    }
+
+    .application-page .application-header {
+        padding: 30px 0 20px;
+    }
+
+    .application-page .application-header h1 {
+        font-size: clamp(2.15rem, 8vw, 3rem);
+        line-height: 1.12;
+    }
+
+    .application-page .application-section {
+        padding-top: 22px;
+    }
+
+    .application-page .application-container {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 36px;
+    }
+
+    .application-page .application-sidebar {
+        grid-row: 2;
+    }
+
+    .application-page .application-pet-card {
+        grid-template-columns: minmax(150px, 38%) minmax(0, 1fr);
+    }
+
+    .application-page .application-pet-image {
+        height: 100%;
+        min-height: 170px;
+    }
+
+    .application-page .footer-container {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 28px 24px;
+    }
+
+    .application-page .footer-brand {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 520px) {
+    .application-page .header-container,
+    .application-page .application-header-container,
+    .application-page .application-container,
+    .application-page .footer-container,
+    .application-page .footer-bottom {
+        width: calc(100% - 28px);
+    }
+
+    .application-page .application-header {
+        padding: 24px 0 16px;
+    }
+
+    .application-page .application-header h1 {
+        font-size: clamp(1.95rem, 8.7vw, 2.55rem);
+        letter-spacing: -.04em;
+    }
+
+    .application-page .application-header p {
+        font-size: .98rem;
+        line-height: 1.55;
+    }
+
+    .application-page .application-section {
+        padding-top: 18px;
+    }
+
+    .application-page .form-section {
+        padding-bottom: 24px;
+        margin-bottom: 24px;
+    }
+
+    .application-page .form-section-heading {
+        margin-bottom: 18px;
+    }
+
+    .application-page .form-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 16px;
+    }
+
+    .application-page .form-field-full {
+        grid-column: auto;
+    }
+
+    .application-page .application-pet-card {
+        grid-template-columns: minmax(0, 1fr);
+        margin-bottom: 24px;
+    }
+
+    .application-page .application-pet-image {
+        height: 154px;
+        min-height: 0;
+        background-position: center 34%;
+    }
+
+    .application-page .application-pet-content {
+        padding: 16px;
+    }
+
+    .application-page .form-section-confirm .form-section-heading {
+        margin-bottom: 12px;
+    }
+
+    .application-page .checkbox-field {
+        gap: 9px;
+        font-size: .88rem;
+    }
+
+    .application-page .application-submit {
+        margin-top: 16px;
+    }
+
+    .application-page .footer-container {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 24px;
+    }
+
+    .application-page .footer-brand {
+        grid-column: auto;
+    }
+}
+
+@media (max-width: 340px) {
+    .application-page .header-container,
+    .application-page .application-header-container,
+    .application-page .application-container,
+    .application-page .footer-container,
+    .application-page .footer-bottom {
+        width: calc(100% - 24px);
+    }
+
+    .application-page .application-header h1 {
+        font-size: 1.85rem;
+    }
+
+    .application-page .header-container {
+        gap: 4px;
+    }
+
+    .application-page .brand {
+        width: 72px;
+    }
+
+    .application-page .brand img {
+        width: 100%;
+    }
+
+    .application-page .header-right {
+        gap: 2px;
+    }
+
+    .application-page .application-pet-image {
+        height: 138px;
+    }
+}

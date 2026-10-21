@@ -6,6 +6,8 @@
         const menu = document.querySelector("#main-menu");
         if (!toggle || !menu || document.body.classList.contains("provider-page")) return;
 
+        if (menu.parentElement !== document.body) document.body.append(menu);
+
         const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
         let backdrop = document.querySelector(".menu-backdrop");
         if (!backdrop) {
@@ -25,6 +27,20 @@
             menu.prepend(node);
             return node;
         })();
+        if (!menu.querySelector(".menu-drawer-header")) {
+            const drawerHeader = document.createElement("div");
+            drawerHeader.className = "menu-drawer-header";
+            drawerHeader.innerHTML = `
+                <a class="menu-drawer-brand" href="index.html" aria-label="PetHop, inicio">
+                    <img src="img/image1.png" alt="PetHop">
+                </a>
+                <button class="menu-drawer-close" type="button" aria-label="Cerrar menú">
+                    <i data-lucide="x" aria-hidden="true"></i>
+                </button>
+            `;
+            indicator.after(drawerHeader);
+        }
+        const drawerClose = menu.querySelector(".menu-drawer-close");
 
         const current = (location.pathname.split("/").pop() || "index.html").toLowerCase();
         const profilePage = ["mascota.html", "solicitud.html"].includes(current);
@@ -63,6 +79,8 @@
             indicator.classList.remove("is-visible", "is-moving");
             if (restoreFocus) toggle.focus({ preventScroll: true });
         };
+        drawerClose?.addEventListener("click", () => close(true));
+        try { window.lucide?.createIcons({ root: menu }); } catch (error) { console.error("No se pudieron actualizar los iconos del menú.", error); }
 
         const open = () => {
             menu.inert = false;
@@ -80,7 +98,7 @@
             requestAnimationFrame(() => {
                 if (!menu.classList.contains("open")) return;
                 placeIndicator(active, false);
-                (active || links[0] || menu.querySelector(".menu-favorites"))?.focus({ preventScroll: true });
+                (active || drawerClose || links[0] || menu.querySelector(".menu-favorites"))?.focus({ preventScroll: true });
             });
         };
 
@@ -99,7 +117,7 @@
         });
         backdrop.addEventListener("click", () => close(true));
         menu.addEventListener("click", event => {
-            const link = event.target.closest("a[href]");
+            const link = event.target.closest(".nav-link");
             const favorite = event.target.closest(".menu-favorites");
             if (link) {
                 event.preventDefault();

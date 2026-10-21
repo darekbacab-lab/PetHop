@@ -9,14 +9,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css?v=20261013-nav-fix-2">
+    <link rel="stylesheet" href="css/styles.css?v=20261020-auth-3">
+    <link rel="stylesheet" href="css/acceso.css?v=20261020-auth-3">
 </head>
 <body class="auth-page">
     <header class="auth-header">
         <a class="brand" href="index.html" aria-label="PetHop, volver al inicio">
             <img src="img/image1.png" alt="PetHop">
         </a>
-        <a class="auth-back-link" href="index.html">Volver al inicio</a>
     </header>
 
     <main class="auth-layout">
@@ -36,7 +36,7 @@
                     <input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="Tu contraseña" minlength="8" required>
                     <button class="auth-password-toggle" type="button" data-password-toggle="login-password" aria-pressed="false">Mostrar</button>
                 </div>
-                <button class="btn-primary auth-submit" type="submit">Iniciar sesión</button>
+                <button class="login-button auth-submit" type="submit">Iniciar sesión</button>
                 <p class="auth-feedback" id="login-feedback" role="status" aria-live="polite"></p>
                 <p class="auth-switch-copy">¿Aún no tienes cuenta? <button type="button" class="auth-text-button" data-auth-show="register">Crear cuenta</button></p>
             </form>
@@ -70,7 +70,7 @@
                 </div>
                 <label for="register-confirm">Confirmar contraseña</label>
                 <input id="register-confirm" name="confirm" type="password" autocomplete="new-password" placeholder="Repite tu contraseña" minlength="8" required>
-                <button class="btn-primary auth-submit" type="submit">Crear cuenta</button>
+                <button class="organization-button auth-submit" type="submit">Crear cuenta</button>
                 <p class="auth-feedback" id="register-feedback" role="status" aria-live="polite"></p>
                 <p class="auth-switch-copy">¿Ya tienes cuenta? <button type="button" class="auth-text-button" data-auth-show="login">Iniciar sesión</button></p>
             </form>
@@ -79,11 +79,10 @@
         <aside class="auth-aside" aria-label="Adopción responsable en PetHop">
             <span class="auth-aside-mark" aria-hidden="true">♡</span>
             <span class="eyebrow">ADOPCIÓN RESPONSABLE</span>
-            <h2>Un buen encuentro empieza con información clara.</h2>
+            <h2>Un buen encuentro empieza con <span>información clara.</span></h2>
             <p>PetHop reúne perfiles de mascotas, solicitudes y seguimiento para acompañar cada adopción con responsabilidad.</p>
-            <a href="explorar.html" class="auth-explore-link">Conocer mascotas <span aria-hidden="true">→</span></a>
         </aside>
     </main>
-    <script src="js/acceso.js"></script>
+    <script src="js/acceso.js?v=20261020-register-provider-2"></script>
 </body>
 </html>
