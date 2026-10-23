@@ -1,4 +1,4 @@
-﻿"use strict";
+"use strict";
 
 const STORAGE_KEYS = {
     favorites: "pethop_favorites",
@@ -7,6 +7,16 @@ const STORAGE_KEYS = {
     user: "pethop_user",
     messages: "pethop_messages"
 };
+
+const LEGACY_GLOBAL_HOOKS = window.__pethopLegacyGlobalHooks || (window.__pethopLegacyGlobalHooks = new Set());
+const petHopStorage = window.PetHopStorage || localStorage;
+const petHopSessionStorage = window.PetHopSessionStorage || sessionStorage;
+
+function addLegacyGlobalListener(key, target, type, handler, options) {
+    if (LEGACY_GLOBAL_HOOKS.has(key)) return;
+    target.addEventListener(type, handler, options);
+    LEGACY_GLOBAL_HOOKS.add(key);
+}
 
 const PET_DIRECTORY = {
     chino: { id: "chino", name: "Chino", species: "Perro", age: "Adulto", gender: "Macho", size: "Mediano", location: "Playa del Carmen" },
@@ -24,7 +34,7 @@ const PET_GALLERY_PHOTOS = {
 let modalReturnFocus = null;
 
 function getPetDirectory() {
-    return window.PetHopData?.petDirectory(PET_DIRECTORY, localStorage) || PET_DIRECTORY;
+    return window.PetHopData?.petDirectory(PET_DIRECTORY, petHopStorage) || PET_DIRECTORY;
 }
 
 function safePhotoData(value) {
@@ -40,7 +50,7 @@ function initializePublishedPets() {
     const template = grid.querySelector(".catalog-card");
     if (!template) return;
 
-    window.PetHopData.publishedPets(localStorage, existingIds).forEach(pet => {
+    window.PetHopData.publishedPets(petHopStorage, existingIds).forEach(pet => {
         const card = template.cloneNode(true);
         const petId = String(pet.id).toLowerCase();
         card.dataset.name = pet.name || "Mascota";
@@ -89,7 +99,7 @@ function initializePublishedPets() {
 const PetHop = {
     get(key, fallback = null) {
         try {
-            const value = localStorage.getItem(key);
+            const value = petHopStorage.getItem(key);
             return value === null ? fallback : JSON.parse(value);
         } catch {
             return fallback;
@@ -98,8 +108,7 @@ const PetHop = {
 
     set(key, value) {
         try {
-            localStorage.setItem(key, JSON.stringify(value));
-            return true;
+            return petHopStorage.write(key, value);
         } catch {
             return false;
         }
@@ -107,7 +116,7 @@ const PetHop = {
 
     remove(key) {
         try {
-            localStorage.removeItem(key);
+            petHopStorage.removeItem(key);
         } catch {}
     }
 };
@@ -370,7 +379,7 @@ function getPetDataFromElement(element) {
 }
 
 function initializeFavorites() {
-    document.addEventListener("click", event => {
+    addLegacyGlobalListener("favorites-click", document, "click", event => {
         const button = event.target.closest("[data-favorite]");
 
         if (!button) {
@@ -400,7 +409,7 @@ function initializeFavorites() {
 
     updateFavoriteButtons();
 
-    window.addEventListener("storage", event => {
+    addLegacyGlobalListener("favorites-storage", window, "storage", event => {
         if (event.key === STORAGE_KEYS.favorites || event.key === null) updateFavoriteButtons();
     });
 }
@@ -414,7 +423,7 @@ function initializeButtonEffects(root = document) {
 }
 
 function initializeFavoritesMenu() {
-    document.addEventListener("click", event => {
+    addLegacyGlobalListener("favorites-menu-click", document, "click", event => {
         const button = event.target.closest(".favorites-button");
 
         if (!button) {
@@ -824,7 +833,7 @@ function initializeGallery() {
     const requestedPetId = requestedPet.toLowerCase();
     let selectedPet = null;
     try {
-        selectedPet = JSON.parse(sessionStorage.getItem("pethop_selected_pet") || "null");
+        selectedPet = JSON.parse(petHopSessionStorage.getItem("pethop_selected_pet") || "null");
     } catch {}
     if (selectedPet?.id !== requestedPetId) selectedPet = null;
     const pet = { ...getPetDirectory()[requestedPetId], ...(selectedPet || {}) };
@@ -1208,7 +1217,7 @@ function initializeFollowUpForm() {
 }
 
 function initializeOrganizationRegistration() {
-    document.addEventListener("click", event => {
+    addLegacyGlobalListener("organization-registration-click", document, "click", event => {
         const button = event.target.closest(
             '[href="#registrar"], [data-register-organization], #registerOrganizationButton'
         );
@@ -1298,7 +1307,7 @@ function initializeOrganizationRegistration() {
             const data = new FormData(form);
             let state = {};
             try {
-                state = JSON.parse(localStorage.getItem("pethop_provider_workspace") || "{}") || {};
+                state = petHopStorage.read("pethop_provider_workspace", {}) || {};
                 state.role = "organization";
                 state.section = "Inicio";
                 state.profile = {
@@ -1309,7 +1318,7 @@ function initializeOrganizationRegistration() {
                     phone: String(data.get("phone") || "").trim(),
                     description: String(data.get("description") || "").trim()
                 };
-                localStorage.setItem("pethop_provider_workspace", JSON.stringify(state));
+                petHopStorage.write("pethop_provider_workspace", state);
             } catch {
                 showToast("No se pudo guardar el registro en este dispositivo. Inténtalo de nuevo.", "error");
                 return;
@@ -1369,7 +1378,7 @@ function initializeCardLinks() {
                 photos: record?.photos || []
             };
             try {
-                sessionStorage.setItem("pethop_selected_pet", JSON.stringify(pet));
+                petHopSessionStorage.setItem("pethop_selected_pet", JSON.stringify(pet));
             } catch {}
             window.location.href = `mascota.html?pet=${encodeURIComponent(petId)}`;
         };
@@ -1393,7 +1402,7 @@ function initializeCardLinks() {
 }
 
 function initializeSmoothLinks() {
-    document.addEventListener("click", event => {
+    addLegacyGlobalListener("smooth-links-click", document, "click", event => {
         const link = event.target.closest(
             'a[href^="#"]'
         );
@@ -1611,13 +1620,9 @@ function initializeRevealAnimations() {
 }
 
 function initializeScrollProgress() {
-    const progress =
-        document.createElement("div");
-
-    progress.className =
-        "scroll-progress";
-
-    document.body.appendChild(progress);
+    const progress = document.querySelector(".scroll-progress") || document.createElement("div");
+    progress.className = "scroll-progress";
+    if (!progress.isConnected) document.body.appendChild(progress);
 
     const update = () => {
         const scrollTop =
@@ -1643,22 +1648,16 @@ function initializeScrollProgress() {
             ) + "%";
     };
 
-    window.addEventListener(
-        "scroll",
-        update,
-        { passive: true }
-    );
-
-    window.addEventListener(
-        "resize",
-        update
-    );
+    addLegacyGlobalListener("scroll-progress-scroll", window, "scroll", update, { passive: true });
+    addLegacyGlobalListener("scroll-progress-resize", window, "resize", update);
 
     update();
 }
 
 function initializeKeyboardShortcuts() {
-    document.addEventListener(
+    addLegacyGlobalListener(
+        "keyboard-shortcuts",
+        document,
         "keydown",
         event => {
             const target =
@@ -1743,7 +1742,9 @@ function initializeFormAnimations() {
 }
 
 function initializePageTransitions() {
-    document.addEventListener(
+    addLegacyGlobalListener(
+        "page-transitions-click",
+        document,
         "click",
         event => {
             const link =
@@ -1945,7 +1946,9 @@ function initializeFollowUpStatus() {
 }
 
 function initializeBackButtons() {
-    document.addEventListener(
+    addLegacyGlobalListener(
+        "back-buttons-click",
+        document,
         "click",
         event => {
             const button =
@@ -2028,7 +2031,7 @@ function initializePetProfile() {
 
     let selectedPet = null;
     try {
-        selectedPet = JSON.parse(sessionStorage.getItem("pethop_selected_pet") || "null");
+        selectedPet = JSON.parse(petHopSessionStorage.getItem("pethop_selected_pet") || "null");
     } catch {}
     if (selectedPet?.id !== requestedPetId) selectedPet = null;
     const directory = getPetDirectory();
@@ -2129,7 +2132,7 @@ function initializeApplicationPet() {
     const requestedId = (params.get("pet") || "chino").toLowerCase();
     let selectedPet = null;
     try {
-        selectedPet = JSON.parse(sessionStorage.getItem("pethop_selected_pet") || "null");
+        selectedPet = JSON.parse(petHopSessionStorage.getItem("pethop_selected_pet") || "null");
     } catch {}
     if (selectedPet?.id !== requestedId) selectedPet = null;
     const pet = { ...getPetDirectory()[requestedId], ...(selectedPet || {}) };
@@ -2182,7 +2185,7 @@ function initializeExternalNavigation() {
                 "click",
                 () => {
                         try {
-                            sessionStorage.setItem(
+                            petHopSessionStorage.setItem(
                                 "pethop_previous_page",
                                 window.location.href
                             );
@@ -2242,7 +2245,7 @@ if (document.readyState === "loading") {
 
 
 function getChatThreads() {
-    if (window.PetHopData) return window.PetHopData.messages(localStorage);
+    if (window.PetHopData) return window.PetHopData.messages(petHopStorage);
     const threads = PetHop.get(STORAGE_KEYS.messages, []);
     return Array.isArray(threads)
         ? threads
@@ -2309,7 +2312,7 @@ function openChatThread(petId, petName) {
         activeThread.updatedAt = new Date().toISOString();
         activeThread.messages.push({ sender: "adopter", text, createdAt: activeThread.updatedAt });
         const saved = window.PetHopData
-            ? window.PetHopData.write(localStorage, STORAGE_KEYS.messages, threads)
+            ? window.PetHopData.write(petHopStorage, STORAGE_KEYS.messages, threads)
             : PetHop.set(STORAGE_KEYS.messages, threads);
         if (!saved) {
             showToast("No se pudo guardar el mensaje en este navegador.", "error");
@@ -2339,7 +2342,7 @@ function openMessagesInbox() {
 }
 
 function initializeMessaging() {
-    document.addEventListener("click", event => {
+    addLegacyGlobalListener("messaging-click", document, "click", event => {
         const inboxButton = event.target.closest(".messages-button");
         if (inboxButton) {
             event.preventDefault();
