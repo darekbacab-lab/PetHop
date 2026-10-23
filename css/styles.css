@@ -20,7 +20,7 @@
     --white: #FFFFFF;
     --surface: #FFFFFF;
     --text: #313434;
-    --text-soft: #616363;
+    --text-soft: #4A5556;
     --border: #AEDBE0;
     --border-dark: #2C5357;
     --success: #287451;
@@ -4530,7 +4530,7 @@ textarea {
 .provider-account-badge span { font-weight: 800; font-size: .9rem; }
 .provider-account-badge small { color: var(--text-soft); font-size: .75rem; }
 .provider-sidebar nav { display: grid; gap: 4px; }
-.provider-nav-item { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 9px 12px; font-size: .82rem; border: 0; border-radius: 11px; background: transparent; color: #536064; text-align: left; cursor: pointer; font-weight: 600; }
+.provider-nav-item { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 9px 12px; font-size: .82rem; border: 0; border-radius: 11px; background: transparent; color: #4A5556; text-align: left; cursor: pointer; font-weight: 600; }
 .provider-nav-item > svg { width: 19px; height: 19px; flex: 0 0 auto; }
 .provider-nav-item span { flex: 1; min-width: 0; white-space: nowrap; }
 .provider-nav-item b { min-width: 22px; padding: 1px 6px; border-radius: 20px; background: #def1f2; color: var(--primary-strong); text-align: center; font-size: .72rem; }
@@ -4605,7 +4605,7 @@ textarea {
 .provider-publish-layout { display:grid;grid-template-columns:minmax(0,1fr) 280px;align-items:start;gap:20px; }
 .provider-publish-panel { padding:24px; }
 .provider-steps { display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px; }
-.provider-step { display:grid;justify-items:center;gap:7px;padding:4px;border:0;background:transparent;color:#738184;text-align:center;cursor:pointer; }
+.provider-step { display:grid;justify-items:center;gap:7px;padding:4px;border:0;background:transparent;color:#4A5556;text-align:center;cursor:pointer; }
 .provider-step > span { display:grid;place-items:center;width:34px;height:34px;border:1px solid var(--border);border-radius:50%;background:#fff;font-size:.72rem;font-weight:800; }
 .provider-step > span svg { width:17px; }.provider-step small { font-size:.65rem;font-weight:700;line-height:1.2; }
 .provider-step.is-current { color:var(--primary-strong); }.provider-step.is-current > span,.provider-step.is-done > span { background:var(--primary-strong);border-color:var(--primary-strong);color:#fff; }
@@ -4666,6 +4666,57 @@ textarea {
 .action-card .action-content {
     position: relative;
     z-index: 1;
+}
+
+.action-card .action-content { z-index: 2; }
+
+.action-paw-trail {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.action-paw {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    color: #55AEB5;
+    opacity: 0;
+    transform: translateY(7px) scale(.76) rotate(-20deg);
+    transition: opacity .28s ease, transform .48s cubic-bezier(.2,.7,.25,1);
+}
+
+.action-paw-one { left: 54%; top: 67%; transition-delay: 0ms; }
+.action-paw-two { left: 78%; top: 55%; width: 30px; height: 30px; transform: translateY(7px) scale(.76) rotate(23deg); transition-delay: 55ms; }
+.action-paw-four { left: 90%; top: 24%; width: 30px; height: 30px; transform: translateY(7px) scale(.76) rotate(20deg); transition-delay: 165ms; }
+.action-paw-five { left: 75%; top: 7%; width: 23px; height: 23px; transform: translateY(7px) scale(.76) rotate(-16deg); transition-delay: 220ms; }
+.action-paw-six { left: 90%; top: 48%; width: 24px; height: 24px; transform: translateY(7px) scale(.76) rotate(-24deg); transition-delay: 275ms; }
+.action-paw-seven { left: 82%; top: 78%; width: 28px; height: 28px; transform: translateY(7px) scale(.76) rotate(20deg); transition-delay: 330ms; }
+
+.action-card:hover .action-paw,
+.action-card:focus-visible .action-paw {
+    opacity: .46;
+    transform: translateY(0) scale(1) rotate(0deg);
+}
+
+.action-card:hover .action-paw-one,
+.action-card:hover .action-paw-five,
+.action-card:hover .action-paw-six,
+.action-card:focus-visible .action-paw-one,
+.action-card:focus-visible .action-paw-five,
+.action-card:focus-visible .action-paw-six { transform: translateY(0) scale(1) rotate(-18deg); }
+
+.action-card:hover .action-paw-two,
+.action-card:hover .action-paw-four,
+.action-card:hover .action-paw-seven,
+.action-card:focus-visible .action-paw-two,
+.action-card:focus-visible .action-paw-four,
+.action-card:focus-visible .action-paw-seven { transform: translateY(0) scale(1) rotate(18deg); }
+
+@media (prefers-reduced-motion: reduce) {
+    .action-paw { transition-duration: .01ms; }
 }
 
 @keyframes liquid-spin {
