@@ -1,6 +1,7 @@
 "use strict";
 
 (() => {
+    const storage = window.PetHopStorage || localStorage;
     const KEY = "pethop_provider_workspace";
     const PETS = [
         { id: "chino", name: "Chino", species: "Perro", age: "Adulto", gender: "Macho", status: "Publicada", requests: 3, days: 12, image: "chino" },
@@ -21,8 +22,8 @@
         [["homeType","Tipo de hogar","text"],["conditions","Condiciones necesarias","textarea"],["experience","Experiencia recomendada","textarea"],["requirements","Otros requisitos","textarea"]],
         [["photos","Fotografías","file"]], []
     ];
-    const read = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } };
-    const save = state => { try { localStorage.setItem(KEY, JSON.stringify(state)); return true; } catch { return false; } };
+    const read = () => storage.read(KEY, {}) || {};
+    const save = state => storage.write(KEY, state);
     let state = read();
     state.role ||= "";
     state.section ||= "Inicio";
@@ -34,7 +35,7 @@
     state.step ||= 0;
     state.filter ||= "Todas";
     const appPets = {chino:"Chino",luna:"Luna",milo:"Milo",nala:"Nala",max:"Max",kira:"Kira"};
-    const applications = (() => { try { return JSON.parse(localStorage.getItem("pethop_applications")) || []; } catch { return []; } })();
+    const applications = storage.read("pethop_applications", []) || [];
     const providerStatus = {Recibida:"Nueva", "En revisión":"En revisión", Contactada:"En proceso", Aprobada:"Aceptada", Adoptada:"Adoptada", Rechazada:"Rechazada"};
     const actualRequests = applications.map(application => {
         const data = application.data || {};
@@ -107,7 +108,7 @@
     function completedView() { const pets=state.pets.filter(p=>p.status==="Adoptada"); return `${sectionHeader("NUEVOS HOGARES","Adopciones completadas","Un registro de los encuentros que ya llegaron a un nuevo hogar.")}<div class="provider-pet-grid">${pets.map(petCard).join("")||emptyState("heart-handshake","Aquí veremos las adopciones completadas","Al completar el proceso, la mascota aparecerá en este espacio.")}</div>`; }
     function trackingView() { const steps=["Solicitud recibida","Solicitud en revisión","Contacto realizado","Adopción en preparación","Entrega / encuentro","Seguimiento inicial","Adopción completada"]; return `${sectionHeader("ACOMPAÑAMIENTO","Seguimiento de adopción","Adoptante y persona que da en adopción comparten las etapas del mismo proceso.")}<div class="provider-panel">${state.requests.filter(r=>["Aceptada","En proceso"].includes(r.status)).map(request=>`<div class="provider-track-card"><div class="provider-track-heading"><div><span class="provider-status status-en-proceso">${esc(request.status)}</span><h2>${esc(request.pet)} · ${esc(request.adopter)}</h2></div><button type="button" class="provider-text-action" data-request="${esc(request.id)}">Abrir solicitud ${icon("arrow-right")}</button></div><ol class="provider-timeline">${steps.map((step,i)=>`<li class="${i<=(request.status==="Aceptada"?2:3)?"is-complete":""}"><span>${i<=(request.status==="Aceptada"?2:3)?icon("check"):String(i+1)}</span><div><strong>${step}</strong>${i===0?`<small>${formatDate(request.date)}</small>`:""}</div></li>`).join("")}</ol></div>`).join("")||emptyState("route","Sin seguimientos activos","Los seguimientos de solicitudes aceptadas se organizarán aquí.")}</div>`; }
     function providerConversations() {
-        const shared = window.PetHopData?.providerThreads(localStorage) || [];
+        const shared = window.PetHopData?.providerThreads(storage) || [];
         const legacy = (state.messages || []).filter(message => !shared.some(item => item.id === message.id));
         return [...shared, ...legacy];
     }
@@ -133,8 +134,8 @@
         root.querySelector("[data-verify]")?.addEventListener("click",()=>{state.profile.verificationRequested=true;persist();toast("Solicitud de verificación registrada en este prototipo.");});
         root.querySelector("[name=notify]")?.addEventListener("change",event=>{state.notify=event.target.checked;persist();});
         root.querySelector("[name=verified]")?.addEventListener("change",event=>{state.profile.verified=event.target.checked;persist();renderSection();});
-        root.querySelector("[data-reset]")?.addEventListener("click",()=>{if(confirm("¿Restablecer mascotas y datos de demostración? Las solicitudes reales y conversaciones guardadas se conservarán.")){localStorage.removeItem(KEY);state=read();state.role=state.role||"particular";state.section="Inicio";state.pets=[...PETS];state.requests=[...actualRequests,...DEMO_REQUESTS.filter(demo=>!actualRequests.some(actual=>actual.id===demo.id))];persist();renderDashboard();}});
-        root.querySelector("#provider-message-form")?.addEventListener("submit",event=>{event.preventDefault();const message=providerConversations().find(m=>m.id===state.activeMessage);if(!message)return;const text=event.currentTarget.elements.message.value.trim();if(!text)return;if(window.PetHopData&&window.PetHopData.messages(localStorage).some(thread=>thread.id===message.id)){if(!window.PetHopData.appendMessage(localStorage,message.id,{sender:"provider",text,createdAt:new Date().toISOString()})){toast("No se pudo guardar el mensaje en este dispositivo.");return;}}else{const legacy=state.messages.find(m=>m.id===message.id);if(!legacy)return;legacy.messages||=[];legacy.messages.push({from:"provider",text,date:new Date().toISOString()});persist();}renderSection();});
+        root.querySelector("[data-reset]")?.addEventListener("click",()=>{if(confirm("¿Restablecer mascotas y datos de demostración? Las solicitudes reales y conversaciones guardadas se conservarán.")){storage.removeItem(KEY);state=read();state.role=state.role||"particular";state.section="Inicio";state.pets=[...PETS];state.requests=[...actualRequests,...DEMO_REQUESTS.filter(demo=>!actualRequests.some(actual=>actual.id===demo.id))];persist();renderDashboard();}});
+        root.querySelector("#provider-message-form")?.addEventListener("submit",event=>{event.preventDefault();const message=providerConversations().find(m=>m.id===state.activeMessage);if(!message)return;const text=event.currentTarget.elements.message.value.trim();if(!text)return;if(window.PetHopData&&window.PetHopData.messages(storage).some(thread=>thread.id===message.id)){if(!window.PetHopData.appendMessage(storage,message.id,{sender:"provider",text,createdAt:new Date().toISOString()})){toast("No se pudo guardar el mensaje en este dispositivo.");return;}}else{const legacy=state.messages.find(m=>m.id===message.id);if(!legacy)return;legacy.messages||=[];legacy.messages.push({from:"provider",text,date:new Date().toISOString()});persist();}renderSection();});
     }
     function openRequest(id) {
         const request=state.requests.find(item=>item.id===id); if(!request)return;
@@ -149,7 +150,7 @@
                 const oldThread=state.messages.find(m=>m.requestId===request.id);
                 const owner=request.adopterEmail?String(request.adopterEmail).trim().toLowerCase():`solicitud-${request.id}`;
                 const thread={id:`${owner}:${request.petId}`,requestId:request.id,petId:request.petId,petName:request.pet,owner,adopter:request.adopter,status:request.status,messages:(oldThread?.messages||[]).map(item=>({sender:item.from==="provider"?"provider":"adopter",text:item.text,createdAt:item.date||new Date().toISOString()}))};
-                if(window.PetHopData&&!window.PetHopData.upsertMessageThread(localStorage,thread)){toast("No se pudo guardar la conversación en este dispositivo.");return;}
+            if(window.PetHopData&&!window.PetHopData.upsertMessageThread(storage,thread)){toast("No se pudo guardar la conversación en este dispositivo.");return;}
                 state.activeMessage=thread.id;state.section="Mensajes";persist();close();renderDashboard();
             } else if(action==="review"){
                 request.status="En revisión";syncApplication(request,"En revisión");state.section="Solicitudes";persist();close();renderSection();toast("Solicitud marcada En revisión.");
@@ -160,7 +161,7 @@
             }
         });
     }
-    function syncApplication(request, status) { try { const items=JSON.parse(localStorage.getItem("pethop_applications"))||[];const app=items.find(item=>item.id===request.id);if(app){app.status=status;localStorage.setItem("pethop_applications",JSON.stringify(items));} } catch {} }
+    function syncApplication(request, status) { const items=storage.read("pethop_applications", []) || [];const app=items.find(item=>item.id===request.id);if(app){storage.write("pethop_applications", items);} }
     function openPetDetails(id) { const pet=state.pets.find(item=>item.id===id);if(!pet)return;const modal=document.createElement("div");modal.className="provider-modal-backdrop";modal.innerHTML=`<section class="provider-request-modal" role="dialog" aria-modal="true" aria-labelledby="pet-details-title"><button type="button" class="provider-modal-close" aria-label="Cerrar">${icon("x")}</button><span class="eyebrow">DETALLES DE PUBLICACIÓN</span><h2 id="pet-details-title">${esc(pet.name)}</h2><p class="provider-request-lead">${esc(pet.species)} · ${esc(pet.age)} · ${esc(pet.gender)} · ${esc(pet.location||"Ubicación por confirmar")}</p><div class="provider-applicant-grid"><article><small>Estado de adopción</small><p>${esc(pet.status)}</p></article><article><small>Actividad</small><p>${pet.requests||0} solicitudes · ${pet.days||0} días publicada</p></article></div><label class="provider-field">Actualizar estado<select name="pet-status">${["Publicada","En revisión","En proceso de adopción","Adoptada","Pausada"].map(status=>`<option ${pet.status===status?"selected":""}>${status}</option>`).join("")}</select></label><p class="provider-modal-note">Al marcarla como adoptada, las solicitudes activas asociadas también se reflejarán como completadas.</p><div class="provider-modal-actions"><button type="button" class="button button-outline provider-close-action">Cerrar</button><button type="button" class="button button-primary" data-save-pet>Guardar estado ${icon("check")}</button></div></section>`;document.body.append(modal);window.lucide?.createIcons({root:modal});modal.querySelectorAll(".provider-modal-close,.provider-close-action").forEach(button=>button.onclick=()=>modal.remove());modal.onclick=event=>{if(event.target===modal)modal.remove();};modal.querySelector("[data-save-pet]").onclick=()=>{pet.status=modal.querySelector('[name="pet-status"]').value;if(pet.status==="Adoptada"){state.requests.filter(request=>request.petId===pet.id&&!['Rechazada'].includes(request.status)).forEach(request=>{request.status="Adoptada";syncApplication(request,"Adoptada");});}persist();modal.remove();renderSection();toast("Estado de publicación actualizado.");}; }
     function toast(message) { let el=document.querySelector(".provider-toast");if(!el){el=document.createElement("div");el.className="provider-toast";document.body.append(el);}el.textContent=message;el.classList.add("is-visible");setTimeout(()=>el.classList.remove("is-visible"),3000); }
     function initialize() { if(!root)return;persist(); if(state.role)renderDashboard();else renderEntry(); }
