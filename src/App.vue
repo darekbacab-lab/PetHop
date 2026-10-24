@@ -1,6 +1,9 @@
 <script setup>
 import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { RouterView, useRoute } from 'vue-router';
+import { routeLoading } from './router/index.js';
+import PageLoadingSkeleton from './components/PageLoadingSkeleton.vue';
+import AssistantChat from './components/AssistantChat.vue';
 const route = useRoute();
 const progress = ref(0);
 function updateProgress() {
@@ -27,4 +30,4 @@ onUnmounted(() => { window.removeEventListener('scroll', updateProgress); window
 watch(() => route.fullPath, async () => { await nextTick(); updateProgress(); });
 </script>
 
-<template><div class="scroll-progress" :style="{ width: `${progress}%` }" aria-hidden="true"></div><div @focusout.capture="validateField" @input.capture="validateField"><RouterView /></div></template>
+<template><div class="scroll-progress" :style="{ width: `${progress}%` }" aria-hidden="true"></div><div @focusout.capture="validateField" @input.capture="validateField"><PageLoadingSkeleton v-if="routeLoading" /><RouterView v-else /></div><AssistantChat /></template>

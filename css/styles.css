@@ -4195,6 +4195,17 @@ textarea {
 
 .follow-up-pet-card[hidden] { display: none; }
 
+/* Intercambio de superficies solicitado para la vista Seguimiento. */
+.follow-up-page .follow-up-main { background: var(--white); }
+.follow-up-page .follow-up-summary,
+.follow-up-page .follow-up-pet-card,
+.follow-up-page .follow-up-layout > .follow-up-main > .follow-up-record-card,
+.follow-up-page .follow-up-history-card { background: var(--background); }
+.follow-up-page .follow-up-list > .follow-up-record-card { background: var(--white); }
+.follow-up-page .follow-up-form-grid input,
+.follow-up-page .follow-up-form-grid select,
+.follow-up-page .follow-up-form-grid textarea { background: var(--white); }
+
 .catalog-empty[hidden] { display: none; }
 
 .toast,
@@ -4715,8 +4726,56 @@ textarea {
 .action-card:focus-visible .action-paw-four,
 .action-card:focus-visible .action-paw-seven { transform: translateY(0) scale(1) rotate(18deg); }
 
+.image-loading-frame {
+    position: relative;
+    overflow: hidden;
+}
+
+.image-loading-frame.hero-image-placeholder {
+    position: absolute;
+}
+
+.image-loading-content {
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+}
+
+.image-loading-skeleton {
+    position: absolute;
+    z-index: 3;
+    inset: 0;
+    overflow: hidden;
+    background: #eeeeee;
+    pointer-events: none;
+}
+
+.gallery-slide-frame {
+    width: 100%;
+    height: 100%;
+}
+
+.image-loading-skeleton::after {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 25%, rgba(255,255,255,.78) 48%, transparent 70%);
+    content: "";
+    transform: translateX(-100%);
+    animation: image-skeleton-shimmer 1.45s ease-in-out infinite;
+}
+
+@keyframes image-skeleton-shimmer {
+    to { transform: translateX(100%); }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .action-paw { transition-duration: .01ms; }
+    .image-loading-skeleton::after { animation-duration: .01ms; }
 }
 
 @keyframes liquid-spin {

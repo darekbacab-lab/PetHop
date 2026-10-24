@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { sessionStorageService } from '../services/storage.js';
 import Icon from './Icon.vue';
+import ImageWithSkeleton from './ImageWithSkeleton.vue';
 
 const props = defineProps({ pet: { type: Object, required: true }, favorite: Boolean });
 const emit = defineEmits(['favorite']);
@@ -25,8 +26,7 @@ function rememberSelectedPet() {
     :data-location="pet.location"
   >
     <RouterLink class="pet-card-hit-area" :to="{ path: '/mascota.html', query: { pet: pet.id } }" :aria-label="`Abrir perfil de ${pet.name}`" @click="rememberSelectedPet" />
-    <div class="catalog-card-image" :style="{ backgroundImage: `url('${photo}')` }">
-      <span class="sr-only">Imagen de {{ pet.name }}</span>
+    <ImageWithSkeleton frame-class="catalog-card-image" :src="photo" :alt="`Imagen de ${pet.name}`">
       <button
         class="favorite"
         :class="{ active: favorite }"
@@ -35,13 +35,14 @@ function rememberSelectedPet() {
         :aria-label="favorite ? `Quitar ${pet.name} de favoritos` : `Agregar ${pet.name} a favoritos`"
         @click.stop="emit('favorite', pet.id)"
       ><Icon name="heart" :filled="favorite" :stroke-width="1.8" /></button>
-    </div>
+    </ImageWithSkeleton>
     <div class="catalog-card-content">
       <div class="catalog-card-top">
         <div>
           <span class="pet-species">
             <Icon v-if="pet.species.toLocaleLowerCase('es-MX') === 'gato'" name="cat" class="pet-species-icon" />
-            <Icon v-else name="dog" class="pet-species-icon" />
+            <Icon v-else-if="pet.species.toLocaleLowerCase('es-MX') === 'perro'" name="dog" class="pet-species-icon" />
+            <Icon v-else name="paw-print" class="pet-species-icon" />
             {{ pet.species.toLocaleUpperCase('es-MX') }}
           </span>
           <h3>{{ pet.name }}</h3>

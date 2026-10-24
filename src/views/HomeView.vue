@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router';
 import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 import Icon from '../components/Icon.vue';
+import ImageWithSkeleton from '../components/ImageWithSkeleton.vue';
 import { getFavorites, getPets, toggleFavorite } from '../services/pets.js';
 import { storageService } from '../services/storage.js';
 
@@ -162,7 +163,7 @@ function registerOrganization() {
 <template>
   <div><SiteHeader />
     <main>
-      <section class="hero"><div class="hero-container"><div class="hero-copy"><span class="eyebrow">ADOPCIÓN RESPONSABLE</span><h1>Encuentra al próximo <span>miembro de tu familia.</span></h1><p>Conecta con mascotas que buscan un hogar y conoce información importante sobre su historia, salud y proceso de adopción antes de dar el siguiente paso.</p><div class="hero-actions"><RouterLink to="/explorar.html" class="primary-button">Explorar mascotas</RouterLink><RouterLink to="/#como-funciona" class="secondary-button">Conoce cómo funciona</RouterLink></div></div><div class="hero-visual"><div class="hero-image-placeholder" aria-label="Perro y gato disponibles para adopción"><img class="hero-pets-image" src="/img/mascotas-hero-v2.png" alt="Un perro y un gato descansan juntos sobre una manta"></div><div class="hero-floating-card"><div class="floating-check" aria-hidden="true"><Icon name="check" /></div><div><strong>Adopción responsable</strong><span>Información organizada</span></div></div></div></div></section>
+      <section class="hero"><div class="hero-container"><div class="hero-copy"><span class="eyebrow">ADOPCIÓN RESPONSABLE</span><h1>Encuentra al próximo <span>miembro de tu familia.</span></h1><p>Conecta con mascotas que buscan un hogar y conoce información importante sobre su historia, salud y proceso de adopción antes de dar el siguiente paso.</p><div class="hero-actions"><RouterLink to="/explorar.html" class="primary-button">Explorar mascotas</RouterLink><RouterLink to="/#como-funciona" class="secondary-button">Conoce cómo funciona</RouterLink></div></div><div class="hero-visual"><ImageWithSkeleton frame-class="hero-image-placeholder" image-class="hero-pets-image" src="/img/mascotas-hero-v2.png" alt="Un perro y un gato descansan juntos sobre una manta" role="img" /><div class="hero-floating-card"><div class="floating-check" aria-hidden="true"><Icon name="check" /></div><div><strong>Adopción responsable</strong><span>Información organizada</span></div></div></div></div></section>
       <section class="quick-actions"><div class="actions-container"><RouterLink to="/explorar.html" class="action-card"><div class="action-content"><span>ADOPTANTES</span><h2>Adoptar</h2><p>Encuentra mascotas disponibles y conoce sus características antes de solicitar una adopción.</p><strong>Explorar mascotas</strong></div><span class="action-paw-trail" aria-hidden="true"><Icon name="paw-print" class="action-paw action-paw-one" /><Icon name="paw-print" class="action-paw action-paw-two" /><Icon name="paw-print" class="action-paw action-paw-four" /><Icon name="paw-print" class="action-paw action-paw-five" /><Icon name="paw-print" class="action-paw action-paw-six" /><Icon name="paw-print" class="action-paw action-paw-seven" /></span></RouterLink><a href="#registrar" class="action-card" @click.prevent="showOrganizationForm=true"><div class="action-content"><span>ORGANIZACIONES</span><h2>Registrar refugio</h2><p>Publica mascotas, organiza solicitudes y centraliza la información de tus procesos de adopción.</p><strong>Conocer más</strong></div><span class="action-paw-trail" aria-hidden="true"><Icon name="paw-print" class="action-paw action-paw-one" /><Icon name="paw-print" class="action-paw action-paw-two" /><Icon name="paw-print" class="action-paw action-paw-four" /><Icon name="paw-print" class="action-paw action-paw-five" /><Icon name="paw-print" class="action-paw action-paw-six" /><Icon name="paw-print" class="action-paw action-paw-seven" /></span></a><RouterLink to="/seguimiento.html" class="action-card"><div class="action-content"><span>SEGUIMIENTO</span><h2>Acompañar</h2><p>Mantén organizada la información posterior a la adopción y registra cómo continúa la historia.</p><strong>Ver seguimiento</strong></div><span class="action-paw-trail" aria-hidden="true"><Icon name="paw-print" class="action-paw action-paw-one" /><Icon name="paw-print" class="action-paw action-paw-two" /><Icon name="paw-print" class="action-paw action-paw-four" /><Icon name="paw-print" class="action-paw action-paw-five" /><Icon name="paw-print" class="action-paw action-paw-six" /><Icon name="paw-print" class="action-paw action-paw-seven" /></span></RouterLink></div></section>
       <section class="explore-section" id="explorar"><div class="explore-container"><div class="section-title"><div><span>CONOCE A LOS DISPONIBLES</span><h2>Tal vez tu nuevo compañero está aquí.</h2></div></div><div class="home-search"><form class="search-box" @submit.prevent="submitSearch"><div class="search-input"><span class="search-symbol" aria-hidden="true"><Icon name="search" /></span><label class="sr-only" for="homeSearch">Buscar mascota</label><input id="homeSearch" v-model="search" name="search" type="search" placeholder="Busca por nombre, especie o ubicación" autocomplete="off"></div><button type="submit" class="search-button">Buscar</button></form></div>
         <div class="home-pets-carousel" id="featuredPets" aria-label="Mascotas destacadas" @mouseenter="petCarouselHovered = true" @mouseleave="petCarouselHovered = false" @focusin="petCarouselFocused = true" @focusout="handleCarouselFocusOut">
@@ -170,7 +171,7 @@ function registerOrganization() {
           <div class="home-pets-viewport" aria-live="polite" aria-atomic="true">
             <Transition :name="petTransitionName" @after-enter="finishPetPageMove">
               <section v-if="petPages[currentPetPage]" :key="currentPetPage" class="home-pets-page" :style="{ '--home-pet-count': visiblePetCount }" role="group" :aria-label="`Grupo ${currentPetPage + 1} de ${petPages.length}`">
-                <article v-for="pet in petPages[currentPetPage]" :key="pet.id" class="pet-card"><div class="pet-image" :style="{ backgroundImage: `url('${petImage(pet)}')` }"><span class="sr-only">Imagen de {{ pet.name }}</span><RouterLink class="pet-image-link" :to="{ path: '/mascota.html', query: { pet: pet.id } }" :aria-label="`Ver información de ${pet.name}`"><span class="sr-only">Ver información de {{ pet.name }}</span></RouterLink><button class="favorite" :class="{ active: favorites.includes(String(pet.id).toLowerCase()) }" type="button" :aria-pressed="favorites.includes(String(pet.id).toLowerCase())" :aria-label="favorites.includes(String(pet.id).toLowerCase()) ? `Quitar ${pet.name} de favoritos` : `Agregar ${pet.name} a favoritos`" @click="favorite(pet.id)"><Icon name="heart" :filled="favorites.includes(String(pet.id).toLowerCase())" /></button></div><RouterLink class="pet-info" :to="{ path: '/mascota.html', query: { pet: pet.id } }"><div class="pet-title"><div><span class="pet-species">{{ pet.species.toLocaleUpperCase('es-MX') }}</span><h3>{{ pet.name }}</h3></div><span class="available">Disponible</span></div><div class="pet-details"><span>{{ pet.age }}</span><span>{{ pet.gender }}</span><span>{{ pet.size }}</span></div><div class="pet-location">{{ pet.location }}</div></RouterLink></article>
+                <article v-for="pet in petPages[currentPetPage]" :key="pet.id" class="pet-card"><ImageWithSkeleton frame-class="pet-image" :src="petImage(pet)" :alt="`Imagen de ${pet.name}`"><RouterLink class="pet-image-link" :to="{ path: '/mascota.html', query: { pet: pet.id } }" :aria-label="`Ver información de ${pet.name}`"><span class="sr-only">Ver información de {{ pet.name }}</span></RouterLink><button class="favorite" :class="{ active: favorites.includes(String(pet.id).toLowerCase()) }" type="button" :aria-pressed="favorites.includes(String(pet.id).toLowerCase())" :aria-label="favorites.includes(String(pet.id).toLowerCase()) ? `Quitar ${pet.name} de favoritos` : `Agregar ${pet.name} a favoritos`" @click="favorite(pet.id)"><Icon name="heart" :filled="favorites.includes(String(pet.id).toLowerCase())" /></button></ImageWithSkeleton><RouterLink class="pet-info" :to="{ path: '/mascota.html', query: { pet: pet.id } }"><div class="pet-title"><div><span class="pet-species">{{ pet.species.toLocaleUpperCase('es-MX') }}</span><h3>{{ pet.name }}</h3></div><span class="available">Disponible</span></div><div class="pet-details"><span>{{ pet.age }}</span><span>{{ pet.gender }}</span><span>{{ pet.size }}</span></div><div class="pet-location">{{ pet.location }}</div></RouterLink></article>
               </section>
             </Transition>
           </div>
@@ -251,10 +252,19 @@ function registerOrganization() {
 .home-pets-arrow-previous { left: -42px; }
 .home-pets-arrow-next { right: -42px; }
 
-.hero-actions > .primary-button {
-  min-height: 44px;
-  padding: 10px 16px;
+.hero-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 194px));
+  gap: 12px;
+}
+
+.hero-actions > .primary-button,
+.hero-actions > .secondary-button {
+  width: 100%;
+  min-height: 52px;
+  padding: 12px 14px;
   font-size: .82rem;
+  text-align: center;
 }
 
 @media (max-width: 700px) {
@@ -262,8 +272,11 @@ function registerOrganization() {
   .home-pets-page { gap: 0; }
   .home-pets-arrow-previous { left: -34px; }
   .home-pets-arrow-next { right: -34px; }
+  .hero-actions { grid-template-columns: minmax(0, 1fr); }
 
-  .hero-actions > .primary-button {
+  .hero-actions > .primary-button,
+  .hero-actions > .secondary-button {
+    width: 100%;
     min-height: 52px;
     padding: 12px 16px;
     font-size: .9rem;
