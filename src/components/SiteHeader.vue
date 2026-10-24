@@ -3,6 +3,7 @@ import { computed, onUnmounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { getFavorites, getPet, toggleFavorite } from '../services/pets.js';
 import Icon from './Icon.vue';
+import ThemeToggle from './ThemeToggle.vue';
 const route = useRoute();
 const open = ref(false);
 const favoritesOpen = ref(false);
@@ -11,9 +12,9 @@ const count = computed(() => favorites.value.length);
 const links = [
   { label: 'Inicio', to: '/', icon: 'house' },
   { label: 'Explorar', to: '/explorar.html', icon: 'search' },
-  { label: 'Dar en adopción', to: '/proveedor.html', icon: 'hand-heart' },
+  { label: 'Mensajes', to: '/mensajes.html', icon: 'messages-square' },
   { label: 'Seguimiento', to: '/seguimiento.html', icon: 'paw-print' },
-  { label: 'Mensajes', to: '/mensajes.html', icon: 'messages-square' }
+  { label: 'Dar en adopción', to: '/proveedor.html', icon: 'hand-heart' }
 ];
 function isNavActive(item) {
   if (item.to.includes('?')) return route.fullPath === item.to;
@@ -33,11 +34,11 @@ onUnmounted(() => document.body.classList.remove('menu-open'));
 <template>
   <header class="site-header" @keydown.esc.window="closeMenu"><div class="header-container">
     <button type="button" class="menu-toggle" :class="{ 'menu-toggle-open': open }" :aria-expanded="open" aria-controls="main-menu" :aria-label="open ? 'Cerrar menú' : 'Abrir menú'" @click="open = !open"><Icon :name="open ? 'x' : 'menu'" /></button>
-    <RouterLink to="/" class="brand" aria-label="PetHop"><img src="/img/image1.png" alt="PetHop"></RouterLink>
+    <RouterLink to="/" class="brand" aria-label="PetHop"><img class="brand-logo-color" src="/img/image1.png" alt=""><img class="brand-logo-mono" src="/img/Logomonocr.png" alt=""></RouterLink>
     <nav id="main-menu" class="main-nav" :class="{ open }" :inert="!open" :aria-hidden="!open" aria-label="Navegación principal">
-      <div class="menu-drawer-header"><div class="menu-drawer-brand"><img src="/img/image1.png" alt="PetHop"></div><button type="button" class="menu-drawer-close" aria-label="Cerrar menú" @click="closeMenu"><Icon name="x" /></button></div>
-      <RouterLink v-for="item in links" :key="item.to" class="nav-link" :class="{ active: isNavActive(item) }" :to="item.to" @click="open = false"><Icon :name="item.icon" class="nav-item-icon" /><span>{{ item.label }}</span></RouterLink>
-      <button type="button" class="favorites-button menu-favorites" @click="favoritesOpen = true; open = false"><Icon name="heart" class="nav-item-icon" /><span class="favorites-label">Favoritos</span><span class="favorites-count">{{ count }}</span></button>
+      <div class="menu-drawer-header"><div class="menu-drawer-brand"><img class="brand-logo-color" src="/img/image1.png" alt=""><img class="brand-logo-mono" src="/img/Logomonocr.png" alt=""></div><button type="button" class="menu-drawer-close" aria-label="Cerrar menú" @click="closeMenu"><Icon name="x" /></button></div>
+      <template v-for="(item, index) in links" :key="item.to"><RouterLink class="nav-link" :class="{ active: isNavActive(item) }" :to="item.to" @click="open = false"><Icon :name="item.icon" class="nav-item-icon" /><span>{{ item.label }}</span></RouterLink><button v-if="index === 1" type="button" class="favorites-button menu-favorites" @click="favoritesOpen = true; open = false"><Icon name="heart" class="nav-item-icon" /><span class="favorites-label">Favoritos</span><span class="favorites-count">{{ count }}</span></button></template>
+      <ThemeToggle />
     </nav>
     <div class="header-right"><RouterLink to="/#como-funciona" class="how-button">Cómo funciona</RouterLink><RouterLink to="/acceso.html" class="login-button"><Icon name="log-in" />Ingresar</RouterLink></div>
   </div></header><button v-if="open" class="menu-backdrop is-visible" type="button" aria-label="Cerrar menú" @click="open=false"></button>
@@ -45,10 +46,14 @@ onUnmounted(() => document.body.classList.remove('menu-open'));
 </template>
 
 <style scoped>
+.brand-logo-mono { display:none!important; }
+:global(html[data-theme="dark"]) .brand-logo-color { display:none!important; }
+:global(html[data-theme="dark"]) .brand-logo-mono { display:block!important; }
 .favorites-modal-content { width:min(560px,100%); padding:32px; }
 .favorites-modal-eyebrow { display:block; margin-bottom:5px; color:var(--primary-strong); font-size:.68rem; font-weight:800; letter-spacing:.09em; }
 .favorites-modal h2 { display:flex; align-items:center; gap:10px; margin-bottom:5px; font-size:1.75rem; }
 .favorites-modal-count { display:grid; place-items:center; min-width:27px; height:27px; padding:0 7px; border-radius:20px; background:#e8f6f5; color:var(--primary-strong); font-size:.76rem; }
+ .favorites-modal-count { background:var(--button-primary-bg); color:#fff; }
 .favorites-modal .favorites-modal-intro { margin-bottom:18px; font-size:.82rem; }
 .favorites-modal-list { max-height:min(440px,55vh); overflow-y:auto; gap:10px; padding:1px 3px 1px 1px; }
 .favorites-modal-item { display:grid; grid-template-columns:62px minmax(0,1fr) auto; gap:13px; min-height:82px; padding:10px; border-radius:13px; background:var(--white); }

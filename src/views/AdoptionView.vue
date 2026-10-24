@@ -27,7 +27,7 @@ function submit(event) {
 
 <template>
   <div class="application-page"><SiteHeader /><main>
-    <section class="application-header"><div class="application-header-container"><h1>Da el siguiente paso.</h1><p>Completa la información necesaria para iniciar el proceso de adopción de {{ pet.name }}.</p></div></section>
+    <section class="application-header"><div class="application-header-container"><h1>Da el siguiente <span>paso.</span></h1><p>Completa la información necesaria para iniciar el proceso de adopción de {{ pet.name }}.</p></div></section>
     <section class="application-section"><div class="application-container"><div class="application-main">
       <form class="application-form" @submit.prevent="submit">
         <section class="form-section"><div class="form-section-heading"><div><span class="eyebrow">INFORMACIÓN PERSONAL</span><h2>Cuéntanos sobre ti.</h2><p>Estos datos permitirán identificar a la persona que realiza la solicitud.</p></div></div><div class="form-grid">

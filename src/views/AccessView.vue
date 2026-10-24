@@ -56,7 +56,8 @@ function submitRegistration(event) {
   <div class="auth-page">
     <header class="auth-header">
       <RouterLink class="brand" to="/" aria-label="PetHop, volver al inicio">
-        <img src="/img/image1.png" alt="PetHop">
+        <img class="auth-logo-color" src="/img/image1.png" alt="">
+        <img class="auth-logo-mono" src="/img/Logomonocr.png" alt="">
       </RouterLink>
     </header>
 
@@ -64,7 +65,7 @@ function submitRegistration(event) {
       <section class="auth-panel" aria-labelledby="auth-title">
         <div class="auth-panel-heading">
           <span class="eyebrow">TU ESPACIO EN PETHOP</span>
-          <h1 id="auth-title">{{ isRegistering ? 'Crea tu cuenta.' : 'Qué bueno verte.' }}</h1>
+          <h1 id="auth-title"><template v-if="isRegistering">Crea tu <span>cuenta.</span></template><template v-else>Qué bueno <span>verte.</span></template></h1>
           <p>{{ isRegistering ? 'Cuéntanos cómo quieres participar en PetHop.' : 'Ingresa para continuar con tu proceso de adopción.' }}</p>
         </div>
 

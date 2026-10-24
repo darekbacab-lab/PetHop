@@ -4206,6 +4206,256 @@ textarea {
 .follow-up-page .follow-up-form-grid select,
 .follow-up-page .follow-up-form-grid textarea { background: var(--white); }
 
+/* PetHop dark theme */
+html[data-theme="dark"] {
+    color-scheme: dark;
+    --primary: #55bcc2;
+    --primary-hover: #72cbd0;
+    --primary-strong: #167f87;
+    --primary-strong-hover: #126b72;
+    --button-primary-bg: #167f87;
+    --button-primary-hover-bg: #218f97;
+    --button-primary-text: #ffffff;
+    --button-secondary-bg: #363b3e;
+    --button-secondary-hover-bg: #41474a;
+    --button-secondary-border: #737c80;
+    --button-secondary-text: #f0f2f2;
+    --primary-light: #83d0d4;
+    --hero-title-dark: #ffffff;
+    --hero-title-light: #58c0c6;
+    --primary-dark: #34393c;
+    --primary-soft: #373c3f;
+    --secondary: #72c7cc;
+    --background: #202326;
+    --white: #2b2f32;
+    --surface: #34393c;
+    --text: #e4e7e8;
+    --text-soft: #c3c9cb;
+    --border: #51585c;
+    --border-dark: #7c8589;
+    --success: #7bc49b;
+    --warning: #e5bc70;
+    --danger: #ff9289;
+    --info: #8bd1d5;
+    --disabled: #748689;
+    --shadow-sm: 0 5px 18px rgba(0, 0, 0, .18);
+    --shadow-md: 0 12px 30px rgba(0, 0, 0, .24);
+    --shadow-lg: 0 22px 55px rgba(0, 0, 0, .34);
+}
+
+html[data-theme="dark"] body { background:var(--background); color:var(--text); }
+html[data-theme="dark"] .site-header { border-color:var(--border); background:rgba(43, 47, 50, .97); }
+html[data-theme="dark"] .hero-copy > p { color:var(--text-soft); }
+html[data-theme="dark"] .hero-image-placeholder span,
+html[data-theme="dark"] .hero-floating-card,
+html[data-theme="dark"] .application-pet-card,
+html[data-theme="dark"] .provider-pet-card,
+html[data-theme="dark"] .provider-pipeline-card,
+html[data-theme="dark"] .provider-conversation,
+html[data-theme="dark"] .provider-timeline li > span,
+html[data-theme="dark"] .provider-review-pet,
+html[data-theme="dark"] .provider-help-card,
+html[data-theme="dark"] .provider-request-modal,
+html[data-theme="dark"] .provider-modal-close,
+html[data-theme="dark"] .provider-applicant-grid article,
+html[data-theme="dark"] .provider-mobile-menu,
+html[data-theme="dark"] .provider-page .button-danger,
+html[data-theme="dark"] .provider-filter-pills button,
+html[data-theme="dark"] .provider-checks label span,
+html[data-theme="dark"] .provider-page .provider-review-banner-status { background:var(--surface); color:var(--text); }
+html[data-theme="dark"] .provider-conversation,
+html[data-theme="dark"] .provider-setting-row { border-color:var(--border); }
+html[data-theme="dark"] .provider-page .button-outline { border-color:var(--border-dark); color:var(--info); }
+html[data-theme="dark"] .provider-review-progress,
+html[data-theme="dark"] .provider-profile-summary,
+html[data-theme="dark"] .provider-chat-transcript p { background:#203b40; }
+html[data-theme="dark"] .provider-chat-transcript p.is-outgoing { background:#285057; }
+html[data-theme="dark"] .provider-verification { background:#453a24; color:#f0d594; }
+html[data-theme="dark"] .provider-verification.is-verified { background:#203c31; color:#a5dfbb; }
+html[data-theme="dark"] .provider-timeline::before { background:#35575c; }
+html[data-theme="dark"] .status-nueva,
+html[data-theme="dark"] .provider-status-review { background:#453a24; color:#f0d594; }
+html[data-theme="dark"] .adopter-message-layout,
+html[data-theme="dark"] .adopter-conversation-sidebar,
+html[data-theme="dark"] .adopter-conversation-item,
+html[data-theme="dark"] .adopter-chat-header,
+html[data-theme="dark"] .adopter-chat-bubble,
+html[data-theme="dark"] .adopter-chat-bubble.is-incoming,
+html[data-theme="dark"] .adopter-chat-composer textarea,
+html[data-theme="dark"] .messages-empty-state,
+html[data-theme="dark"] .assistant-panel,
+html[data-theme="dark"] .assistant-header,
+html[data-theme="dark"] .assistant-close,
+html[data-theme="dark"] .assistant-welcome p,
+html[data-theme="dark"] .assistant-quick-questions button,
+html[data-theme="dark"] .assistant-composer,
+html[data-theme="dark"] .organization-registration-modal .organization-form-grid input:focus,
+html[data-theme="dark"] .organization-registration-modal .organization-form-grid textarea:focus,
+html[data-theme="dark"] .favorites-modal-item,
+html[data-theme="dark"] .favorites-remove-button { background:var(--surface); color:var(--text); }
+html[data-theme="dark"] .adopter-conversation-sidebar,
+html[data-theme="dark"] .adopter-chat-header,
+html[data-theme="dark"] .assistant-header,
+html[data-theme="dark"] .assistant-composer { border-color:var(--border); }
+html[data-theme="dark"] .adopter-conversation-item { border-color:#29464b; }
+html[data-theme="dark"] .adopter-conversation-item.is-selected { background:#203d42; }
+html[data-theme="dark"] .adopter-chat-transcript { background-color:#14272b; }
+html[data-theme="dark"] .adopter-chat-bubble.is-outgoing { border-color:#277d83; background:#17676e; }
+html[data-theme="dark"] .adopter-chat-bubble.is-outgoing p { color:#fff; }
+html[data-theme="dark"] .adopter-chat-date,
+html[data-theme="dark"] .adopter-chat-first-message { border-color:var(--border); background:#20383c; color:var(--text-soft); }
+html[data-theme="dark"] .assistant-transcript { background-color:#13262a; }
+html[data-theme="dark"] .assistant-user-message { background:#17676e; }
+html[data-theme="dark"] .assistant-composer textarea,
+html[data-theme="dark"] .organization-registration-modal .organization-form-grid input,
+html[data-theme="dark"] .organization-registration-modal .organization-form-grid textarea { border-color:var(--border); background:#14272b; color:var(--text); }
+html[data-theme="dark"] .organization-review-hint { border-color:#355b50; background:#203a32; color:#c0e5d0; }
+html[data-theme="dark"] .provider-review-banner { border-color:#355b50; background:#203a32; }
+html[data-theme="dark"] .provider-review-banner-icon { background:#2a5044; }
+html[data-theme="dark"] .provider-review-banner-status { border-color:#426b5f; color:#c0e5d0; }
+html[data-theme="dark"] .provider-page .provider-entry-copy h1 { color:var(--hero-title-dark); }
+html[data-theme="dark"] ::selection { color:#fff; }
+html[data-theme="dark"] .organization-button,
+html[data-theme="dark"] .search-button,
+html[data-theme="dark"] .filter-button,
+html[data-theme="dark"] .catalog-apply,
+html[data-theme="dark"] .application-submit,
+html[data-theme="dark"] .pet-apply-button,
+html[data-theme="dark"] .message-shelter-button,
+html[data-theme="dark"] .load-more,
+html[data-theme="dark"] .login-button,
+html[data-theme="dark"] .btn-primary,
+html[data-theme="dark"] .dynamic-modal button[type="submit"],
+html[data-theme="dark"] .favorites-profile-link,
+html[data-theme="dark"] .provider-page .button-primary,
+html[data-theme="dark"] .action-card,
+html[data-theme="dark"] .chat-inbox-item,
+html[data-theme="dark"] .site-footer,
+html[data-theme="dark"] .status-step.completed .status-step-marker,
+html[data-theme="dark"] .status-step.is-complete .status-step-marker,
+html[data-theme="dark"] .status-step.current .status-step-marker,
+html[data-theme="dark"] .status-step.is-current .status-step-marker { color:#fff; }
+html[data-theme="dark"] .action-card .action-content > *,
+html[data-theme="dark"] .chat-inbox-item > svg,
+html[data-theme="dark"] .chat-inbox-item .chat-avatar,
+html[data-theme="dark"] .chat-inbox-item .chat-avatar svg,
+html[data-theme="dark"] .chat-inbox-copy strong,
+html[data-theme="dark"] .process-step > span,
+html[data-theme="dark"] .process-step h3,
+html[data-theme="dark"] .process-step p,
+html[data-theme="dark"] .site-footer .footer-brand p,
+html[data-theme="dark"] .site-footer .footer-column a,
+html[data-theme="dark"] .site-footer .footer-column h3,
+html[data-theme="dark"] .site-footer .footer-bottom { color:#fff; }
+html[data-theme="dark"] .site-footer { background:#34393c; border-top:1px solid #51585c; }
+html[data-theme="dark"] .login-button,
+html[data-theme="dark"] .search-button,
+html[data-theme="dark"] .filter-button,
+html[data-theme="dark"] .catalog-apply,
+html[data-theme="dark"] .application-submit,
+html[data-theme="dark"] .pet-apply-button,
+html[data-theme="dark"] .message-shelter-button,
+html[data-theme="dark"] .organization-button,
+html[data-theme="dark"] .load-more,
+html[data-theme="dark"] .dynamic-modal button[type="submit"],
+html[data-theme="dark"] .action-card,
+html[data-theme="dark"] .chat-inbox-item { border-color:var(--primary-strong); background:var(--primary-strong); }
+html[data-theme="dark"] .login-button:hover,
+html[data-theme="dark"] .search-button:hover,
+html[data-theme="dark"] .filter-button:hover,
+html[data-theme="dark"] .catalog-apply:hover,
+html[data-theme="dark"] .application-submit:hover,
+html[data-theme="dark"] .pet-apply-button:hover,
+html[data-theme="dark"] .message-shelter-button:hover,
+html[data-theme="dark"] .organization-button:hover,
+html[data-theme="dark"] .load-more:hover,
+html[data-theme="dark"] .dynamic-modal button[type="submit"]:hover { border-color:var(--primary-strong-hover); background:var(--primary-strong-hover); color:#fff; }
+html[data-theme="dark"] .process-step { border-color:#44777c; background:#275e64; color:#fff; }
+html[data-theme="dark"] .status-step.completed .status-step-marker,
+html[data-theme="dark"] .status-step.is-complete .status-step-marker { border-color:var(--primary-strong); background:var(--primary-strong); }
+html[data-theme="dark"] .status-step.current .status-step-marker,
+html[data-theme="dark"] .status-step.is-current .status-step-marker { border-color:var(--secondary); background:var(--secondary); color:#18383c; }
+html[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea { border-color:var(--border); background-color:var(--surface); color:var(--text); }
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder { color:#91a7aa; }
+html[data-theme="dark"] .page-loading { background:var(--background); }
+html[data-theme="dark"] .page-loading .skeleton-panel { border-color:#3b4144; background:#292d30; }
+html[data-theme="dark"] .page-loading .skeleton-shape { background:linear-gradient(90deg,#292d30 20%,#34393c 48%,#292d30 76%)!important; }
+html[data-theme="dark"] .page-loading .skeleton-shape::after { background:linear-gradient(105deg,transparent 25%,rgba(255,255,255,.07) 48%,transparent 70%)!important; }
+html[data-theme="dark"] .page-loading-header { border-color:#3b4144; }
+
+/* Refuerzo de contraste para controles y símbolos en el tema oscuro. */
+html[data-theme="dark"] .site-header .brand-logo-color,
+html[data-theme="dark"] .main-nav .brand-logo-color { display:none!important; }
+html[data-theme="dark"] .site-header .brand-logo-mono,
+html[data-theme="dark"] .main-nav .brand-logo-mono { display:block!important; }
+html[data-theme="dark"] .menu-toggle,
+html[data-theme="dark"] .menu-drawer-close { border-color:#7c8589; background:#34393c; color:#fff; }
+html[data-theme="dark"] .menu-toggle:hover,
+html[data-theme="dark"] .menu-drawer-close:hover { border-color:#b6bec1; background:#454b4e; color:#fff; }
+html[data-theme="dark"] .main-nav a,
+html[data-theme="dark"] .main-nav .favorites-button { color:#e6e9ea; }
+html[data-theme="dark"] .main-nav a.active,
+html[data-theme="dark"] .main-nav a:hover { background:#444a4d; color:#fff; }
+html[data-theme="dark"] .main-nav a .nav-item-icon,
+html[data-theme="dark"] .main-nav .favorites-button .nav-item-icon { color:#dce1e2; }
+html[data-theme="dark"] .catalog-details span { border:1px solid #737c80; background:#42484b; color:#f1f2f2; }
+html[data-theme="dark"] .favorite,
+html[data-theme="dark"] .gallery-favorite { border-color:#7c8589; background:#34393c; color:#f1f2f2; }
+html[data-theme="dark"] .favorite:not(.active) .lucide,
+html[data-theme="dark"] .gallery-favorite:not(.active) .lucide { color:#f1f2f2; }
+html[data-theme="dark"] .favorite.active,
+html[data-theme="dark"] .gallery-favorite.active { border-color:var(--primary); background:var(--primary-strong); color:#fff; }
+html[data-theme="dark"] .gallery-arrow { border-color:#737c80; background:#34393c; color:#f1f2f2; }
+html[data-theme="dark"] .search-input input::placeholder,
+html[data-theme="dark"] .catalog-search-input input::placeholder { color:#c2c7c9; opacity:1; }
+html[data-theme="dark"] .catalog-page .catalog-header h1 { color:#e4e7e8; }
+html[data-theme="dark"] .catalog-page .catalog-header h1 span { color:#63c5ca; }
+html[data-theme="dark"] .catalog-page .results-header > div:first-child h2 { color:#dfe5e6; }
+html[data-theme="dark"] .pet-details span { border:1px solid #737c80; background:#42484b; color:#f1f2f2; }
+html[data-theme="dark"] .provider-account-badge { border:1px solid #51585c; background:#383e41; color:#e4e7e8; }
+html[data-theme="dark"] .provider-account-badge small { color:#c3c9cb; }
+html[data-theme="dark"] .provider-nav-item { color:#c3c9cb; }
+html[data-theme="dark"] .provider-nav-item > svg { color:#a8dadd; }
+html[data-theme="dark"] .provider-nav-item:hover,
+html[data-theme="dark"] .provider-nav-item.is-active { background:#41484b; color:#f0f2f2; }
+html[data-theme="dark"] .provider-nav-item b { background:#43585a; color:#b8e7e9; }
+html[data-theme="dark"] .provider-back-home { color:#d5dbdd; }
+html[data-theme="dark"] .provider-mobile-menu { border-color:var(--border-dark); background:#34393c; color:#e4e7e8; }
+html[data-theme="dark"] .provider-sidebar { background:#2b2f32; }
+html[data-theme="dark"] .provider-sidebar nav { color:var(--text); }
+html[data-theme="dark"] .provider-help-card { background:#34393c; }
+html[data-theme="dark"] .provider-help-card h2 { color:#e4e7e8; }
+html[data-theme="dark"] .provider-help-card p { color:#c3c9cb; }
+html[data-theme="dark"] .adopter-message-layout { border-color:#51585c; background:#2b2f32; }
+html[data-theme="dark"] .adopter-conversation-sidebar,
+html[data-theme="dark"] .adopter-conversation-item,
+html[data-theme="dark"] .adopter-chat-header { background:#34393c; }
+html[data-theme="dark"] .adopter-conversation-item { border-color:#51585c; color:#e4e7e8; }
+html[data-theme="dark"] .adopter-conversation-item:hover { background:#3b4245; }
+html[data-theme="dark"] .adopter-conversation-item.is-selected { background:#3a4c4e; }
+html[data-theme="dark"] .adopter-inbox-icon,
+html[data-theme="dark"] .messages-empty-icon { background:#3c5052; color:#a8dadd; }
+html[data-theme="dark"] .adopter-search { border-color:#5b6468; background:#3a4043; color:#e4e7e8; }
+html[data-theme="dark"] .adopter-search input { background:transparent; color:#f0f2f2; }
+html[data-theme="dark"] .adopter-search input::placeholder { color:#c3c9cb; }
+html[data-theme="dark"] .adopter-chat-window { background-color:#292e31; background-image:radial-gradient(rgba(168,218,221,.04) .7px,transparent .7px); }
+html[data-theme="dark"] .adopter-chat-transcript { background-color:#292e31; }
+html[data-theme="dark"] .adopter-chat-date,
+html[data-theme="dark"] .adopter-chat-first-message { border-color:#596266; background:#3a4043; color:#d0d5d7; }
+html[data-theme="dark"] .adopter-chat-bubble,
+html[data-theme="dark"] .adopter-chat-bubble.is-incoming { border-color:#596266; background:#3b4144; }
+html[data-theme="dark"] .adopter-chat-bubble p { color:#e4e7e8; }
+html[data-theme="dark"] .adopter-chat-bubble time { color:#c3c9cb; }
+html[data-theme="dark"] .adopter-chat-composer { border-top:1px solid #51585c; background:#2b3033; }
+html[data-theme="dark"] .adopter-chat-composer textarea { border-color:#5b6468; background:#3a4043; color:#f0f2f2; }
+html[data-theme="dark"] .adopter-chat-composer textarea::placeholder { color:#c3c9cb; }
+html[data-theme="dark"] .adopter-profile-link { border-color:#687478; color:#a8dadd; }
+html[data-theme="dark"] .adopter-profile-link:hover { background:#3b4b4e; }
+html[data-theme="dark"] .messages-empty-state { background:#34393c; }
+
 .catalog-empty[hidden] { display: none; }
 
 .toast,
@@ -4902,3 +5152,77 @@ textarea {
     cursor: not-allowed;
     transform: none;
 }
+
+/* Superficies y texto del perfil de mascota en modo oscuro. */
+html[data-theme="dark"] .pet-information .information-item {
+    border-color:#51585c;
+    background:#34393c;
+}
+html[data-theme="dark"] .pet-information .information-item strong { color:#e4e7e8; }
+html[data-theme="dark"] .pet-information .information-item span { color:#c3c9cb; }
+html[data-theme="dark"] .pet-information .information-icon { background:#3d6669; color:#e4e7e8; }
+html[data-theme="dark"] .pet-information .information-icon span { color:#f1f2f2; }
+html[data-theme="dark"] .pet-story { border-color:#586266; background:#34393c; }
+html[data-theme="dark"] .pet-story-title { color:#79cbd0; }
+html[data-theme="dark"] .pet-story p,
+html[data-theme="dark"] .gallery-caption { color:#c3c9cb; }
+html[data-theme="dark"] .gallery-viewport { background:var(--background); }
+html[data-theme="dark"] .provider-journey { border:1px solid #51585c; background:#34393c; color:#e4e7e8; }
+html[data-theme="dark"] .provider-journey h2 { color:#e4e7e8; }
+html[data-theme="dark"] .provider-mini-timeline small { color:#c3c9cb; }
+html[data-theme="dark"] .provider-mini-timeline > div:not(:last-child)::after { background:#657175; }
+html[data-theme="dark"] .provider-entry-copy h1 span,
+html[data-theme="dark"] .provider-section-header h1 span,
+html[data-theme="dark"] .application-header h1 span,
+html[data-theme="dark"] .auth-panel-heading h1 span,
+html[data-theme="dark"] .adopter-messages-heading h1 span { color:#63c5ca; }
+html[data-theme="dark"] .pet-profile-heading h1 {
+    background:linear-gradient(100deg,#e4e7e8 0%,#e4e7e8 48%,#63c5ca 100%);
+    background-clip:text;
+    -webkit-background-clip:text;
+    color:transparent;
+    -webkit-text-fill-color:transparent;
+}
+html[data-theme="dark"] .provider-section-header h1.provider-greeting span { color:#fff; }
+.floating-check { color:#fff; }
+.provider-entry-icon,
+.provider-aside-icon,
+.provider-stat-card > span,
+.provider-request-avatar { background:var(--button-primary-bg); color:var(--button-primary-text); }
+.provider-home-grid .provider-request-row .provider-status { border-color:var(--button-primary-bg); background:var(--button-primary-bg); color:var(--button-primary-text); }
+.provider-entry-copy h1 span,
+.provider-section-header h1 span,
+.application-header h1 span,
+.adopter-messages-heading h1 span { color:var(--hero-title-light); }
+
+/* Ajustes de contraste para galería, fichas de mascota y asistente. */
+.favorite.active,
+.gallery-favorite.active { background:rgba(255,255,255,.93); border-color:var(--border); color:var(--primary-strong); }
+html[data-theme="dark"] .favorite.active,
+html[data-theme="dark"] .gallery-favorite.active { background:#34393c; border-color:#7c8589; color:#35aeb6; }
+html[data-theme="dark"] .gallery-arrow,
+html[data-theme="dark"] .gallery-arrow:hover { color:#fff; }
+html[data-theme="dark"] .gallery-arrow .lucide { color:#fff; opacity:1; }
+html[data-theme="dark"] .gallery-arrow:disabled { opacity:1; }
+
+.pet-information .information-icon { background:var(--surface); color:var(--button-primary-bg); }
+.pet-information .information-icon span { color:var(--button-primary-bg); }
+html[data-theme="dark"] .pet-information .information-icon { background:#41474a; color:#26a5ad; }
+html[data-theme="dark"] .pet-information .information-icon span { color:#26a5ad; }
+
+html[data-theme="dark"] .assistant-header,
+html[data-theme="dark"] .assistant-composer { background:#2b2f32; }
+html[data-theme="dark"] .assistant-transcript { background-color:#202326; background-image:radial-gradient(rgba(38,165,173,.045) .7px,transparent .7px); }
+html[data-theme="dark"] .assistant-avatar,
+html[data-theme="dark"] .assistant-welcome-icon { background:#41474a; color:#26a5ad; }
+html[data-theme="dark"] .assistant-welcome p,
+html[data-theme="dark"] .assistant-quick-questions button { border-color:#51585c; background:#34393c; color:#e4e7e8; }
+html[data-theme="dark"] .assistant-quick-questions button:hover { border-color:#26a5ad; background:#3d4447; }
+html[data-theme="dark"] .assistant-composer textarea { border-color:#51585c; background:#34393c; color:#e4e7e8; }
+html[data-theme="dark"] .assistant-composer textarea::placeholder { color:#c3c9cb; opacity:1; }
+html[data-theme="dark"] .assistant-composer button:disabled { background:#34393c; color:#26a5ad; opacity:1; }
+html[data-theme="dark"] .assistant-composer button:disabled .lucide { color:#26a5ad; }
+html[data-theme="dark"] .home-pets-arrow,
+html[data-theme="dark"] .home-pets-arrow:hover { border-color:#737c80!important; background:#34393c!important; color:#fff!important; opacity:1!important; }
+html[data-theme="dark"] .home-pets-arrow svg,
+html[data-theme="dark"] .home-pets-arrow svg path { color:#fff!important; stroke:#fff!important; opacity:1!important; }

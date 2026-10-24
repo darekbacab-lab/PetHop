@@ -132,7 +132,7 @@ onBeforeUnmount(() => { document.body.style.overflow = previousOverflow; });
 </template>
 
 <style scoped>
-.assistant-launcher { position:fixed; z-index:1200; right:24px; bottom:24px; display:grid; width:58px; height:58px; place-items:center; border:1px solid rgba(255,255,255,.65); border-radius:50%; background:var(--primary-strong); color:#fff; box-shadow:0 10px 28px rgba(18,63,75,.24); cursor:pointer; transition:transform .2s ease,background .2s ease,box-shadow .2s ease; }
+.assistant-launcher { position:fixed; z-index:1200; right:24px; bottom:24px; display:grid; width:58px; height:58px; place-items:center; border:0; border-radius:50%; background:var(--primary-strong); color:#fff; box-shadow:0 10px 28px rgba(18,63,75,.24); cursor:pointer; transition:transform .2s ease,background .2s ease,box-shadow .2s ease; }
 .assistant-launcher:hover { transform:translateY(-3px); background:var(--primary-dark); box-shadow:0 14px 32px rgba(18,63,75,.3); }
 .assistant-launcher:focus-visible,.assistant-close:focus-visible,.assistant-composer button:focus-visible,.assistant-quick-questions button:focus-visible { outline:3px solid #75cbd0; outline-offset:3px; }
 .assistant-overlay { position:fixed; z-index:1199; inset:0; display:flex; justify-content:flex-end; background:rgba(17,45,51,.2); backdrop-filter:blur(2px); }

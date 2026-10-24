@@ -7,6 +7,7 @@ const view = computed(() => routeLoadingName.value);
 
 <template>
   <div class="page-loading" aria-label="Cargando página" aria-live="polite" aria-busy="true">
+    <span class="skeleton-shape assistant-launcher-skeleton" aria-hidden="true"></span>
     <header class="page-loading-header">
       <span class="skeleton-shape menu-shape"></span>
       <span class="skeleton-shape logo-shape"></span>
@@ -87,6 +88,7 @@ const view = computed(() => routeLoadingName.value);
 
 <style scoped>
 .page-loading { min-height: 100vh; background: #fff; color: transparent; }
+.assistant-launcher-skeleton { position:fixed; z-index:1200; right:24px; bottom:24px; width:58px; height:58px; border-radius:50%; }
 .page-loading-header { height: 78px; display:flex; align-items:center; gap:28px; padding:0 max(24px, calc((100vw - 1260px)/2)); border-bottom:1px solid #dcebed; }
 .page-loading-main { width:min(1260px, calc(100% - 48px)); margin:0 auto; padding:70px 0 90px; }
 .skeleton-shape { position:relative; display:block; overflow:hidden; border-radius:8px; background:#ededed; }
@@ -126,6 +128,7 @@ const view = computed(() => routeLoadingName.value);
 @keyframes loading-shimmer { to { transform:translateX(100%); } }
 @media (max-width:760px) {
   .page-loading-header { height:70px; gap:14px; padding:0 18px; }
+  .assistant-launcher-skeleton { right:16px; bottom:16px; width:54px; height:54px; }
   .header-link-shape { display:none; }
   .header-button-shape { width:84px; height:40px; }
   .page-loading-main { width:calc(100% - 36px); padding:46px 0 64px; }
