@@ -1,6 +1,7 @@
 "use strict";
 
 (() => {
+    const storage = window.PetHopStorage || localStorage;
     const loginForm = document.querySelector("#login-form");
     const registerForm = document.querySelector("#register-form");
     const title = document.querySelector("#auth-title");
@@ -70,14 +71,14 @@
         if (selectedProfile === "provider") {
             const selectedKind = registerForm.querySelector('input[name="provider-kind"]:checked')?.value;
             try {
-                const state = JSON.parse(localStorage.getItem("pethop_provider_workspace") || "{}") || {};
+                const state = storage.read("pethop_provider_workspace", {}) || {};
                 state.role = selectedKind;
                 state.section = "Inicio";
                 state.profile = {
                     ...(state.profile || {}),
                     email: registerForm.elements.email.value.trim()
                 };
-                localStorage.setItem("pethop_provider_workspace", JSON.stringify(state));
+                storage.write("pethop_provider_workspace", state);
             } catch {
                 feedback.textContent = "No se pudo guardar el perfil en este dispositivo. Revisa el almacenamiento del navegador e inténtalo de nuevo.";
                 feedback.classList.add("is-error");
