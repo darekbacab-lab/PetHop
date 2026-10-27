@@ -43,7 +43,11 @@
     function petDirectory(staticPets, storage) {
         const result = { ...staticPets };
         publishedPets(storage).forEach(pet => {
-            result[String(pet.id).trim().toLowerCase()] = pet;
+            const id = String(pet.id).trim().toLowerCase();
+            const publishedFields = Object.fromEntries(
+                Object.entries(pet).filter(([, value]) => value !== undefined && value !== null && value !== "")
+            );
+            result[id] = { ...(result[id] || {}), ...publishedFields };
         });
         return result;
     }
