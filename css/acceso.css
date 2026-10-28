@@ -28,6 +28,10 @@
     object-fit: contain;
 }
 
+.auth-logo-mono { display:none!important; }
+html[data-theme="dark"] .auth-header .auth-logo-color { display:none!important; }
+html[data-theme="dark"] .auth-header .auth-logo-mono { display:block!important; }
+
 .auth-layout {
     display: grid;
     grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr);
@@ -74,6 +78,8 @@
     letter-spacing: -.04em;
     overflow-wrap: anywhere;
 }
+
+.auth-panel-heading h1 span { color:var(--hero-title-light); }
 
 .auth-panel-heading p {
     max-width: 420px;
