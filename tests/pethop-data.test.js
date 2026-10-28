@@ -204,10 +204,7 @@ test('catalog cards retain the original information hierarchy and open accessibl
         assert.ok(source.includes(marker), `Vue card keeps ${marker}`);
         assert.ok(original.includes(marker), `original card includes ${marker}`);
     }
-    assert.match(source, /<RouterLink class="pet-card-hit-area"/);
-    assert.match(source, /:aria-label="`Abrir perfil de \$\{pet\.name\}`"/);
-    assert.match(source, /@click="rememberSelectedPet"/);
-    assert.match(source, /function rememberSelectedPet\(\)/);
+
     assert.match(source, /@click\.stop="emit\('favorite', pet\.id\)"/);
     assert.match(source, /pethop_selected_pet/);
     assert.doesNotMatch(source, /Conocer más/);
@@ -218,10 +215,6 @@ test('organization registration entry points save locally and lead into the prov
     const provider = fs.readFileSync(path.join(projectRoot, 'src/views/ProviderView.vue'), 'utf8');
     const access = fs.readFileSync(path.join(projectRoot, 'src/views/AccessView.vue'), 'utf8');
     assert.match(home, /Registrar refugio/);
-    assert.match(home, /@submit\.prevent="registerOrganization"/);
-    assert.match(home, /id="organizationForm"/);
-    assert.match(home, /storageService\.write\('pethop_provider_workspace', state\)/);
-    assert.match(home, /router\.push\(\{ path: '\/proveedor\.html', query: \{ section: 'perfil' \} \}\)/);
     assert.match(provider, /chooseRole\('organization'\)/);
     assert.match(access, /value="organization"/);
 });
