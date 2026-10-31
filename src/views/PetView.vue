@@ -1,19 +1,19 @@
 <script setup>
-import { computed, nextTick, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import '../../js/pethop-data.js';
 import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 import Icon from '../components/Icon.vue';
 import ImageWithSkeleton from '../components/ImageWithSkeleton.vue';
-import { getFavorites, getPet, toggleFavorite } from '../services/pets.js';
-import { storageService } from '../services/storage.js';
+import { getPetById, listFavorites, addFavorite, removeFavorite } from '../services/petApi.js';
+import { api } from '../services/api.js';
 const route = useRoute(); const router = useRouter();
-const pet = computed(() => getPet(route.query.pet || 'chino') || getPet('chino'));
-watch(() => pet.value.name, name => { document.title = `${name} | PetHop`; }, { immediate: true });
-const favorites = ref(getFavorites()); const activeTrackIndex = ref(1); const transitionEnabled = ref(true); const isTransitioning = ref(false);
+const pet = ref({ id: '', name: 'Mascota', species: 'Mascota', description: '' });
+const loadError = ref('');
+const favorites = ref([]); const activeTrackIndex = ref(1); const transitionEnabled = ref(true); const isTransitioning = ref(false);
 const pendingDirections = [];
-const photos = computed(() => pet.value.photos?.length ? pet.value.photos : (String(pet.value.species).toLowerCase() === 'gato' ? ['img5.jpg','img6.jpg'] : ['img2.jpeg','img3.jpeg','img4.jpeg','img7.jpeg']));
+const photos = computed(() => pet.value.photos?.length ? pet.value.photos : ['/img/pet-gallery.png']);
 const carouselSlides = computed(() => photos.value.length > 1
   ? [{ photo: photos.value.at(-1), sourceIndex: photos.value.length - 1, clone: true, key: 'clone-last' }, ...photos.value.map((photo, sourceIndex) => ({ photo, sourceIndex, clone: false, key: `photo-${sourceIndex}` })), { photo: photos.value[0], sourceIndex: 0, clone: true, key: 'clone-first' }]
   : photos.value.map((photo, sourceIndex) => ({ photo, sourceIndex, clone: false, key: `photo-${sourceIndex}` })));
@@ -23,9 +23,16 @@ const galleryTransform = computed(() => {
   return `translateX(calc(13% - ${trackIndex * 74}% - ${trackIndex * 12}px))`;
 });
 watch(() => pet.value.id, () => { activeTrackIndex.value = 1; transitionEnabled.value = true; isTransitioning.value = false; pendingDirections.length = 0; });
-const user = computed(() => storageService.read('pethop_user', {}) || {});
-const threadId = computed(() => `${String(user.value.email || 'visitante').trim().toLowerCase()}:${pet.value.id}`);
-const photoSrc = item => item.startsWith('data:') ? item : `/img/${item}`;
+const photoSrc = item => item.startsWith('data:') || item.startsWith('http') || item.startsWith('/') ? item : `/img/${item}`;
+async function loadPet() {
+  if (!route.query.pet) { loadError.value = 'Selecciona una mascota desde el catálogo.'; return; }
+  try { pet.value = await getPetById(route.query.pet); document.title = `${pet.value.name} | PetHop`; loadError.value = ''; }
+  catch (error) { loadError.value = error.message || 'No se pudo cargar esta mascota.'; }
+}
+onMounted(async () => {
+  await loadPet();
+  try { favorites.value = (await listFavorites()).map(item => String(item.id)); } catch { favorites.value = []; }
+});
 const touchStartX = ref(0);
 function nextPhoto(direction) {
   if (photos.value.length < 2) return;
@@ -51,19 +58,24 @@ async function finishGalleryTransition(event) {
 function startSwipe(event) { touchStartX.value = event.changedTouches[0]?.clientX || 0; }
 function endSwipe(event) { const distance = touchStartX.value - (event.changedTouches[0]?.clientX || 0); if (Math.abs(distance) >= 45) nextPhoto(distance > 0 ? 1 : -1); }
 function handleGalleryKey(event) { if (event.key === 'ArrowRight') nextPhoto(1); if (event.key === 'ArrowLeft') nextPhoto(-1); }
-function favorite() { toggleFavorite(pet.value.id); favorites.value = getFavorites(); }
-function askShelter() {
-  const owner = String(user.value.email || 'visitante').trim().toLowerCase();
-  const existing = globalThis.PetHopData.messages(storageService).find(thread => thread.id === threadId.value);
-  if (!existing) {
-    const thread = { id: threadId.value, petId: pet.value.id, petName: pet.value.name, owner, adopter: user.value.name || user.value.fullName || user.value.nombre || owner, messages: [] };
-    if (!globalThis.PetHopData.upsertMessageThread(storageService, thread)) return;
+async function favorite() {
+  try {
+    if (favorites.value.includes(String(pet.value.id))) { await removeFavorite(pet.value.id); favorites.value = favorites.value.filter(id => id !== String(pet.value.id)); }
+    else { await addFavorite(pet.value.id); favorites.value = [...favorites.value, String(pet.value.id)]; }
+  } catch (error) { if (error.status === 401) router.push({ path: '/acceso.html', query: { redirect: route.fullPath } }); else loadError.value = error.message; }
+}
+async function askShelter() {
+  try {
+    const conversation = await api('/conversations', { method: 'POST', body: { petId: pet.value.id } });
+    router.push({ path: '/mensajes.html', query: { conversation: conversation.id } });
+  } catch (error) {
+    if (error.status === 401) router.push({ path: '/acceso.html', query: { redirect: route.fullPath } });
+    else loadError.value = error.message || 'No se pudo iniciar la conversación.';
   }
-  router.push({ path: '/mensajes.html', query: { pet: pet.value.id } });
 }
 </script>
 <template>
-  <div><SiteHeader /><main><section class="pet-profile" :data-pet-id="pet.id" :data-description="pet.description">
+  <div><SiteHeader /><main><p v-if="loadError" class="pet-profile-error" role="alert">{{ loadError }}</p><section class="pet-profile" :data-pet-id="pet.id" :data-description="pet.description">
     <div class="pet-profile-container"><RouterLink to="/explorar.html" class="back-link"><Icon name="arrow-left" /> Volver a explorar</RouterLink><div class="pet-profile-grid">
         <div class="pet-gallery-column"><div class="pet-profile-heading"><h1>{{ pet.name }}</h1></div>
         <div class="pet-gallery pet-profile-photo" :aria-label="`Galería de imágenes de referencia de ${pet.name}`" tabindex="0" @keydown="handleGalleryKey"><div class="gallery-viewport" role="region" aria-roledescription="carrusel" :aria-label="`Imágenes de referencia de ${pet.name}`" @touchstart.passive="startSwipe" @touchend.passive="endSwipe"><div class="gallery-track" :class="{ 'gallery-track-no-transition': !transitionEnabled, 'gallery-track-moving': isTransitioning }" :style="{ transform: galleryTransform }" @transitionend="finishGalleryTransition"><div v-for="(slide, index) in carouselSlides" :key="slide.key" class="gallery-card" :class="{ 'gallery-card-center': index === centerTrackIndex, 'gallery-card-adjacent': Math.abs(index - centerTrackIndex) === 1 }" role="group" aria-roledescription="diapositiva" :aria-label="`Imagen ${slide.sourceIndex + 1} de ${photos.length}`" :aria-hidden="index !== centerTrackIndex"><ImageWithSkeleton frame-class="gallery-slide-frame" image-class="gallery-slide-image" :src="photoSrc(slide.photo)" :alt="pet.photos?.length ? `Fotografía ${slide.sourceIndex + 1} de ${pet.name}.` : `Imagen de referencia ${slide.sourceIndex + 1} de ${pet.name}. Confirma con el refugio si corresponde a esta mascota.`" /></div></div></div><button v-if="photos.length > 1" class="gallery-arrow gallery-prev" type="button" aria-label="Ver imagen anterior" @click="nextPhoto(-1)"><Icon name="chevron-right" class="gallery-arrow-icon-left" :stroke-width="2.2" /></button><button v-if="photos.length > 1" class="gallery-arrow gallery-next" type="button" aria-label="Ver imagen siguiente" @click="nextPhoto(1)"><Icon name="chevron-right" :stroke-width="2.2" /></button><button class="gallery-favorite" :class="{ active: favorites.includes(pet.id) }" type="button" :aria-pressed="favorites.includes(pet.id)" :aria-label="favorites.includes(pet.id) ? `Quitar ${pet.name} de favoritos` : `Agregar ${pet.name} a favoritos`" @click="favorite"><Icon name="heart" :filled="favorites.includes(pet.id)" /></button></div>

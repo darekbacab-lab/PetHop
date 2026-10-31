@@ -1,14 +1,12 @@
 <script setup>
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import '../../js/pethop-data.js';
 import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 import Icon from '../components/Icon.vue';
-import { getPet } from '../services/pets.js';
-import { storageService } from '../services/storage.js';
+import { getPetById } from '../services/petApi.js';
+import { api } from '../services/api.js';
 
-const revision = ref(0);
 const route = useRoute();
 const messageText = ref('');
 const searchText = ref('');
@@ -16,29 +14,38 @@ const selectedThreadId = ref('');
 const mobileChatOpen = ref(false);
 const sendError = ref('');
 const transcriptElement = ref(null);
-const currentUser = computed(() => storageService.read('pethop_user', {}) || {});
-const ownerId = computed(() => String(currentUser.value.email || 'visitante').trim().toLowerCase());
-const allConversations = computed(() => {
-  revision.value;
-  return globalThis.PetHopData.messages(storageService)
-    .filter(thread => String(thread.owner || 'visitante').trim().toLowerCase() === ownerId.value)
-    .map(thread => ({ ...thread, pet: getPet(thread.petId), petName: thread.petName || getPet(thread.petId)?.name || 'Mascota' }))
-    .sort((a, b) => new Date(b.updatedAt || b.messages.at(-1)?.createdAt || 0) - new Date(a.updatedAt || a.messages.at(-1)?.createdAt || 0));
-});
+const currentUser = ref(null);
+const allConversations = ref([]);
+const inboxError = ref('');
 const conversations = computed(() => {
   const search = searchText.value.trim().toLocaleLowerCase('es-MX');
   return allConversations.value.filter(thread => !search || `${thread.petName} ${thread.pet?.location || ''}`.toLocaleLowerCase('es-MX').includes(search));
 });
 const activeConversation = computed(() => conversations.value.find(thread => thread.id === selectedThreadId.value) || conversations.value[0] || null);
-const threadPhoto = pet => {
-  const source = pet?.photos?.[0] || pet?.image;
-  if (!source) return '';
-  return source.startsWith('data:') ? source : `/img/${source}`;
-};
-function chooseConversation(thread) {
+const threadPhoto = pet => pet?.photos?.[0] || pet?.image || '';
+async function loadThreads() {
+  try {
+    currentUser.value = await api('/auth/me');
+    const list = await api('/conversations');
+    allConversations.value = await Promise.all(list.map(async thread => {
+      let pet = null;
+      try { pet = await getPetById(thread.petId); } catch { /* Keep conversation even if its pet is no longer listed. */ }
+      return { ...thread, pet, petName: thread.petName || pet?.name || 'Mascota', messages: [] };
+    }));
+    const selected = allConversations.value.find(thread => thread.id === route.query.conversation)
+      || allConversations.value.find(thread => String(thread.petId) === String(route.query.pet))
+      || allConversations.value[0];
+    if (selected) await chooseConversation(selected);
+  } catch (error) { inboxError.value = error.message || 'Inicia sesión para consultar tus conversaciones.'; }
+}
+async function chooseConversation(thread) {
   selectedThreadId.value = thread.id;
   mobileChatOpen.value = true;
   sendError.value = '';
+  try {
+    const page = await api('/conversations/' + thread.id + '/messages?page=0&size=100');
+    thread.messages = (page.content || []).map(item => ({ ...item, text: item.content, sender: item.senderId === currentUser.value?.id ? 'adopter' : 'shelter' }));
+  } catch (error) { sendError.value = error.message || 'No se pudieron cargar los mensajes.'; }
   scrollTranscriptToEnd();
 }
 function formatTime(value) {
@@ -55,34 +62,18 @@ function scrollTranscriptToEnd() {
     if (transcriptElement.value) transcriptElement.value.scrollTo({ top: transcriptElement.value.scrollHeight, behavior: 'smooth' });
   });
 }
-function sendMessage() {
+async function sendMessage() {
   const text = messageText.value.trim();
   const thread = activeConversation.value;
   if (!text || !thread) return;
-  const createdAt = new Date().toISOString();
-  if (!globalThis.PetHopData.appendMessage(storageService, thread.id, { sender: 'adopter', text, createdAt })) {
-    sendError.value = 'No se pudo guardar el mensaje en este dispositivo.';
-    return;
-  }
+  try { await api('/conversations/' + thread.id + '/messages', { method: 'POST', body: { content: text } }); await chooseConversation(thread); }
+  catch (error) { sendError.value = error.message || 'No se pudo enviar el mensaje.'; return; }
   messageText.value = '';
   sendError.value = '';
-  revision.value += 1;
   scrollTranscriptToEnd();
 }
-function refreshMessages(event) {
-  if (!event || event.key === globalThis.PetHopData.MESSAGES_KEY) revision.value += 1;
-}
 watch(() => activeConversation.value?.id, () => scrollTranscriptToEnd());
-watch([() => route.query.pet, allConversations], ([petId, threads]) => {
-  if (!petId) return;
-  const thread = threads.find(item => String(item.petId) === String(petId));
-  if (thread) {
-    selectedThreadId.value = thread.id;
-    mobileChatOpen.value = true;
-  }
-}, { immediate: true });
-onMounted(() => window.addEventListener('storage', refreshMessages));
-onUnmounted(() => window.removeEventListener('storage', refreshMessages));
+onMounted(loadThreads);
 </script>
 
 <template>
@@ -93,7 +84,12 @@ onUnmounted(() => window.removeEventListener('storage', refreshMessages));
         <div><span class="eyebrow">TUS CONVERSACIONES</span><h1>Tus <span>mensajes.</span></h1><p>Continúa las conversaciones sobre las mascotas que te interesan.</p></div>
       </div>
 
-      <section v-if="!allConversations.length" class="messages-empty-state">
+      <section v-if="inboxError && !allConversations.length" class="messages-empty-state" role="alert">
+        <span class="messages-empty-icon"><Icon name="messages-square" :size="31" /></span>
+        <h2>No se pudo abrir la bandeja</h2>
+        <p>{{ inboxError }}</p>
+      </section>
+      <section v-else-if="!allConversations.length" class="messages-empty-state">
         <span class="messages-empty-icon"><Icon name="messages-square" :size="31" /></span>
         <h2>Aún no tienes conversaciones</h2>
         <p>Cuando preguntes por una mascota, podrás continuar aquí el chat con su refugio o responsable.</p>

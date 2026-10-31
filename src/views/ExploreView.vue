@@ -1,16 +1,18 @@
 <script setup>
-import { computed, reactive, ref, watch } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 import Icon from '../components/Icon.vue';
 import PetCard from '../components/PetCard.vue';
-import { getFavorites, getPets, toggleFavorite } from '../services/pets.js';
+import { addFavorite, listFavorites, listPets, removeFavorite } from '../services/petApi.js';
 
 const route = useRoute();
 const router = useRouter();
-const pets = ref(getPets());
-const favorites = ref(getFavorites());
+const pets = ref([]);
+const favorites = ref([]);
+const loading = ref(false);
+const loadError = ref('');
 const query = ref(String(route.query.search || ''));
 const favoritesOnly = ref(route.query.favorites === '1');
 const filters = reactive({ species: '', age: '', gender: '', size: '', location: '', sort: '' });
@@ -21,18 +23,35 @@ const visiblePets = computed(() => {
   const search = normalize(query.value);
   const result = pets.value.filter(pet => {
     const text = normalize(`${pet.name} ${pet.species} ${pet.location} ${pet.description || ''}`);
-    return (!search || text.includes(search)) && (!appliedFilters.species || normalize(pet.species).includes(normalize(appliedFilters.species))) && (!appliedFilters.age || normalize(pet.age).includes(normalize(appliedFilters.age))) && (!appliedFilters.gender || normalize(pet.gender).includes(normalize(appliedFilters.gender))) && (!appliedFilters.size || normalize(pet.size).includes(normalize(appliedFilters.size))) && (!appliedFilters.location || normalize(pet.location).includes(normalize(appliedFilters.location))) && (!favoritesOnly.value || favorites.value.includes(String(pet.id).toLowerCase()));
+    return (!search || text.includes(search)) && (!appliedFilters.age || normalize(pet.ageGroup).includes(normalize(appliedFilters.age))) && (!favoritesOnly.value || favorites.value.includes(String(pet.id).toLowerCase()));
   });
   if (filters.sort === 'name') result.sort((a, b) => a.name.localeCompare(b.name, 'es'));
   if (filters.sort === 'age') { const rank = { cachorro: 0, joven: 1, adulto: 2, senior: 3 }; result.sort((a, b) => (rank[normalize(a.age)] ?? 99) - (rank[normalize(b.age)] ?? 99)); }
   return result;
 });
-watch(() => route.query.search, value => { query.value = String(value || ''); });
+watch(() => route.query.search, value => { query.value = String(value || ''); loadPets(); });
 watch(() => route.query.favorites, value => { favoritesOnly.value = value === '1'; });
-function refresh() { pets.value = getPets(); favorites.value = getFavorites(); }
-function favorite(id) { toggleFavorite(id); refresh(); }
-function applyFilters() { Object.assign(appliedFilters, filters); refresh(); }
-function clearFilters() { Object.keys(filters).forEach(key => { filters[key] = ''; appliedFilters[key] = ''; }); query.value = ''; favoritesOnly.value = false; router.replace({ path: route.path }); }
+async function loadPets() {
+  loading.value = true; loadError.value = '';
+  try {
+    const result = await listPets({ ...filters, search: query.value, sort: filters.sort === 'age' ? '' : filters.sort });
+    pets.value = result.content;
+    if (filters.sort === 'age') { const rank = { cachorro: 0, joven: 1, adulto: 2, senior: 3 }; pets.value.sort((a,b) => (rank[normalize(a.ageGroup)] ?? 99) - (rank[normalize(b.ageGroup)] ?? 99)); }
+  } catch (error) { pets.value = []; loadError.value = error.message || 'No fue posible cargar las mascotas. Verifica que el backend esté iniciado.'; }
+  finally { loading.value = false; }
+}
+async function loadFavorites() { try { favorites.value = (await listFavorites()).map(pet => String(pet.id).toLowerCase()); } catch { favorites.value = []; } }
+async function refresh() { await Promise.all([loadPets(), loadFavorites()]); }
+async function favorite(id) {
+  try {
+    const key = String(id).toLowerCase();
+    if (favorites.value.includes(key)) { await removeFavorite(id); favorites.value = favorites.value.filter(item => item !== key); }
+    else { await addFavorite(id); favorites.value = [...favorites.value, key]; }
+  } catch (error) { loadError.value = error.status === 401 ? 'Inicia sesión para guardar mascotas en favoritos.' : error.message; }
+}
+function applyFilters() { Object.assign(appliedFilters, filters); loadPets(); }
+function clearFilters() { Object.keys(filters).forEach(key => { filters[key] = ''; appliedFilters[key] = ''; }); query.value = ''; favoritesOnly.value = false; router.replace({ path: route.path }); loadPets(); }
+onMounted(refresh);
 </script>
 
 <template>
@@ -40,7 +59,7 @@ function clearFilters() { Object.keys(filters).forEach(key => { filters[key] = '
     <main>
       <section class="catalog-header"><div class="catalog-header-container"><div class="catalog-header-copy"><h1>Encuentra una mascota <span>que conecte contigo.</span></h1></div></div></section>
       <section class="catalog-section"><div class="catalog-container">
-        <form class="catalog-search" @submit.prevent="">
+        <form class="catalog-search" @submit.prevent="applyFilters">
           <div class="catalog-search-input"><span class="search-symbol" aria-hidden="true"><Icon name="search" /></span><label class="sr-only" for="catalogSearch">Buscar mascotas</label><input id="catalogSearch" v-model="query" name="search" type="search" placeholder="Buscar por nombre, especie o ubicación" autocomplete="off"></div>
           <button type="submit" class="search-button">Buscar</button>
         </form>
@@ -56,9 +75,11 @@ function clearFilters() { Object.keys(filters).forEach(key => { filters[key] = '
               <div class="filter-actions"><button class="btn btn-primary catalog-apply" type="button" @click="applyFilters">Aplicar filtros</button><button class="clear-filters" type="button" @click="clearFilters">Limpiar filtros</button></div>
             </div>
           </section>
-          <div class="catalog-results"><div class="results-header"><div><h2>Mascotas disponibles</h2><p class="results-count" aria-live="polite"><strong>{{ visiblePets.length }}</strong>{{ visiblePets.length === 1 ? ' mascota disponible' : ' mascotas disponibles' }}</p></div><button v-if="favoritesOnly" class="clear-filters" type="button" @click="favoritesOnly = false; router.replace({ path: route.path })">Ver todas</button></div>
-            <div class="catalog-grid pets-grid"><PetCard v-for="pet in visiblePets" :key="pet.id" :pet="pet" :favorite="favorites.includes(String(pet.id).toLowerCase())" @favorite="favorite" /></div>
-            <div v-if="!visiblePets.length" class="catalog-empty"><h2>No encontramos mascotas con esos criterios.</h2><p>Prueba ajustar tu búsqueda o limpiar los filtros.</p><button class="primary-button" type="button" @click="clearFilters">Limpiar filtros</button></div>
+        <div class="catalog-results"><div class="results-header"><div><h2>Mascotas disponibles</h2><p class="results-count" aria-live="polite"><strong>{{ loadError ? '—' : visiblePets.length }}</strong>{{ loadError ? ' disponibilidad no consultada' : visiblePets.length === 1 ? ' mascota disponible' : ' mascotas disponibles' }}</p></div><button v-if="favoritesOnly" class="clear-filters" type="button" @click="favoritesOnly = false; router.replace({ path: route.path })">Ver todas</button></div>
+            <div v-if="loadError" class="catalog-empty" role="alert"><h2>No se pudieron consultar las mascotas.</h2><p>{{ loadError }}</p><button class="primary-button" type="button" @click="refresh">Reintentar</button></div>
+            <div v-else-if="loading" class="catalog-empty" role="status"><p>Cargando mascotas…</p></div>
+            <div v-else class="catalog-grid pets-grid"><PetCard v-for="pet in visiblePets" :key="pet.id" :pet="pet" :favorite="favorites.includes(String(pet.id).toLowerCase())" @favorite="favorite" /></div>
+            <div v-if="!loading && !loadError && !visiblePets.length" class="catalog-empty"><h2>No encontramos mascotas con esos criterios.</h2><p>Prueba ajustar tu búsqueda o limpiar los filtros.</p><button class="primary-button" type="button" @click="clearFilters">Limpiar filtros</button></div>
           </div>
         </div>
       </div></section>
@@ -88,19 +109,31 @@ function clearFilters() { Object.keys(filters).forEach(key => { filters[key] = '
   .catalog-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
 }
 @media (max-width:700px) {
-  .catalog-header h1 { font-size:clamp(2.45rem,9vw,3.4rem); }
-  .catalog-filter-controls { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
-  .catalog-filter-controls .filter-actions { grid-column:1 / -1; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
-  .catalog-filter-controls .filter-actions > button { width:100%; white-space:normal; }
-  .results-header { flex-direction:row; align-items:flex-end; flex-wrap:wrap; gap:12px; }
+  .catalog-header { margin-bottom:8px; padding-top:16px; }
+  .catalog-header h1 { margin:0; font-size:clamp(2.05rem,7.8vw,2.8rem); line-height:1; }
+  .catalog-section { padding-top:12px; }
+  .catalog-search { align-items:stretch; flex-direction:row; gap:7px; margin-bottom:10px; }
+  .catalog-search-input input { min-height:44px; padding:10px 10px 10px 40px; font-size:.78rem; }
+  .catalog-search .search-button { flex:0 0 25%; min-width:78px; min-height:44px; padding:0 10px; }
+  .catalog-filterbar { margin-bottom:10px; padding:10px; }
+  .catalog-filter-controls { grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px 8px; }
+  .catalog-filter-group label { margin-bottom:3px; font-size:.65rem; }
+  .catalog-filter-controls .catalog-filter-group select { min-height:40px; padding:6px 24px 6px 8px; font-size:.74rem; }
+  .catalog-filter-controls .filter-actions { grid-column:1 / -1; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin-top:4px; }
+  .catalog-filter-controls .filter-actions > button { width:100%; min-height:42px; padding:7px 5px; white-space:normal; }
+  .catalog-results { margin-top:0; }
+  .results-header { flex-direction:row; align-items:flex-end; flex-wrap:wrap; gap:6px 12px; margin-bottom:12px; }
+  .results-header > div:first-child h2 { font-size:1.45rem; line-height:1.08; }
+  .results-count { margin-top:2px; }
   .catalog-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
 }
 @media (max-width:480px) {
-  .catalog-filterbar { padding:14px; }
-  .catalog-filter-controls { grid-template-columns:1fr; }
-  .catalog-filter-controls .filter-actions { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .results-header { align-items:flex-start; flex-direction:column; }
   .sort-control { width:100%; justify-content:space-between; }
   .catalog-grid { grid-template-columns:1fr; }
+}
+@media (max-width:360px) {
+  .catalog-search { align-items:stretch; flex-direction:column; }
+  .catalog-search .search-button { flex:0 0 auto; width:100%; }
 }
 </style>

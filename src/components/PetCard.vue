@@ -1,17 +1,13 @@
 <script setup>
 import { computed } from 'vue';
-import { sessionStorageService } from '../services/storage.js';
 import Icon from './Icon.vue';
 import ImageWithSkeleton from './ImageWithSkeleton.vue';
 
 const props = defineProps({ pet: { type: Object, required: true }, favorite: Boolean });
 const emit = defineEmits(['favorite']);
-const photo = computed(() => props.pet.photos?.[0] || `/img/${props.pet.image || 'img2.jpeg'}`);
+const photo = computed(() => props.pet.photos?.[0] || props.pet.image || '');
 const availableStatus = computed(() => props.pet.status && props.pet.status !== 'Publicada' ? props.pet.status : 'Disponible');
 
-function rememberSelectedPet() {
-  sessionStorageService.write('pethop_selected_pet', props.pet);
-}
 </script>
 
 <template>
@@ -25,8 +21,9 @@ function rememberSelectedPet() {
     :data-size="pet.size"
     :data-location="pet.location"
   >
-    <RouterLink class="pet-card-hit-area" :to="{ path: '/mascota.html', query: { pet: pet.id } }" :aria-label="`Abrir perfil de ${pet.name}`" @click="rememberSelectedPet" />
+    <RouterLink class="pet-card-hit-area" :to="{ path: '/mascota.html', query: { pet: pet.id } }" :aria-label="`Abrir perfil de ${pet.name}`" />
     <ImageWithSkeleton frame-class="catalog-card-image" :src="photo" :alt="`Imagen de ${pet.name}`">
+      <span v-if="!photo" class="catalog-no-photo" aria-hidden="true"><Icon name="paw-print" /></span>
       <button
         class="favorite"
         :class="{ active: favorite }"

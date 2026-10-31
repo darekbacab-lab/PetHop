@@ -2608,6 +2608,7 @@ ol {
     gap: 8px;
 }
 
+.footer-column h2,
 .footer-column h3 {
     margin-bottom: 5px;
     color: var(--white);
@@ -4148,6 +4149,7 @@ textarea {
 
 .site-footer .footer-brand p,
 .site-footer .footer-column a,
+.site-footer .footer-column h2,
 .site-footer .footer-column h3,
 .site-footer .footer-bottom {
     color: var(--white);
@@ -4192,6 +4194,19 @@ textarea {
 
 .pet-card[data-name="Nala"] .pet-image,
 .catalog-card[data-name="Nala"] .catalog-card-image { background-image: url("../img/img6.jpg"); }
+
+/* Las tarjetas Vue usan únicamente las fotos entregadas por la API; las reglas
+   por nombre anteriores pertenecen al catálogo estático heredado. */
+.catalog-page .pet-card .catalog-card-image { background-image: none !important; }
+.catalog-page .catalog-no-photo {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: var(--text-soft);
+    background: var(--primary-soft);
+}
+.catalog-page .catalog-no-photo svg { width: 42px; height: 42px; opacity: .62; }
 
 .follow-up-pet-card[hidden] { display: none; }
 
@@ -4345,6 +4360,7 @@ html[data-theme="dark"] .process-step h3,
 html[data-theme="dark"] .process-step p,
 html[data-theme="dark"] .site-footer .footer-brand p,
 html[data-theme="dark"] .site-footer .footer-column a,
+html[data-theme="dark"] .site-footer .footer-column h2,
 html[data-theme="dark"] .site-footer .footer-column h3,
 html[data-theme="dark"] .site-footer .footer-bottom { color:#fff; }
 html[data-theme="dark"] .site-footer { background:#34393c; border-top:1px solid #51585c; }
@@ -4849,6 +4865,9 @@ html[data-theme="dark"] .messages-empty-state { background:#34393c; }
 .provider-pet-grid { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px; }
 .provider-pet-card { overflow:hidden;border:1px solid var(--border);border-radius:17px;background:#fff; }
 .provider-pet-photo { height:170px;background-color:#eef8f8;background-size:cover;background-repeat:no-repeat;background-position:center; }
+.provider-pet-no-photo { display:grid;place-content:center;justify-items:center;gap:8px;width:100%;height:100%;color:var(--primary-strong);background:linear-gradient(145deg,#e7f5f4,#f2fafa); }
+.provider-pet-no-photo svg { width:34px;height:34px;opacity:.72; }
+.provider-pet-no-photo small { color:var(--text-soft);font-size:.72rem;font-weight:600; }
 .provider-photo-chino { background-image:url("../img/img2.jpeg"); }.provider-photo-luna { background-image:url("../img/img3.jpeg"); }.provider-photo-max { background-image:url("../img/img4.jpeg"); }.provider-photo-kira { background-image:url("../img/img7.jpeg"); }.provider-photo-milo { background-image:url("../img/img5.jpg"); }.provider-photo-nala { background-image:url("../img/img6.jpg"); }.provider-photo-default { background:linear-gradient(145deg,#dff2f1,#edfafa);display:grid;place-items:center; }
 .provider-pet-card-body { padding:16px; }
 .provider-card-line { display:flex;align-items:center;justify-content:space-between;gap:8px; }

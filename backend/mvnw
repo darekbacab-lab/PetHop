@@ -1,0 +1,17 @@
+#!/bin/sh
+set -eu
+MVN_VERSION=3.9.16
+DIST_ROOT="${HOME}/.m2/wrapper/dists"
+MVN_HOME="${DIST_ROOT}/apache-maven-${MVN_VERSION}"
+if [ ! -x "${MVN_HOME}/bin/mvn" ]; then
+  mkdir -p "$DIST_ROOT"
+  ZIP="${TMPDIR:-/tmp}/apache-maven-${MVN_VERSION}.zip"
+  STAGING="${TMPDIR:-/tmp}/pethop-maven-${MVN_VERSION}-$$"
+  mkdir -p "$STAGING"
+  curl -fsSL "https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/${MVN_VERSION}/apache-maven-${MVN_VERSION}-bin.zip" -o "$ZIP"
+  unzip -q -o "$ZIP" -d "$STAGING"
+  mv "$STAGING/apache-maven-${MVN_VERSION}" "$MVN_HOME"
+  rmdir "$STAGING"
+  rm -f "$ZIP"
+fi
+exec "${MVN_HOME}/bin/mvn" "$@"

@@ -197,23 +197,22 @@ test('the sidebar stays above its backdrop and can close through Vue controls', 
     for (const label of ['Inicio', 'Explorar', 'Dar en adopción', 'Seguimiento', 'Favoritos']) assert.ok(source.includes(label));
 });
 
-test('catalog cards retain the original information hierarchy and open accessibly without an extra CTA', () => {
+test('catalog cards retain information hierarchy and link directly to the persisted pet profile', () => {
     const source = fs.readFileSync(path.join(projectRoot, 'src/components/PetCard.vue'), 'utf8');
     const original = fs.readFileSync(path.join(legacyPages, 'explorar.html'), 'utf8');
     for (const marker of ['catalog-card-image', 'catalog-card-content', 'catalog-card-top', 'catalog-details', 'catalog-location']) {
         assert.ok(source.includes(marker), `Vue card keeps ${marker}`);
         assert.ok(original.includes(marker), `original card includes ${marker}`);
     }
-    assert.match(source, /role="link"/);
-    assert.match(source, /tabindex="0"/);
-    assert.match(source, /@click="handleCardClick"/);
-    assert.match(source, /@keydown="handleCardKeydown"/);
+    assert.match(source, /<RouterLink class="pet-card-hit-area"/);
+    assert.match(source, /path: '\/mascota\.html', query: \{ pet: pet\.id \}/);
+    assert.match(source, /aria-label="`Abrir perfil de \$\{pet\.name\}`"/);
     assert.match(source, /@click\.stop="emit\('favorite', pet\.id\)"/);
-    assert.match(source, /pethop_selected_pet/);
+    assert.doesNotMatch(source, /pethop_selected_pet/);
     assert.doesNotMatch(source, /Conocer más/);
 });
 
-test('organization registration entry points save locally and lead into the provider workspace', () => {
+test('organization registration leads to account creation and the shelter profile API', () => {
     const home = fs.readFileSync(path.join(projectRoot, 'src/views/HomeView.vue'), 'utf8');
     const provider = fs.readFileSync(path.join(projectRoot, 'src/views/ProviderView.vue'), 'utf8');
     const access = fs.readFileSync(path.join(projectRoot, 'src/views/AccessView.vue'), 'utf8');
@@ -221,8 +220,9 @@ test('organization registration entry points save locally and lead into the prov
     assert.match(home, /Registrar refugio/);
     assert.match(home, /@submit\.prevent="registerOrganization"/);
     assert.match(home, /id="organizationForm"/);
-    assert.match(home, /storageService\.write\('pethop_provider_workspace', state\)/);
-    assert.match(home, /router\.push\('\/proveedor\.html'\)/);
+    assert.match(home, /mode: 'register', role: 'provider'/);
+    assert.match(access, /api\('\/shelters', \{ method: 'POST'/);
+    assert.match(access, /register\(\{ fullName:/);
     assert.match(provider, /chooseRole\('organization'\)/);
     assert.match(access, /value="organization"/);
 });

@@ -1,29 +1,35 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
-import { useRouter } from 'vue-router';
-import { storageService } from '../services/storage.js';
+import { useRoute, useRouter } from 'vue-router';
+import { login as loginApi, register } from '../services/auth.js';
+import { api } from '../services/api.js';
+import { sessionStorageService } from '../services/storage.js';
 
-const router = useRouter();
+const router = useRouter(); const route = useRoute();
+const shelterDraft = sessionStorageService.read('pethop_shelter_registration_draft', {}) || {};
+sessionStorageService.remove('pethop_shelter_registration_draft');
 const mode = ref('login');
-const login = ref({ email: '', password: '' });
-const registration = ref({ profile: '', providerKind: '', email: '', password: '', confirm: '' });
+const loginForm = ref({ email: '', password: '' });
+const registration = ref({ profile: route.query.role === 'provider' ? 'provider' : '', providerKind: route.query.role === 'provider' ? 'organization' : '', fullName: String(shelterDraft.fullName || ''), organizationName: String(shelterDraft.organizationName || ''), description: String(shelterDraft.description || ''), phone: String(shelterDraft.phone || ''), email: String(shelterDraft.email || ''), password: '', confirm: '' });
 const showLoginPassword = ref(false);
 const showRegisterPassword = ref(false);
 const feedback = ref({ login: '', register: '', registerError: false });
 const isRegistering = computed(() => mode.value === 'register');
+if (route.query.mode === 'register') mode.value = 'register';
 
 watch(isRegistering, registering => {
   document.title = `${registering ? 'Crear cuenta' : 'Ingresar'} | PetHop`;
   feedback.value = { login: '', register: '', registerError: false };
 }, { immediate: true });
 
-function submitLogin(event) {
+async function submitLogin(event) {
   if (!event.currentTarget.reportValidity()) return;
-  // This prototype only validates the form; it has no server authentication.
-  router.push('/');
+  feedback.value.login = '';
+  try { await loginApi({ email: loginForm.value.email.trim(), password: loginForm.value.password }); await router.push(String(route.query.redirect || '/')); }
+  catch (error) { feedback.value.login = error.message || 'No se pudo iniciar sesión. Revisa tus datos e inténtalo de nuevo.'; }
 }
 
-function submitRegistration(event) {
+async function submitRegistration(event) {
   feedback.value.register = '';
   feedback.value.registerError = false;
   if (registration.value.password !== registration.value.confirm) {
@@ -34,21 +40,18 @@ function submitRegistration(event) {
 
   if (!event.currentTarget.reportValidity()) return;
 
-  if (registration.value.profile === 'provider') {
-    const state = storageService.read('pethop_provider_workspace', {}) || {};
-    state.role = registration.value.providerKind;
-    state.section = 'Inicio';
-    state.profile = { ...(state.profile || {}), email: registration.value.email.trim() };
-    if (!storageService.write('pethop_provider_workspace', state)) {
-      feedback.value.register = 'No se pudo guardar el perfil en este dispositivo. Revisa el almacenamiento del navegador e inténtalo de nuevo.';
-      feedback.value.registerError = true;
-      return;
+  const role = registration.value.profile === 'provider' ? 'SHELTER' : 'ADOPTER';
+  try {
+    const user = await register({ fullName: registration.value.fullName.trim(), email: registration.value.email.trim(), password: registration.value.password, phone: registration.value.phone.trim() || null, role });
+    await loginApi({ email: registration.value.email.trim(), password: registration.value.password });
+    if (role === 'SHELTER') {
+      await api('/shelters', { method: 'POST', body: { organizationName: registration.value.providerKind === 'organization' ? registration.value.organizationName.trim() : `Rescatista · ${user.fullName}`, description: registration.value.description || '', contactPhone: registration.value.phone.trim() || '' } });
     }
-    router.push('/proveedor.html');
-    return;
+    await router.push(role === 'SHELTER' ? '/proveedor.html' : String(route.query.redirect || '/'));
+  } catch (error) {
+    feedback.value.register = error.message || 'No se pudo completar el registro.';
+    feedback.value.registerError = true;
   }
-
-  router.push('/');
 }
 </script>
 
@@ -71,10 +74,10 @@ function submitRegistration(event) {
 
         <form v-if="!isRegistering" class="auth-form" novalidate @submit.prevent="submitLogin">
           <label for="login-email">Correo electrónico</label>
-          <input id="login-email" v-model="login.email" name="email" type="email" autocomplete="email" placeholder="nombre@correo.com" required>
+          <input id="login-email" v-model="loginForm.email" name="email" type="email" autocomplete="email" placeholder="nombre@correo.com" required>
           <label for="login-password">Contraseña</label>
           <div class="auth-password-field">
-            <input id="login-password" v-model="login.password" name="password" :type="showLoginPassword ? 'text' : 'password'" autocomplete="current-password" placeholder="Tu contraseña" minlength="8" required>
+            <input id="login-password" v-model="loginForm.password" name="password" :type="showLoginPassword ? 'text' : 'password'" autocomplete="current-password" placeholder="Tu contraseña" minlength="12" required>
             <button class="auth-password-toggle" type="button" :aria-pressed="showLoginPassword" @click="showLoginPassword = !showLoginPassword">{{ showLoginPassword ? 'Ocultar' : 'Mostrar' }}</button>
           </div>
           <button class="login-button auth-submit" type="submit">Iniciar sesión</button>
@@ -102,15 +105,23 @@ function submitRegistration(event) {
             <small>Elegir organización no significa que el refugio esté verificado.</small>
           </fieldset>
 
+          <label for="register-full-name">Nombre completo</label>
+          <input id="register-full-name" v-model="registration.fullName" name="fullName" autocomplete="name" maxlength="160" placeholder="Tu nombre" required>
+          <template v-if="registration.profile === 'provider' && registration.providerKind === 'organization'">
+            <label for="register-organization-name">Nombre de la organización</label>
+            <input id="register-organization-name" v-model="registration.organizationName" name="organizationName" maxlength="180" placeholder="Nombre del refugio u organización" required>
+          </template>
+          <label for="register-phone">Teléfono <span>(opcional)</span></label>
+          <input id="register-phone" v-model="registration.phone" name="phone" type="tel" autocomplete="tel" placeholder="Número de contacto">
           <label for="register-email">Correo electrónico</label>
           <input id="register-email" v-model="registration.email" name="email" type="email" autocomplete="email" placeholder="nombre@correo.com" required>
           <label for="register-password">Contraseña</label>
           <div class="auth-password-field">
-            <input id="register-password" v-model="registration.password" name="password" :type="showRegisterPassword ? 'text' : 'password'" autocomplete="new-password" placeholder="Al menos 8 caracteres" minlength="8" required>
+            <input id="register-password" v-model="registration.password" name="password" :type="showRegisterPassword ? 'text' : 'password'" autocomplete="new-password" placeholder="Al menos 12 caracteres" minlength="12" maxlength="72" required>
             <button class="auth-password-toggle" type="button" :aria-pressed="showRegisterPassword" @click="showRegisterPassword = !showRegisterPassword">{{ showRegisterPassword ? 'Ocultar' : 'Mostrar' }}</button>
           </div>
           <label for="register-confirm">Confirmar contraseña</label>
-          <input id="register-confirm" v-model="registration.confirm" name="confirm" type="password" autocomplete="new-password" placeholder="Repite tu contraseña" minlength="8" required>
+          <input id="register-confirm" v-model="registration.confirm" name="confirm" type="password" autocomplete="new-password" placeholder="Repite tu contraseña" minlength="12" maxlength="72" required>
           <button class="organization-button auth-submit" type="submit">Crear cuenta</button>
           <p class="auth-feedback" :class="{ 'is-error': feedback.registerError }" role="status" aria-live="polite">{{ feedback.register }}</p>
           <p class="auth-switch-copy">¿Ya tienes cuenta? <button type="button" class="auth-text-button" @click="mode = 'login'">Iniciar sesión</button></p>

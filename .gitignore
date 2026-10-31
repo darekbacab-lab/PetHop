@@ -1,3 +1,11 @@
 node_modules/
 dist/
 .vite/
+.env
+.env.*
+!.env.example
+**/target/
+backend/var/
+var/
+*.dump
+*.sql.gz
