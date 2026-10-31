@@ -1,4 +1,4 @@
-const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1').replace(/\/$/, '');
+const API_BASE = (import.meta.env?.VITE_API_URL || 'http://localhost:8080/api/v1').replace(/\/$/, '');
 let csrfToken = '';
 
 export class ApiError extends Error {
@@ -37,6 +37,9 @@ export async function api(path, options = {}) {
     headers.set('X-XSRF-TOKEN', await ensureCsrf());
   }
   const response = await request(`${API_BASE}${path.startsWith('/') ? path : `/${path}`}`, init);
+  if (response.status === 401 && !/^\/?auth\/(?:me|login)(?:\?|$)/.test(path)) {
+    if (typeof window !== 'undefined') window.dispatchEvent(new Event('pethop:session-expired'));
+  }
   if (response.status === 204) return null;
   const contentType = response.headers.get('content-type') || '';
   const payload = contentType.includes('json') ? await response.json() : await response.text();

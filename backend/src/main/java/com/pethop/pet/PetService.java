@@ -14,6 +14,8 @@ import com.pethop.user.UserRole;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
+import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -147,13 +149,24 @@ public class PetService {
     private void apply(Pet pet, PetRequest request, boolean creating) {
         pet.setName(request.name().trim()); pet.setSpecies(request.species()); pet.setBreed(request.breed());
         pet.setSex(request.sex()); pet.setAgeValue(request.ageValue()); pet.setAgeUnit(request.ageUnit()); pet.setSize(request.size());
+        pet.setLifeStage(request.lifeStage());
         pet.setWeight(request.weight()); pet.setColor(request.color()); pet.setDescription(request.description().trim());
-        pet.setPersonality(request.personality()); pet.setHealthSummary(request.healthSummary()); pet.setSterilized(request.sterilized());
+        List<String> traits = request.personalityTraits() == null ? parseTraits(request.personality()) : request.personalityTraits();
+        pet.setPersonalityTraits(traits);
+        pet.setPersonality(traits.isEmpty() ? request.personality() : String.join(", ", traits));
+        pet.setHealthSummary(request.healthSummary()); pet.setHealthCondition(request.healthCondition());
+        pet.setStory(request.story()); pet.setBackground(request.background()); pet.setHomeType(request.homeType());
+        pet.setConditions(request.conditions()); pet.setExperience(request.experience()); pet.setRequirements(request.requirements());
+        pet.setSterilized(request.sterilized());
         pet.setVaccinated(request.vaccinated()); pet.setDewormed(request.dewormed()); pet.setLocation(request.location());
     }
     private PetResponse response(Pet pet) {
         List<PetImageResponse> photoList = images.findAllByPetIdOrderByDisplayOrder(pet.getId()).stream().map(PetImageResponse::from).toList();
-        return PetResponse.from(pet, photoList);
+        return PetResponse.from(pet, photoList, pet.getPersonalityTraits().isEmpty() ? parseTraits(pet.getPersonality()) : List.copyOf(pet.getPersonalityTraits()));
+    }
+    private List<String> parseTraits(String legacyValue) {
+        if (legacyValue == null || legacyValue.isBlank() || legacyValue.equalsIgnoreCase("true") || legacyValue.equalsIgnoreCase("false")) return List.of();
+        return Arrays.stream(legacyValue.split(",")).map(String::trim).filter(value -> !value.isBlank()).collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
     }
     private Sort sortOrder(String sort) {
         return switch (sort == null ? "recommended" : sort) {

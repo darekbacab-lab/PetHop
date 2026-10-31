@@ -2,7 +2,9 @@ package com.pethop.pet;
 
 import com.pethop.shelter.ShelterProfile;
 import jakarta.persistence.Column;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -11,10 +13,13 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
+import jakarta.persistence.OrderColumn;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 import org.hibernate.annotations.UuidGenerator;
 
 @Entity
@@ -29,15 +34,28 @@ public class Pet {
     @Enumerated(EnumType.STRING) @Column(nullable = false, length = 12) private PetSex sex = PetSex.UNKNOWN;
     @Column(name = "age_value") private Short ageValue;
     @Enumerated(EnumType.STRING) @Column(name = "age_unit", length = 12) private AgeUnit ageUnit;
+    @Enumerated(EnumType.STRING) @Column(name = "life_stage", length = 16) private PetLifeStage lifeStage;
     @Enumerated(EnumType.STRING) @Column(length = 12) private PetSize size;
     @Column(precision = 6, scale = 2) private BigDecimal weight;
     @Column(length = 100) private String color;
     @Column(nullable = false, columnDefinition = "text") private String description;
     @Column(columnDefinition = "text") private String personality;
+    @ElementCollection
+    @CollectionTable(name = "pet_personality_traits", joinColumns = @JoinColumn(name = "pet_id"))
+    @OrderColumn(name = "position")
+    @Column(name = "trait", nullable = false, length = 120)
+    private List<String> personalityTraits = new ArrayList<>();
     @Column(name = "health_summary", columnDefinition = "text") private String healthSummary;
-    @Column(nullable = false) private boolean sterilized;
-    @Column(nullable = false) private boolean vaccinated;
-    @Column(nullable = false) private boolean dewormed;
+    @Column(name = "health_condition", columnDefinition = "text") private String healthCondition;
+    @Column(name = "adoption_story", columnDefinition = "text") private String story;
+    @Column(columnDefinition = "text") private String background;
+    @Column(name = "home_type", length = 180) private String homeType;
+    @Column(name = "housing_conditions", columnDefinition = "text") private String conditions;
+    @Column(name = "recommended_experience", columnDefinition = "text") private String experience;
+    @Column(name = "adoption_requirements", columnDefinition = "text") private String requirements;
+    @Column private Boolean sterilized;
+    @Column private Boolean vaccinated;
+    @Column private Boolean dewormed;
     @Column(length = 180) private String location;
     @Enumerated(EnumType.STRING) @Column(name = "adoption_status", nullable = false, length = 16) private AdoptionStatus adoptionStatus = AdoptionStatus.DRAFT;
     @Column(name = "published_at") private Instant publishedAt;
@@ -61,6 +79,8 @@ public class Pet {
     public void setAgeValue(Short ageValue) { this.ageValue = ageValue; }
     public AgeUnit getAgeUnit() { return ageUnit; }
     public void setAgeUnit(AgeUnit ageUnit) { this.ageUnit = ageUnit; }
+    public PetLifeStage getLifeStage() { return lifeStage; }
+    public void setLifeStage(PetLifeStage lifeStage) { this.lifeStage = lifeStage; }
     public PetSize getSize() { return size; }
     public void setSize(PetSize size) { this.size = size; }
     public BigDecimal getWeight() { return weight; }
@@ -71,14 +91,30 @@ public class Pet {
     public void setDescription(String description) { this.description = description; }
     public String getPersonality() { return personality; }
     public void setPersonality(String personality) { this.personality = personality; }
+    public List<String> getPersonalityTraits() { return personalityTraits; }
+    public void setPersonalityTraits(List<String> personalityTraits) { this.personalityTraits = personalityTraits == null ? new ArrayList<>() : new ArrayList<>(personalityTraits); }
     public String getHealthSummary() { return healthSummary; }
     public void setHealthSummary(String healthSummary) { this.healthSummary = healthSummary; }
-    public boolean isSterilized() { return sterilized; }
-    public void setSterilized(boolean sterilized) { this.sterilized = sterilized; }
-    public boolean isVaccinated() { return vaccinated; }
-    public void setVaccinated(boolean vaccinated) { this.vaccinated = vaccinated; }
-    public boolean isDewormed() { return dewormed; }
-    public void setDewormed(boolean dewormed) { this.dewormed = dewormed; }
+    public String getHealthCondition() { return healthCondition; }
+    public void setHealthCondition(String healthCondition) { this.healthCondition = healthCondition; }
+    public String getStory() { return story; }
+    public void setStory(String story) { this.story = story; }
+    public String getBackground() { return background; }
+    public void setBackground(String background) { this.background = background; }
+    public String getHomeType() { return homeType; }
+    public void setHomeType(String homeType) { this.homeType = homeType; }
+    public String getConditions() { return conditions; }
+    public void setConditions(String conditions) { this.conditions = conditions; }
+    public String getExperience() { return experience; }
+    public void setExperience(String experience) { this.experience = experience; }
+    public String getRequirements() { return requirements; }
+    public void setRequirements(String requirements) { this.requirements = requirements; }
+    public Boolean getSterilized() { return sterilized; }
+    public void setSterilized(Boolean sterilized) { this.sterilized = sterilized; }
+    public Boolean getVaccinated() { return vaccinated; }
+    public void setVaccinated(Boolean vaccinated) { this.vaccinated = vaccinated; }
+    public Boolean getDewormed() { return dewormed; }
+    public void setDewormed(Boolean dewormed) { this.dewormed = dewormed; }
     public String getLocation() { return location; }
     public void setLocation(String location) { this.location = location; }
     public AdoptionStatus getAdoptionStatus() { return adoptionStatus; }

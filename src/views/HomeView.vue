@@ -6,7 +6,6 @@ import SiteFooter from '../components/SiteFooter.vue';
 import Icon from '../components/Icon.vue';
 import ImageWithSkeleton from '../components/ImageWithSkeleton.vue';
 import { listPets, listFavorites, addFavorite, removeFavorite } from '../services/petApi.js';
-import { sessionStorageService } from '../services/storage.js';
 
 const router = useRouter();
 const pets = ref([]);
@@ -106,9 +105,6 @@ watch(canPagePets, canPage => {
 });
 const favorites = ref([]);
 const search = ref('');
-const showOrganizationForm = ref(false);
-const registrationError = ref('');
-const registration = ref({ organization: '', contact: '', email: '', phone: '', description: '' });
 const petImage = pet => pet.photos?.[0] || '';
 const processSteps = [
   { title: 'Explora', text: 'Consulta mascotas disponibles y utiliza filtros para encontrar opciones que se adapten a tus preferencias.', mobileText: 'Encuentra mascotas que buscan un hogar.', art: '/img/onboarding-explora.png' },
@@ -261,22 +257,13 @@ async function favorite(id) {
     else { await addFavorite(id); favorites.value = [...favorites.value, key]; }
   } catch (error) { if (error.status === 401) router.push({ path: '/acceso.html', query: { redirect: '/' } }); }
 }
-function registerOrganization() {
-  const saved = sessionStorageService.write('pethop_shelter_registration_draft', {
-    organizationName: registration.value.organization.trim(), fullName: registration.value.contact.trim(),
-    email: registration.value.email.trim(), phone: registration.value.phone.trim(),
-    description: registration.value.description.trim()
-  });
-  if (!saved) { registrationError.value = 'No se pudo conservar el formulario para continuar. Revisa el almacenamiento de la sesión.'; return; }
-  router.push({ path: '/acceso.html', query: { mode: 'register', role: 'provider' } });
-}
 </script>
 
 <template>
   <div><SiteHeader />
     <main>
       <section class="hero"><div class="hero-container"><div class="hero-copy"><span class="eyebrow">ADOPCIÓN RESPONSABLE</span><h1>Encuentra al próximo <span>miembro de tu familia.</span></h1><p>Conecta con mascotas que buscan un hogar y conoce información importante sobre su historia, salud y proceso de adopción antes de dar el siguiente paso.</p><div class="hero-actions"><RouterLink to="/explorar.html" class="primary-button">Explorar mascotas</RouterLink><RouterLink to="/#como-funciona" class="secondary-button">Conoce cómo funciona</RouterLink></div></div><div class="hero-visual"><ImageWithSkeleton frame-class="hero-image-placeholder" image-class="hero-pets-image" src="/img/mascotas-hero-v2.png" alt="Un perro y un gato descansan juntos sobre una manta" role="img" /><div class="hero-floating-card"><div class="floating-check" aria-hidden="true"><Icon name="check" /></div><div><strong>Adopción responsable</strong><span>Información organizada</span></div></div></div></div></section>
-      <section class="quick-actions"><div class="actions-container"><RouterLink to="/explorar.html" class="action-card"><div class="action-content"><span>ADOPTANTES</span><h2>Adoptar</h2><p>Encuentra mascotas disponibles y conoce sus características antes de solicitar una adopción.</p><strong>Explorar mascotas</strong></div><span class="action-paw-trail" aria-hidden="true"><Icon name="paw-print" class="action-paw action-paw-one" /><Icon name="paw-print" class="action-paw action-paw-two" /><Icon name="paw-print" class="action-paw action-paw-four" /><Icon name="paw-print" class="action-paw action-paw-five" /><Icon name="paw-print" class="action-paw action-paw-six" /><Icon name="paw-print" class="action-paw action-paw-seven" /></span></RouterLink><a href="#registrar" class="action-card" @click.prevent="showOrganizationForm=true"><div class="action-content"><span>ORGANIZACIONES</span><h2>Registrar refugio</h2><p>Publica mascotas, organiza solicitudes y centraliza la información de tus procesos de adopción.</p><strong>Conocer más</strong></div><span class="action-paw-trail" aria-hidden="true"><Icon name="paw-print" class="action-paw action-paw-one" /><Icon name="paw-print" class="action-paw action-paw-two" /><Icon name="paw-print" class="action-paw action-paw-four" /><Icon name="paw-print" class="action-paw action-paw-five" /><Icon name="paw-print" class="action-paw action-paw-six" /><Icon name="paw-print" class="action-paw action-paw-seven" /></span></a><RouterLink to="/seguimiento.html" class="action-card"><div class="action-content"><span>SEGUIMIENTO</span><h2>Acompañar</h2><p>Mantén organizada la información posterior a la adopción y registra cómo continúa la historia.</p><strong>Ver seguimiento</strong></div><span class="action-paw-trail" aria-hidden="true"><Icon name="paw-print" class="action-paw action-paw-one" /><Icon name="paw-print" class="action-paw action-paw-two" /><Icon name="paw-print" class="action-paw action-paw-four" /><Icon name="paw-print" class="action-paw action-paw-five" /><Icon name="paw-print" class="action-paw action-paw-six" /><Icon name="paw-print" class="action-paw action-paw-seven" /></span></RouterLink></div></section>
+      <section class="quick-actions"><div class="actions-container"><RouterLink to="/explorar.html" class="action-card"><div class="action-content"><span>ADOPTANTES</span><h2>Adoptar</h2><p>Encuentra mascotas disponibles y conoce sus características antes de solicitar una adopción.</p><strong>Explorar mascotas</strong></div><span class="action-paw-trail" aria-hidden="true"><Icon name="paw-print" class="action-paw action-paw-one" /><Icon name="paw-print" class="action-paw action-paw-two" /><Icon name="paw-print" class="action-paw action-paw-four" /><Icon name="paw-print" class="action-paw action-paw-five" /><Icon name="paw-print" class="action-paw action-paw-six" /><Icon name="paw-print" class="action-paw action-paw-seven" /></span></RouterLink><RouterLink :to="{ path:'/acceso.html', query:{ mode:'register', role:'provider' } }" class="action-card"><div class="action-content"><span>ORGANIZACIONES</span><h2>Registrar refugio</h2><p>Publica mascotas, organiza solicitudes y centraliza la información de tus procesos de adopción.</p><strong>Conocer más</strong></div><span class="action-paw-trail" aria-hidden="true"><Icon name="paw-print" class="action-paw action-paw-one" /><Icon name="paw-print" class="action-paw action-paw-two" /><Icon name="paw-print" class="action-paw action-paw-four" /><Icon name="paw-print" class="action-paw action-paw-five" /><Icon name="paw-print" class="action-paw action-paw-six" /><Icon name="paw-print" class="action-paw action-paw-seven" /></span></RouterLink><RouterLink to="/seguimiento.html" class="action-card"><div class="action-content"><span>SEGUIMIENTO</span><h2>Acompañar</h2><p>Mantén organizada la información posterior a la adopción y registra cómo continúa la historia.</p><strong>Ver seguimiento</strong></div><span class="action-paw-trail" aria-hidden="true"><Icon name="paw-print" class="action-paw action-paw-one" /><Icon name="paw-print" class="action-paw action-paw-two" /><Icon name="paw-print" class="action-paw action-paw-four" /><Icon name="paw-print" class="action-paw action-paw-five" /><Icon name="paw-print" class="action-paw action-paw-six" /><Icon name="paw-print" class="action-paw action-paw-seven" /></span></RouterLink></div></section>
       <section class="explore-section" id="explorar"><div class="explore-container"><div class="section-title"><div><span>CONOCE A LOS DISPONIBLES</span><h2>Tal vez tu nuevo compañero está aquí.</h2></div></div><div class="home-search"><form class="search-box" @submit.prevent="submitSearch"><div class="search-input"><span class="search-symbol" aria-hidden="true"><Icon name="search" /></span><label class="sr-only" for="homeSearch">Buscar mascota</label><input id="homeSearch" v-model="search" name="search" type="search" placeholder="Busca por nombre, especie o ubicación" autocomplete="off"></div><button type="submit" class="search-button">Buscar</button></form></div>
         <div class="home-pets-carousel" id="featuredPets" aria-label="Mascotas destacadas" @mouseenter="petCarouselHovered = true" @mouseleave="petCarouselHovered = false" @focusin="petCarouselFocused = true" @focusout="handleCarouselFocusOut">
           <p v-if="petLoadError" class="catalog-empty" role="alert">{{ petLoadError }}</p><p v-else-if="!pets.length" class="catalog-empty" role="status">Aún no hay mascotas publicadas. Vuelve pronto para conocerlas.</p>
@@ -341,37 +328,12 @@ function registerOrganization() {
           </div>
         </div>
       </section>
-      <section class="organization-section" id="registrar"><div class="organization-container"><div><span>PARA REFUGIOS Y RESCATISTAS</span><h2>Una forma más organizada de gestionar adopciones.</h2><p>Centraliza la información de tus mascotas, solicitudes y seguimientos en un mismo espacio.</p></div><button type="button" class="organization-button" @click="showOrganizationForm = true">Registrar refugio</button></div></section>
+      <section class="organization-section" id="registrar"><div class="organization-container"><div><span>PARA REFUGIOS Y RESCATISTAS</span><h2>Una forma más organizada de gestionar adopciones.</h2><p>Centraliza la información de tus mascotas, solicitudes y seguimientos en un mismo espacio.</p></div><RouterLink class="organization-button" :to="{ path:'/acceso.html', query:{ mode:'register', role:'provider' } }">Registrar refugio</RouterLink></div></section>
     </main><SiteFooter />
-    <div v-if="showOrganizationForm" class="dynamic-modal open organization-registration-overlay" role="presentation" @click.self="showOrganizationForm = false"><section class="dynamic-modal-content organization-registration-modal" role="dialog" aria-modal="true" aria-labelledby="organization-title" @keydown.esc="showOrganizationForm=false"><button type="button" class="dynamic-modal-close" aria-label="Cerrar" @click="showOrganizationForm = false"><Icon name="x" /></button><div class="organization-modal-heading"><span class="organization-modal-icon"><Icon name="building-2" :size="22" /></span><div><span class="organization-modal-eyebrow">ESPACIO PARA REFUGIOS</span><h2 id="organization-title">Registrar refugio</h2><p>Completa los datos básicos; después crearás una cuenta para acceder al panel.</p></div></div><form id="organizationForm" @submit.prevent="registerOrganization"><div class="organization-form-grid"><label for="organizationName">Nombre de la organización<input id="organizationName" v-model="registration.organization" name="organization" type="text" placeholder="Ej. Refugio Patitas" autocomplete="organization" required></label><label for="organizationContact">Persona de contacto<input id="organizationContact" v-model="registration.contact" name="contact" type="text" placeholder="Nombre completo" autocomplete="name" required></label><label for="organizationEmail">Correo electrónico<input id="organizationEmail" v-model="registration.email" name="email" type="email" placeholder="nombre@organizacion.org" autocomplete="email" required></label><label for="organizationPhone">Teléfono<input id="organizationPhone" v-model="registration.phone" name="phone" type="tel" placeholder="Número de contacto" autocomplete="tel" required></label><label class="organization-description-field" for="organizationDescription">Acerca de la organización<textarea id="organizationDescription" v-model="registration.description" name="description" placeholder="Cuéntanos brevemente a quiénes ayudan y cómo trabajan." required></textarea></label></div><p v-if="registrationError" class="auth-feedback is-error" role="alert">{{ registrationError }}</p><button class="organization-button organization-submit" type="submit"><Icon name="arrow-right" :size="18" /> Continuar al registro de cuenta</button></form></section></div>
   </div>
 </template>
 
 <style scoped>
-.organization-registration-modal { width:min(620px,100%); max-height:min(780px,calc(100dvh - 40px)); padding:34px; border:1px solid #b9e2e5; border-radius:24px; }
-.organization-registration-modal .dynamic-modal-close { z-index:1; width:38px; height:38px; }
-.organization-modal-heading { display:flex; align-items:flex-start; gap:15px; padding-right:34px; }
-.organization-modal-icon { display:grid; width:48px; height:48px; flex:0 0 48px; place-items:center; border-radius:15px; background:#e5f6f5; color:var(--primary-strong); }
-.organization-modal-eyebrow { color:var(--primary-strong); font-size:.68rem; font-weight:850; letter-spacing:.12em; }
-.organization-modal-heading h2 { margin:5px 0 5px; font:800 1.65rem/1.2 "Poppins",sans-serif; letter-spacing:-.035em; }
-.organization-modal-heading p { margin:0; color:var(--text-soft); font-size:.82rem; line-height:1.55; }
-.organization-review-hint { display:flex; align-items:center; gap:10px; margin:21px 0 18px; padding:12px 14px; border:1px solid #c9e8dc; border-radius:13px; background:#effaf5; color:#3e6258; font-size:.76rem; line-height:1.45; }
-.organization-review-hint :deep(svg) { flex:0 0 auto; color:var(--primary-strong); }
-.organization-form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
-.organization-form-grid > label { display:flex; min-width:0; flex-direction:column; gap:7px; color:var(--text); font-size:.74rem; font-weight:750; }
-.organization-registration-modal .organization-form-grid input,.organization-registration-modal .organization-form-grid textarea { width:100%; min-height:45px; padding:11px 13px; border:1px solid #c4e1e4; border-radius:11px; background:#f5fcfc; color:var(--text); font:500 .79rem "Montserrat",sans-serif; transition:border-color .18s ease,box-shadow .18s ease,background .18s ease; }
-.organization-registration-modal .organization-form-grid textarea { min-height:105px; resize:vertical; }
-.organization-registration-modal .organization-form-grid input:focus,.organization-registration-modal .organization-form-grid textarea:focus { border-color:var(--primary-strong); outline:0; background:#fff; box-shadow:0 0 0 3px rgba(22,127,135,.1); }
-.organization-description-field { grid-column:1/-1; }
-.organization-registration-modal #organizationForm > .organization-submit { display:flex; width:100%; min-height:50px; align-items:center; justify-content:center; gap:9px; margin-top:5px; }
-@media(max-width:560px) {
-  .organization-registration-modal { max-height:calc(100dvh - 24px); padding:27px 20px 20px; border-radius:19px; }
-  .organization-modal-heading { gap:11px; padding-right:29px; }
-  .organization-modal-icon { width:42px; height:42px; flex-basis:42px; border-radius:13px; }
-  .organization-modal-heading h2 { font-size:1.35rem; }
-  .organization-form-grid { grid-template-columns:1fr; gap:12px; }
-  .organization-description-field { grid-column:auto; }
-}
 .home-pets-carousel {
   position: relative;
   margin-inline: 42px;
@@ -756,8 +718,9 @@ function registerOrganization() {
 }
 
 @media (min-width: 901px) {
-  .process-carousel-track { padding-inline:14px; }
-  .process-slide { flex-basis:calc((100% - 28px) / 3); opacity:1; transform:none; }
+  /* Side padding lets both the first real slide and the loop clones center at scroll boundaries. */
+  .process-carousel-track { --process-slide-width:min(361px, calc((100vw - 86px) / 3)); padding-inline:calc((100% - var(--process-slide-width)) / 2); }
+  .process-slide { flex:0 0 var(--process-slide-width); opacity:1; transform:none; }
   .process-slide.is-active { opacity:1; transform:none; }
   .process-steps .process-step { aspect-ratio:3 / 4; gap:8px; padding:clamp(18px, 2vw, 24px); }
   .process-step-art { width:min(100%, 230px); max-height:220px; transform:translateY(-12px); }

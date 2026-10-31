@@ -105,7 +105,7 @@ test('threads without a pet or a nonempty message cannot be written', () => {
     assert.equal(data.appendMessage(storage, 'missing', { sender: 'provider', text: '  ' }), false);
 });
 
-test('the seven views own declarative templates and do not depend on the legacy renderer', () => {
+test('the existing views own declarative templates and do not depend on the legacy renderer', () => {
     const pages = {
         'index.html': 'HomeView.vue',
         'acceso.html': 'AccessView.vue',
@@ -127,14 +127,14 @@ test('the seven views own declarative templates and do not depend on the legacy 
 });
 
 test('active HTML entry points load only the Vue/Vite bootstrap', () => {
-    for (const page of ['index.html', 'acceso.html', 'explorar.html', 'mascota.html', 'proveedor.html', 'seguimiento.html', 'solicitud.html']) {
+    for (const page of ['index.html', 'acceso.html', 'explorar.html', 'mascota.html', 'proveedor.html', 'seguimiento.html', 'solicitud.html', 'perfil.html']) {
         const html = fs.readFileSync(path.join(projectRoot, page), 'utf8');
         assert.ok(html.includes('src="/src/main.js"'), `${page} loads the Vue application`);
         assert.ok(!html.includes('app.js'), `${page} does not load the former global controller`);
         assert.ok(!html.includes('js/proveedor.js'), `${page} does not load the former provider controller`);
         assert.ok(!html.includes('js/acceso.js'), `${page} does not load the former access controller`);
     }
-    for (const view of ['HomeView.vue','AccessView.vue','ExploreView.vue','PetView.vue','AdoptionView.vue','FollowUpView.vue','ProviderView.vue']) {
+    for (const view of ['HomeView.vue','AccessView.vue','ExploreView.vue','PetView.vue','AdoptionView.vue','FollowUpView.vue','ProviderView.vue','AdopterProfileView.vue']) {
         const source = fs.readFileSync(path.join(projectRoot, 'src', 'views', view), 'utf8');
         assert.ok(!source.includes('legacyRuntime'), `${view} does not import legacy runtime`);
     }
@@ -157,7 +157,7 @@ test('preserved local HTML links and script or stylesheet assets resolve', () =>
 });
 
 test('all HTML entry points load the Vue application and route manifest covers every existing page', () => {
-    const expectedRoutes = ['/acceso.html', '/explorar.html', '/mascota.html', '/solicitud.html', '/seguimiento.html', '/proveedor.html'];
+    const expectedRoutes = ['/acceso.html', '/explorar.html', '/mascota.html', '/solicitud.html', '/seguimiento.html', '/mensajes.html', '/perfil.html', '/proveedor.html'];
     const router = fs.readFileSync(path.join(projectRoot, 'src', 'router', 'index.js'), 'utf8');
     for (const route of expectedRoutes) assert.ok(router.includes(`path: '${route}'`), `router registers ${route}`);
 
@@ -165,6 +165,72 @@ test('all HTML entry points load the Vue application and route manifest covers e
         const html = fs.readFileSync(path.join(projectRoot, page), 'utf8');
         assert.ok(html.includes('/src/main.js'), `${page} starts Vue/Vite`);
     }
+});
+
+test('account navigation and profiles use the authenticated session and persisted profile endpoints', () => {
+    const auth = fs.readFileSync(path.join(projectRoot, 'src/services/auth.js'), 'utf8');
+    const header = fs.readFileSync(path.join(projectRoot, 'src/components/SiteHeader.vue'), 'utf8');
+    const adopter = fs.readFileSync(path.join(projectRoot, 'src/views/AdopterProfileView.vue'), 'utf8');
+    const provider = fs.readFileSync(path.join(projectRoot, 'src/views/ProviderView.vue'), 'utf8');
+
+    assert.match(auth, /currentUser\s*=\s*ref\(null\)/);
+    assert.match(auth, /api\('\/auth\/me'\)/);
+    assert.match(auth, /api\('\/auth\/logout'/);
+    assert.match(header, /role === 'ADOPTER'/);
+    assert.match(header, /role === 'SHELTER'/);
+    assert.match(header, /:to="accountRoute"/);
+    assert.doesNotMatch(header, /account-dropdown|accountOpen/);
+    assert.match(header, /account-nav-signout/);
+    assert.match(header, /accountDisplayName/);
+    assert.match(adopter, /Cerrar sesión/);
+    assert.doesNotMatch(adopter, /adopter-inline-edit/);
+    assert.match(adopter, /api\('\/users\/me'\)/);
+    assert.match(adopter, /\/adoption-applications\/mine/);
+    assert.match(adopter, /\/adoptions\/mine/);
+    assert.match(adopter, /listFavorites\(\)/);
+    assert.match(provider, /api\('\/users\/me'\)/);
+    assert.match(provider, /api\('\/shelters\/me'\)/);
+    assert.match(provider, /api\('\/shelters',\s*\{\s*method:\s*'POST'/);
+});
+
+test('edit profile controls have a registered pencil icon', () => {
+    const icons = fs.readFileSync(path.join(projectRoot, 'src/icons/lucide-icons.js'), 'utf8');
+    const provider = fs.readFileSync(path.join(projectRoot, 'src/views/ProviderView.vue'), 'utf8');
+    assert.match(provider, /class="provider-profile-edit"[\s\S]*?<Icon name="pencil"/);
+    assert.match(icons, /"pencil":\[\["path"/);
+});
+
+test('pet profile and both chats show the real conversation contact, pet and location', () => {
+    const petResponse = fs.readFileSync(path.join(projectRoot, 'backend/src/main/java/com/pethop/pet/dto/PetResponse.java'), 'utf8');
+    const petProfile = fs.readFileSync(path.join(projectRoot, 'src/views/PetView.vue'), 'utf8');
+    const adopterChat = fs.readFileSync(path.join(projectRoot, 'src/views/AdopterMessagesView.vue'), 'utf8');
+    const providerChat = fs.readFileSync(path.join(projectRoot, 'src/views/ProviderView.vue'), 'utf8');
+    assert.match(petResponse, /String shelterName/);
+    assert.match(petProfile, /Publicado por <strong>{{ pet\.shelterName }}/);
+    assert.match(adopterChat, /pet\?\.shelterName/);
+    assert.match(adopterChat, /<strong>{{ publisherName\(activeConversation\)/);
+    assert.match(adopterChat, /Sobre: {{ activeConversation\.petName }}/);
+    assert.match(adopterChat, /Ubicación: {{ activeConversation\.pet\.location }}/);
+    assert.match(providerChat, /petLocation: pet\?\.location/);
+    assert.match(providerChat, /<strong>{{ activeConversation\.adopter }}/);
+    assert.match(providerChat, /Sobre: {{ activeConversation\.pet }}/);
+    assert.match(providerChat, /Ubicación: {{ activeConversation\.petLocation }}/);
+});
+
+test('conversation actions use per-user persisted pin and hide endpoints', () => {
+    const adopterChat = fs.readFileSync(path.join(projectRoot, 'src/views/AdopterMessagesView.vue'), 'utf8');
+    const controller = fs.readFileSync(path.join(projectRoot, 'backend/src/main/java/com/pethop/messaging/MessagingController.java'), 'utf8');
+    const service = fs.readFileSync(path.join(projectRoot, 'backend/src/main/java/com/pethop/messaging/MessagingService.java'), 'utf8');
+    const migration = fs.readFileSync(path.join(projectRoot, 'backend/src/main/resources/db/migration/V10__conversation_participant_preferences.sql'), 'utf8');
+    assert.match(adopterChat, /Fijar conversación/);
+    assert.match(adopterChat, /Eliminar conversación/);
+    assert.match(adopterChat, /method: 'PATCH', body: \{ pinned \}/);
+    assert.match(adopterChat, /method: 'DELETE'/);
+    assert.match(controller, /@PatchMapping\("\/conversations\/\{id\}\/pin"\)/);
+    assert.match(controller, /@DeleteMapping\("\/conversations\/\{id\}"\)/);
+    assert.match(service, /findAllByUserIdAndHiddenAtIsNullOrderByPinnedDescJoinedAtDesc/);
+    assert.match(migration, /pinned BOOLEAN NOT NULL DEFAULT FALSE/);
+    assert.match(migration, /hidden_at TIMESTAMPTZ/);
 });
 
 test('main stylesheet has balanced rule blocks', () => {
@@ -197,6 +263,18 @@ test('the sidebar stays above its backdrop and can close through Vue controls', 
     for (const label of ['Inicio', 'Explorar', 'Dar en adopción', 'Seguimiento', 'Favoritos']) assert.ok(source.includes(label));
 });
 
+test('adopter favorites modal reads and removes favorites through the API', () => {
+    const source = fs.readFileSync(path.join(projectRoot, 'src/components/SiteHeader.vue'), 'utf8');
+    assert.match(source, /from '\.\.\/services\/petApi\.js'/);
+    assert.match(source, /favorites\.value = await listFavorites\(\)/);
+    assert.match(source, /await deleteFavorite\(id\)/);
+    assert.match(source, /function openFavorites\(\)/);
+    assert.doesNotMatch(source, /getFavorites|getPet|toggleFavorite/);
+    assert.match(source, /https\?:\\\/\\\//);
+    assert.match(source, /favoritesLoading/);
+    assert.match(source, /favoritesError/);
+});
+
 test('catalog cards retain information hierarchy and link directly to the persisted pet profile', () => {
     const source = fs.readFileSync(path.join(projectRoot, 'src/components/PetCard.vue'), 'utf8');
     const original = fs.readFileSync(path.join(legacyPages, 'explorar.html'), 'utf8');
@@ -212,19 +290,20 @@ test('catalog cards retain information hierarchy and link directly to the persis
     assert.doesNotMatch(source, /Conocer más/);
 });
 
-test('organization registration leads to account creation and the shelter profile API', () => {
+test('organization registration uses one account form then creates and edits its separate shelter profile', () => {
     const home = fs.readFileSync(path.join(projectRoot, 'src/views/HomeView.vue'), 'utf8');
     const provider = fs.readFileSync(path.join(projectRoot, 'src/views/ProviderView.vue'), 'utf8');
     const access = fs.readFileSync(path.join(projectRoot, 'src/views/AccessView.vue'), 'utf8');
     assert.match(home, /Registrar refugio/);
-    assert.match(home, /Registrar refugio/);
-    assert.match(home, /@submit\.prevent="registerOrganization"/);
-    assert.match(home, /id="organizationForm"/);
-    assert.match(home, /mode: 'register', role: 'provider'/);
-    assert.match(access, /api\('\/shelters', \{ method: 'POST'/);
+    assert.match(home, /mode:'register', role:'provider'/);
+    assert.doesNotMatch(home, /organization-registration-modal|registerOrganization|pethop_shelter_registration_draft/);
     assert.match(access, /register\(\{ fullName:/);
-    assert.match(provider, /chooseRole\('organization'\)/);
-    assert.match(access, /value="organization"/);
+    assert.match(access, /role === 'SHELTER' \? '\/proveedor\.html\?section=perfil'/);
+    assert.doesNotMatch(access, /api\('\/shelters'/);
+    assert.match(provider, /function createOrganizationProfile\(\)/);
+    assert.match(provider, /api\('\/shelters', \{ method: 'POST'/);
+    assert.match(provider, /api\('\/users\/me', \{ method: 'PATCH'/);
+    assert.match(provider, /api\('\/shelters\/me', \{ method: 'PATCH'/);
 });
 
 test('Vue icons use Lucide paths from the locally vendored library with original navigation names', () => {
@@ -250,7 +329,7 @@ test('favorite states use the requested teal Lucide heart and cannot bubble into
     assert.match(card, /:filled="favorite"/);
     assert.match(card, /@click\.stop="emit\('favorite', pet\.id\)"/);
     assert.match(home, /:class="\{ active: favorites\.includes/);
-    assert.match(pet, /:class="\{ active: favorites\.includes\(pet\.id\) \}"/);
+    assert.match(pet, /:class="\{ active:favorites\.includes\(pet\.id\) \}"/);
     assert.match(css, /\.favorite\.active,[\s\S]*?color:\s*#3EB2BA/);
     assert.match(css, /\.favorite:not\(\.active\),[\s\S]*?color:\s*#647174/);
 });

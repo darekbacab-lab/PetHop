@@ -14,6 +14,7 @@ const routes = [
   { path: '/solicitud.html', name: 'solicitud', meta: { title: 'Solicitud de adopción | PetHop' }, component: () => import('../views/AdoptionView.vue') },
   { path: '/seguimiento.html', name: 'seguimiento', meta: { title: 'Seguimiento | PetHop' }, component: () => import('../views/FollowUpView.vue') },
   { path: '/mensajes.html', name: 'mensajes', meta: { title: 'Mensajes | PetHop' }, component: () => import('../views/AdopterMessagesView.vue') },
+  { path: '/perfil.html', name: 'perfil', meta: { title: 'Mi perfil | PetHop' }, component: () => import('../views/AdopterProfileView.vue') },
   { path: '/proveedor.html', name: 'proveedor', meta: { title: 'Dar en adopción | PetHop' }, component: () => import('../views/ProviderView.vue') },
   { path: '/:pathMatch(.*)*', redirect: '/' }
 ];

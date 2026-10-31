@@ -1,13 +1,15 @@
 import { api, API_BASE } from './api.js';
+import { normalizePersonality } from './petForm.js';
 
 const speciesLabel = { DOG: 'Perro', CAT: 'Gato', OTHER: 'Otro' };
 const sexLabel = { MALE: 'Macho', FEMALE: 'Hembra', UNKNOWN: 'Sin especificar' };
 const sizeLabel = { SMALL: 'Pequeño', MEDIUM: 'Mediano', LARGE: 'Grande' };
+const lifeStageLabel = { PUPPY: 'Cachorro', YOUNG: 'Joven', ADULT: 'Adulto', SENIOR: 'Senior' };
+const healthLabel = value => value === true ? 'Sí' : value === false ? 'No' : 'Pendiente de confirmar';
 
 export function mapPet(pet) {
-  const age = pet.ageValue == null ? 'Edad por confirmar' : `${pet.ageValue} ${pet.ageUnit === 'YEARS' ? (pet.ageValue === 1 ? 'año' : 'años') : pet.ageUnit === 'MONTHS' ? (pet.ageValue === 1 ? 'mes' : 'meses') : 'días'}`;
-  const ageLower = age.toLocaleLowerCase('es');
-  const ageGroup = pet.ageValue == null ? 'Por confirmar' : ageLower.includes('día') || ageLower.includes('mes') ? 'Cachorro' : pet.ageValue < 1 ? 'Cachorro' : pet.ageValue < 2 ? 'Joven' : pet.ageValue >= 8 ? 'Senior' : 'Adulto';
+  const age = lifeStageLabel[pet.lifeStage] || 'No especificada';
+  const personalityTraits = normalizePersonality(pet.personalityTraits?.length ? pet.personalityTraits : pet.personality);
   const apiOrigin = API_BASE.replace(/\/api\/v1$/, '');
   const images = (pet.images || [])
     .map(image => image?.url)
@@ -15,11 +17,12 @@ export function mapPet(pet) {
     .map(url => /^https?:\/\//i.test(url) ? url : `${apiOrigin}${url.startsWith('/') ? '' : '/'}${url}`);
   return {
     ...pet, species: speciesLabel[pet.species] || pet.species, gender: sexLabel[pet.sex] || pet.sex,
-    size: sizeLabel[pet.size] || pet.size || 'Por confirmar', age, ageGroup,
+    size: sizeLabel[pet.size] || pet.size || 'Por confirmar', age, ageGroup: age,
+    personalityTraits,
     image: images[0] || '', photos: images,
-    vaccination: pet.vaccinated ? 'Sí' : 'Pendiente de confirmar',
-    deworming: pet.dewormed ? 'Sí' : 'Pendiente de confirmar',
-    sterilization: pet.sterilized ? 'Sí' : 'Pendiente de confirmar'
+    vaccination: healthLabel(pet.vaccinated),
+    deworming: healthLabel(pet.dewormed),
+    sterilization: healthLabel(pet.sterilized)
   };
 }
 

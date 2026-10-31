@@ -1727,6 +1727,17 @@ ol {
     letter-spacing: -0.045em;
 }
 
+.pet-profile-publisher {
+    margin: 9px 0 0;
+    color: var(--text-soft);
+    font-size: 0.82rem;
+}
+
+.pet-profile-publisher strong {
+    color: var(--primary-strong);
+    font-weight: 750;
+}
+
 .pet-information h2 {
     margin-bottom: 11px;
     color: var(--text);
@@ -4868,7 +4879,28 @@ html[data-theme="dark"] .messages-empty-state { background:#34393c; }
 .provider-pet-no-photo { display:grid;place-content:center;justify-items:center;gap:8px;width:100%;height:100%;color:var(--primary-strong);background:linear-gradient(145deg,#e7f5f4,#f2fafa); }
 .provider-pet-no-photo svg { width:34px;height:34px;opacity:.72; }
 .provider-pet-no-photo small { color:var(--text-soft);font-size:.72rem;font-weight:600; }
-.provider-photo-chino { background-image:url("../img/img2.jpeg"); }.provider-photo-luna { background-image:url("../img/img3.jpeg"); }.provider-photo-max { background-image:url("../img/img4.jpeg"); }.provider-photo-kira { background-image:url("../img/img7.jpeg"); }.provider-photo-milo { background-image:url("../img/img5.jpg"); }.provider-photo-nala { background-image:url("../img/img6.jpg"); }.provider-photo-default { background:linear-gradient(145deg,#dff2f1,#edfafa);display:grid;place-items:center; }
+.provider-pet-photo { position:relative; height:clamp(210px,22vw,300px); background-image:none; background-color:#eef8f8; }
+.provider-pet-image { object-fit:contain; }
+.catalog-page .catalog-card-image { height:clamp(270px,25vw,350px); background:#eaf5f4; }
+.catalog-page .catalog-card-image .image-loading-content { object-fit:contain; }
+.gallery-slide-image { object-fit:contain; }
+.gallery-slide-frame { background:#eaf5f4; }
+.provider-draft-photo { position:relative; overflow:hidden; aspect-ratio:1; border:1px solid var(--border); border-radius:12px; background:#eaf5f4; }
+.provider-draft-photo img { display:block; width:100%; height:100%; object-fit:contain; }
+.provider-draft-photo button { position:absolute; right:5px; bottom:5px; display:flex; align-items:center; gap:4px; padding:5px 8px; border:0; border-radius:20px; background:rgba(24,55,61,.9); color:#fff; font-size:.68rem; font-weight:700; cursor:pointer; }
+.provider-form-wide { grid-column:1/-1; }
+.provider-check-option { display:inline-flex; align-items:center; gap:8px; width:fit-content; padding:9px 12px; border:1px solid var(--border); border-radius:999px; background:var(--surface,#fff); color:var(--text); cursor:pointer; transition:background-color .16s,border-color .16s,color .16s; }
+.provider-check-option.is-selected { border-color:var(--primary-strong); background:#e7f6f5; color:var(--primary-strong); }
+.provider-check-option input { accent-color:var(--primary-strong); }
+.gallery-no-photo { display:grid; place-content:center; justify-items:center; gap:12px; min-height:320px; color:var(--primary-strong); text-align:center; }
+.gallery-no-photo svg { width:42px; height:42px; }
+.gallery-no-photo span { color:var(--text-soft); }
+.pet-profile-story { margin-top:18px; }
+.pet-profile-copy { margin-top:12px; color:var(--text-soft); }
+.pet-profile-copy > strong { display:block; margin-bottom:5px; color:var(--text); }
+.pet-profile-copy p { margin:0; white-space:pre-line; }
+.pet-trait-list { display:flex; flex-wrap:wrap; gap:8px; }
+.pet-trait-list span { padding:6px 10px; border:1px solid var(--border); border-radius:999px; background:#eaf6f5; color:var(--primary-strong); font-size:.82rem; }
 .provider-pet-card-body { padding:16px; }
 .provider-card-line { display:flex;align-items:center;justify-content:space-between;gap:8px; }
 .provider-card-line small { color:var(--text-soft);font-size:.72rem; }
@@ -5251,3 +5283,66 @@ html[data-theme="dark"] .home-pets-arrow svg path { color:#fff!important; stroke
 html[data-theme="dark"] .provider-photo-input { border-color:#51585c; background:#292d30; color:#d0d5d7; }
 html[data-theme="light"] .pet-information .information-icon { background:var(--button-primary-bg); color:#fff; }
 html[data-theme="light"] .pet-information .information-icon span { color:#fff; }
+
+/* Preserve the full animal photo in catalog, provider cards and detailed profiles. */
+.provider-pet-photo { position:relative; height:clamp(210px,22vw,300px); background-image:none; background-color:#eef8f8; }
+.provider-pet-image { object-fit:contain; }
+.catalog-page .catalog-card-image { height:clamp(270px,25vw,350px); background:#eaf5f4; }
+.catalog-page .catalog-card-image .image-loading-content,
+.gallery-slide-image { object-fit:contain; }
+.gallery-slide-frame { background:#eaf5f4; }
+html[data-theme="dark"] .gallery-slide-frame,
+html[data-theme="dark"] .catalog-page .catalog-card-image,
+html[data-theme="dark"] .provider-pet-photo { background-color:#303639; }
+.provider-photo-preview { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,180px)); justify-content:start; gap:12px; margin-top:10px; }
+.provider-draft-photo { width:100%; max-width:180px; height:auto; aspect-ratio:4/3; }
+.provider-review-pet { display:grid; grid-template-columns:minmax(180px,230px) minmax(0,1fr); align-items:center; width:min(100%,900px); min-height:0; margin:12px auto 0; }
+.provider-review-pet > img { display:block; width:100%; height:170px; object-fit:contain; border-radius:9px; background:#eaf5f4; }
+.provider-review-pet > div { min-width:0; }
+.provider-review-pet h3 { margin:0 0 6px; }
+.provider-review-pet p { margin:4px 0; }
+.provider-pet-grid { grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),340px)); justify-content:center; align-items:start; max-width:1080px; margin-inline:auto; }
+.provider-pet-card { width:100%; }
+.provider-pet-photo { height:auto; aspect-ratio:1; }
+.provider-pet-image { object-fit:cover; object-position:center; }
+html[data-theme="dark"] .provider-draft-photo,
+html[data-theme="dark"] .provider-review-pet > img { background:#303639; }
+@media (max-width:560px) {
+  .provider-review-pet { grid-template-columns:minmax(0,1fr); }
+  .provider-review-pet > img { width:min(100%,220px); height:165px; margin-inline:auto; }
+  .provider-photo-preview { grid-template-columns:repeat(auto-fill,minmax(120px,150px)); }
+  .provider-draft-photo { max-width:150px; }
+}
+
+/* Compact information blocks, scoped to the public pet profile only. */
+.pet-profile-info { display:grid; gap:22px; }
+.pet-information h2 { margin:0 0 9px; font-size:1.18rem; }
+.pet-profile-info .information-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin:0; }
+.pet-profile-info .information-grid .information-item { min-width:0; min-height:0; padding:11px 12px; border-radius:12px; }
+.pet-profile-info .information-grid .information-item strong { display:block; margin:0 0 3px; font-size:.73rem; line-height:1.35; }
+.pet-profile-info .information-grid .information-item span { display:block; font-size:.82rem; line-height:1.45; overflow-wrap:anywhere; }
+.pet-profile-info .information-grid .information-item.is-long { grid-column:1/-1; }
+.pet-profile-info .pet-requirements-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.pet-profile-info .pet-requirements-grid .information-item.is-long { grid-column:1/-1; }
+.pet-profile-info .pet-story { margin:0; padding:17px 18px; }
+.pet-profile-info .pet-profile-story .pet-profile-copy { margin-top:9px; }
+.pet-profile-info .pet-profile-copy p { line-height:1.55; }
+.pet-profile-info .pet-trait-list { gap:7px; }
+.pet-profile-info .pet-trait-list span { padding:5px 9px; }
+.pet-profile-empty { font-size:.83rem; }
+.pet-cohabitation-list { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+.pet-cohabitation-list > span { display:inline-flex; align-items:center; gap:7px; padding:7px 10px; border:1px solid var(--border); border-radius:999px; background:var(--surface); color:var(--text-soft); font-size:.76rem; }
+.pet-cohabitation-list strong { color:var(--text); }
+.pet-cohabitation-list small { font-size:inherit; }
+html[data-theme="dark"] .pet-cohabitation-list > span { border-color:#51585c; background:#34393c; color:#c3c9cb; }
+html[data-theme="dark"] .pet-cohabitation-list strong { color:#e4e7e8; }
+@media (max-width:1000px) {
+  .pet-profile-info .information-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .pet-profile-info .pet-health-grid .information-item.is-long { grid-column:1/-1; }
+}
+@media (max-width:600px) {
+  .pet-profile-info { gap:18px; }
+  .pet-profile-info .information-grid,
+  .pet-profile-info .pet-requirements-grid { grid-template-columns:minmax(0,1fr); }
+  .pet-profile-info .information-grid .information-item.is-long { grid-column:auto; }
+}

@@ -289,6 +289,23 @@ html[data-theme="dark"] .auth-header .auth-logo-mono { display:block!important; 
     line-height: 1.5;
 }
 
+html[data-theme="dark"] .auth-profile-choice legend { color:#f0f2f2; }
+html[data-theme="dark"] .auth-choice-card {
+    border-color:#596367;
+    background:#34393c;
+}
+html[data-theme="dark"] .auth-choice-card:hover {
+    border-color:#63c5ca;
+    background:#3b4245;
+}
+html[data-theme="dark"] .auth-choice-card:has(input:checked) {
+    border-color:#35aeb6;
+    background:#203d42;
+}
+html[data-theme="dark"] .auth-choice-card strong { color:#f0f2f2; }
+html[data-theme="dark"] .auth-choice-card small { color:#c3c9cb; }
+html[data-theme="dark"] .auth-choice-card input { accent-color:#35aeb6; }
+
 .auth-provider-kind {
     padding: 14px;
     border: 1px solid var(--border);

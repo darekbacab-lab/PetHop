@@ -4,6 +4,7 @@ import com.pethop.common.response.PageResponse;
 import com.pethop.messaging.dto.ConversationResponse;
 import com.pethop.messaging.dto.CreateConversationRequest;
 import com.pethop.messaging.dto.MessageResponse;
+import com.pethop.messaging.dto.PinConversationRequest;
 import com.pethop.messaging.dto.SendMessageRequest;
 import com.pethop.security.SecurityUser;
 import jakarta.validation.Valid;
@@ -15,6 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,6 +32,10 @@ public class MessagingController {
     @GetMapping("/conversations") List<ConversationResponse> conversations(@AuthenticationPrincipal SecurityUser user){return service.list(user);}
     @PostMapping("/conversations") @ResponseStatus(HttpStatus.CREATED)
     ConversationResponse create(@AuthenticationPrincipal SecurityUser user,@Valid @RequestBody CreateConversationRequest request){return service.create(user,request.petId(),request.applicationId());}
+    @PatchMapping("/conversations/{id}/pin") @ResponseStatus(HttpStatus.NO_CONTENT)
+    void pin(@AuthenticationPrincipal SecurityUser user,@PathVariable UUID id,@Valid @RequestBody PinConversationRequest request){service.pin(user,id,request.pinned());}
+    @DeleteMapping("/conversations/{id}") @ResponseStatus(HttpStatus.NO_CONTENT)
+    void hide(@AuthenticationPrincipal SecurityUser user,@PathVariable UUID id){service.hide(user,id);}
     @GetMapping("/conversations/{id}/messages") PageResponse<MessageResponse> messages(@AuthenticationPrincipal SecurityUser user,@PathVariable UUID id,@RequestParam(defaultValue="0") @Min(0) int page,@RequestParam(defaultValue="50") @Min(1) @Max(100) int size){return service.messages(user,id,page,size);}
     @PostMapping("/conversations/{id}/messages") @ResponseStatus(HttpStatus.CREATED)
     MessageResponse send(@AuthenticationPrincipal SecurityUser user,@PathVariable UUID id,@Valid @RequestBody SendMessageRequest request){return service.send(user,id,request.content());}

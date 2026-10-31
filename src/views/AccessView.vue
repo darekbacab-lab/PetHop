@@ -2,15 +2,11 @@
 import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { login as loginApi, register } from '../services/auth.js';
-import { api } from '../services/api.js';
-import { sessionStorageService } from '../services/storage.js';
 
 const router = useRouter(); const route = useRoute();
-const shelterDraft = sessionStorageService.read('pethop_shelter_registration_draft', {}) || {};
-sessionStorageService.remove('pethop_shelter_registration_draft');
 const mode = ref('login');
 const loginForm = ref({ email: '', password: '' });
-const registration = ref({ profile: route.query.role === 'provider' ? 'provider' : '', providerKind: route.query.role === 'provider' ? 'organization' : '', fullName: String(shelterDraft.fullName || ''), organizationName: String(shelterDraft.organizationName || ''), description: String(shelterDraft.description || ''), phone: String(shelterDraft.phone || ''), email: String(shelterDraft.email || ''), password: '', confirm: '' });
+const registration = ref({ profile: route.query.role === 'provider' ? 'provider' : '', fullName: '', phone: '', email: '', password: '', confirm: '' });
 const showLoginPassword = ref(false);
 const showRegisterPassword = ref(false);
 const feedback = ref({ login: '', register: '', registerError: false });
@@ -42,12 +38,9 @@ async function submitRegistration(event) {
 
   const role = registration.value.profile === 'provider' ? 'SHELTER' : 'ADOPTER';
   try {
-    const user = await register({ fullName: registration.value.fullName.trim(), email: registration.value.email.trim(), password: registration.value.password, phone: registration.value.phone.trim() || null, role });
+    await register({ fullName: registration.value.fullName.trim(), email: registration.value.email.trim(), password: registration.value.password, phone: registration.value.phone.trim() || null, role });
     await loginApi({ email: registration.value.email.trim(), password: registration.value.password });
-    if (role === 'SHELTER') {
-      await api('/shelters', { method: 'POST', body: { organizationName: registration.value.providerKind === 'organization' ? registration.value.organizationName.trim() : `Rescatista · ${user.fullName}`, description: registration.value.description || '', contactPhone: registration.value.phone.trim() || '' } });
-    }
-    await router.push(role === 'SHELTER' ? '/proveedor.html' : String(route.query.redirect || '/'));
+    await router.push(role === 'SHELTER' ? '/proveedor.html?section=perfil' : String(route.query.redirect || '/'));
   } catch (error) {
     feedback.value.register = error.message || 'No se pudo completar el registro.';
     feedback.value.registerError = true;
@@ -98,19 +91,8 @@ async function submitRegistration(event) {
             </label>
           </fieldset>
 
-          <fieldset v-if="registration.profile === 'provider'" class="auth-provider-kind">
-            <legend>¿Cómo darás en adopción?</legend>
-            <label><input v-model="registration.providerKind" type="radio" name="provider-kind" value="particular" required> Particular</label>
-            <label><input v-model="registration.providerKind" type="radio" name="provider-kind" value="organization" required> Organización o refugio</label>
-            <small>Elegir organización no significa que el refugio esté verificado.</small>
-          </fieldset>
-
           <label for="register-full-name">Nombre completo</label>
           <input id="register-full-name" v-model="registration.fullName" name="fullName" autocomplete="name" maxlength="160" placeholder="Tu nombre" required>
-          <template v-if="registration.profile === 'provider' && registration.providerKind === 'organization'">
-            <label for="register-organization-name">Nombre de la organización</label>
-            <input id="register-organization-name" v-model="registration.organizationName" name="organizationName" maxlength="180" placeholder="Nombre del refugio u organización" required>
-          </template>
           <label for="register-phone">Teléfono <span>(opcional)</span></label>
           <input id="register-phone" v-model="registration.phone" name="phone" type="tel" autocomplete="tel" placeholder="Número de contacto">
           <label for="register-email">Correo electrónico</label>

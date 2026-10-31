@@ -36,14 +36,28 @@ public class MessagingService {
             if(!app.getPet().getId().equals(petId)||!app.getAdopter().getId().equals(user.id()))throw ApiException.notFound("Solicitud no encontrada.");
         }
         Conversation existing=app!=null?conversations.findByApplicationId(app.getId()).orElse(null):findExistingPetThread(user.id(),petId,pet.getShelter().getUser().getId());
-        if(existing!=null){if(!participants.existsByConversationIdAndUserId(existing.getId(),user.id()))throw ApiException.notFound("Conversación no encontrada.");return conversationResponse(existing,user.id());}
+        if(existing!=null){
+            ConversationParticipant participant=requireParticipantRecord(user,existing.getId());
+            if(participant.getHiddenAt()!=null){participant.setHiddenAt(null);participants.save(participant);}
+            return conversationResponse(existing,user.id(),participant.isPinned());
+        }
         Conversation conversation=new Conversation();conversation.setPet(pet);conversation.setApplication(app);conversation=conversations.save(conversation);
         addParticipant(conversation,user.user());addParticipant(conversation,pet.getShelter().getUser());
-        return conversationResponse(conversation,user.id());
+        return conversationResponse(conversation,user.id(),false);
     }
     @Transactional(readOnly=true)
     public List<ConversationResponse> list(SecurityUser user){
-        return participants.findAllByUserIdOrderByJoinedAtDesc(user.id()).stream().map(p->conversationResponse(p.getConversation(),user.id())).toList();
+        return participants.findAllByUserIdAndHiddenAtIsNullOrderByPinnedDescJoinedAtDesc(user.id()).stream().map(p->conversationResponse(p.getConversation(),user.id(),p.isPinned())).toList();
+    }
+    @Transactional
+    public void pin(SecurityUser user,UUID conversationId,boolean pinned){
+        ConversationParticipant participant=requireParticipantRecord(user,conversationId);
+        participant.setPinned(pinned);participants.save(participant);
+    }
+    @Transactional
+    public void hide(SecurityUser user,UUID conversationId){
+        ConversationParticipant participant=requireParticipantRecord(user,conversationId);
+        participant.setHiddenAt(java.time.Instant.now());participants.save(participant);
     }
     @Transactional
     public PageResponse<MessageResponse> messages(SecurityUser user,UUID conversationId,int page,int size){
@@ -64,13 +78,16 @@ public class MessagingService {
         if(!participants.existsByConversationIdAndUserId(id,user.id()))throw ApiException.notFound("Conversación no encontrada.");
         return conversations.findById(id).orElseThrow(()->ApiException.notFound("Conversación no encontrada."));
     }
+    private ConversationParticipant requireParticipantRecord(SecurityUser user,UUID id){
+        return participants.findByConversationIdAndUserId(id,user.id()).orElseThrow(()->ApiException.notFound("Conversación no encontrada."));
+    }
     private Conversation findExistingPetThread(UUID adopterId,UUID petId,UUID shelterId){
         return conversations.findAllByPetId(petId).stream().filter(c->participants.existsByConversationIdAndUserId(c.getId(),adopterId)&&participants.existsByConversationIdAndUserId(c.getId(),shelterId)).findFirst().orElse(null);
     }
     private void addParticipant(Conversation conversation,User user){ConversationParticipant p=new ConversationParticipant();p.setConversation(conversation);p.setUser(user);participants.save(p);}
-    private ConversationResponse conversationResponse(Conversation c,UUID currentUserId){
+    private ConversationResponse conversationResponse(Conversation c,UUID currentUserId,boolean pinned){
         List<ConversationParticipant> people=participants.findAllByConversationId(c.getId());
         String other=people.stream().map(ConversationParticipant::getUser).filter(u->!u.getId().equals(currentUserId)).map(User::getFullName).findFirst().orElse("Participante");
-        return ConversationResponse.from(c,other);
+        return ConversationResponse.from(c,other,pinned);
     }
 }

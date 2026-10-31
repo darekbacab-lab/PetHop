@@ -1,5 +1,5 @@
 <script setup>
-import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
@@ -17,12 +17,17 @@ const transcriptElement = ref(null);
 const currentUser = ref(null);
 const allConversations = ref([]);
 const inboxError = ref('');
+const conversationActionError = ref('');
+const openConversationMenuId = ref('');
+const conversationMenuPosition = ref(null);
+const openConversationMenu = computed(() => allConversations.value.find(thread => thread.id === openConversationMenuId.value) || null);
 const conversations = computed(() => {
   const search = searchText.value.trim().toLocaleLowerCase('es-MX');
-  return allConversations.value.filter(thread => !search || `${thread.petName} ${thread.pet?.location || ''}`.toLocaleLowerCase('es-MX').includes(search));
+  return allConversations.value.filter(thread => !search || `${thread.petName} ${thread.pet?.location || ''}`.toLocaleLowerCase('es-MX').includes(search)).slice().sort((a, b) => Number(Boolean(b.pinned)) - Number(Boolean(a.pinned)));
 });
 const activeConversation = computed(() => conversations.value.find(thread => thread.id === selectedThreadId.value) || conversations.value[0] || null);
 const threadPhoto = pet => pet?.photos?.[0] || pet?.image || '';
+const publisherName = thread => thread?.pet?.shelterName || (currentUser.value?.role === 'ADOPTER' ? thread?.otherParticipant : '');
 async function loadThreads() {
   try {
     currentUser.value = await api('/auth/me');
@@ -72,8 +77,47 @@ async function sendMessage() {
   sendError.value = '';
   scrollTranscriptToEnd();
 }
+function closeConversationMenuOnOutsideClick(event) {
+  if (!event.target.closest('.adopter-conversation-actions, .adopter-conversation-menu')) closeConversationMenu();
+}
+function closeConversationMenu() { openConversationMenuId.value = ''; conversationMenuPosition.value = null; }
+function toggleConversationMenu(thread, event) {
+  if (openConversationMenuId.value === thread.id) { closeConversationMenu(); return; }
+  const rect = event.currentTarget.getBoundingClientRect();
+  const menuHeight = 96;
+  const opensBelow = window.innerHeight - rect.bottom >= menuHeight + 12;
+  const top = opensBelow ? rect.bottom + 6 : Math.max(8, rect.top - menuHeight - 6);
+  const right = Math.max(8, Math.min(window.innerWidth - 216, window.innerWidth - rect.right));
+  conversationMenuPosition.value = { top: `${top}px`, right: `${right}px` };
+  openConversationMenuId.value = thread.id;
+}
+async function toggleConversationPin(thread) {
+  const pinned = !thread.pinned;
+  try {
+    await api(`/conversations/${thread.id}/pin`, { method: 'PATCH', body: { pinned } });
+    thread.pinned = pinned;
+    closeConversationMenu();
+  } catch (error) { conversationActionError.value = error.message || 'No se pudo actualizar la conversación.'; }
+}
+async function deleteConversation(thread) {
+  if (!window.confirm(`¿Eliminar la conversación sobre ${thread.petName}? Solo dejará de aparecer en tu bandeja.`)) return;
+  try {
+    await api(`/conversations/${thread.id}`, { method: 'DELETE' });
+    allConversations.value = allConversations.value.filter(item => item.id !== thread.id);
+    closeConversationMenu();
+    if (selectedThreadId.value === thread.id) {
+      selectedThreadId.value = '';
+      if (conversations.value[0]) await chooseConversation(conversations.value[0]);
+    }
+  } catch (error) {
+    conversationActionError.value = error.status === 404
+      ? 'El backend respondió 404. Reinicia Spring Boot para cargar la ruta de eliminación y la migración V10, y vuelve a intentarlo.'
+      : error.message || 'No se pudo eliminar la conversación.';
+  }
+}
 watch(() => activeConversation.value?.id, () => scrollTranscriptToEnd());
-onMounted(loadThreads);
+onMounted(() => { loadThreads(); document.addEventListener('click', closeConversationMenuOnOutsideClick); });
+onUnmounted(() => document.removeEventListener('click', closeConversationMenuOnOutsideClick));
 </script>
 
 <template>
@@ -99,20 +143,25 @@ onMounted(loadThreads);
         <aside class="adopter-conversation-sidebar">
           <div class="adopter-inbox-heading"><div><h2>Conversaciones</h2><p>{{ conversations.length }} {{ conversations.length === 1 ? 'chat' : 'chats' }}</p></div><span class="adopter-inbox-icon"><Icon name="messages-square" /></span></div>
           <label class="adopter-search"><Icon name="search" :size="18" /><span class="sr-only">Buscar conversaciones</span><input v-model="searchText" type="search" placeholder="Buscar por mascota" /></label>
-          <div class="adopter-conversation-list">
-            <button v-for="thread in conversations" :key="thread.id" type="button" class="adopter-conversation-item" :class="{ 'is-selected': activeConversation?.id === thread.id }" @click="chooseConversation(thread)">
-              <span class="adopter-pet-avatar"><img v-if="threadPhoto(thread.pet)" :src="threadPhoto(thread.pet)" :alt="''" /><Icon v-else name="paw-print" /></span>
-              <span class="adopter-conversation-copy"><span class="adopter-conversation-top"><strong>{{ thread.petName }}</strong><time>{{ formatConversationDate(thread) }}</time></span><span class="adopter-conversation-bottom"><span>{{ thread.messages.at(-1)?.text || 'Inicia la conversación' }}</span><Icon name="chevron-right" :size="16" /></span></span>
-            </button>
+          <p v-if="conversationActionError" class="adopter-action-error" role="alert">{{ conversationActionError }}</p>
+          <div class="adopter-conversation-list" @scroll="closeConversationMenu">
+            <div v-for="thread in conversations" :key="thread.id" class="adopter-conversation-item" :class="{ 'is-selected': activeConversation?.id === thread.id, 'is-pinned': thread.pinned }">
+              <button type="button" class="adopter-conversation-select" @click="chooseConversation(thread)">
+                <span class="adopter-pet-avatar"><img v-if="threadPhoto(thread.pet)" :src="threadPhoto(thread.pet)" :alt="''" /><Icon v-else name="paw-print" /></span>
+                <span class="adopter-conversation-copy"><span class="adopter-conversation-top"><strong>{{ thread.petName }}</strong><time>{{ formatConversationDate(thread) }}</time></span><span class="adopter-conversation-bottom"><span>{{ thread.messages.at(-1)?.text || 'Inicia la conversación' }}</span><Icon name="chevron-right" :size="16" /></span></span>
+              </button>
+              <div class="adopter-conversation-actions"><button type="button" class="adopter-conversation-menu-trigger" :aria-label="`Opciones de conversación sobre ${thread.petName}`" aria-haspopup="true" :aria-expanded="openConversationMenuId===thread.id" @click.stop="toggleConversationMenu(thread,$event)" @keydown.esc.stop="closeConversationMenu"><span aria-hidden="true">•••</span></button></div>
+            </div>
             <p v-if="!conversations.length" class="adopter-search-empty">No hay conversaciones que coincidan.</p>
           </div>
+          <Teleport to="body"><div v-if="openConversationMenu" class="adopter-conversation-menu" role="group" aria-label="Acciones de conversación" :style="conversationMenuPosition"><button type="button" @keydown.esc="closeConversationMenu" @click="toggleConversationPin(openConversationMenu)">{{ openConversationMenu.pinned ? 'Quitar fijado' : 'Fijar conversación' }}</button><button type="button" class="is-danger" @keydown.esc="closeConversationMenu" @click="deleteConversation(openConversationMenu)">Eliminar conversación</button></div></Teleport>
         </aside>
 
         <section v-if="activeConversation" class="adopter-chat-window" aria-label="Conversación activa">
           <header class="adopter-chat-header">
             <button type="button" class="adopter-chat-back" aria-label="Volver a conversaciones" @click="mobileChatOpen=false"><Icon name="arrow-left" /></button>
             <span class="adopter-pet-avatar adopter-chat-avatar"><img v-if="threadPhoto(activeConversation.pet)" :src="threadPhoto(activeConversation.pet)" :alt="''" /><Icon v-else name="paw-print" /></span>
-            <div class="adopter-chat-contact"><strong>{{ activeConversation.petName }}</strong><span>{{ activeConversation.pet?.species || 'Mascota' }}<template v-if="activeConversation.pet?.location"> · {{ activeConversation.pet.location }}</template></span></div>
+            <div class="adopter-chat-contact"><strong>{{ publisherName(activeConversation) || activeConversation.otherParticipant || 'Contacto de adopción' }}</strong><span>Sobre: {{ activeConversation.petName }}</span><small v-if="activeConversation.pet?.location" class="adopter-chat-location">Ubicación: {{ activeConversation.pet.location }}</small></div>
             <RouterLink v-if="activeConversation.pet" class="adopter-profile-link" :to="{ path: '/mascota.html', query: { pet: activeConversation.petId } }">Ver perfil</RouterLink>
           </header>
           <div ref="transcriptElement" class="adopter-chat-transcript" aria-live="polite" aria-label="Mensajes">
@@ -153,9 +202,21 @@ onMounted(loadThreads);
 .adopter-search input { width:100%; min-width:0; border:0; outline:0; background:transparent; color:var(--text); font:500 .78rem "Montserrat",sans-serif; }
 .adopter-search input::placeholder { color:#7e8b8c; }
 .adopter-conversation-list { overflow-y:auto; }
-.adopter-conversation-item { display:flex; width:100%; align-items:center; gap:11px; padding:13px 15px; border:0; border-bottom:1px solid #edf3f3; background:#fff; color:var(--text); cursor:pointer; text-align:left; transition:background .18s ease; }
+.adopter-action-error { margin:0; padding:8px 15px; color:#a12f29; font-size:.74rem; }
+.adopter-conversation-item { position:relative; display:flex; width:100%; align-items:center; gap:5px; padding:5px 8px 5px 15px; border-bottom:1px solid #edf3f3; background:#fff; color:var(--text); transition:background .18s ease; }
 .adopter-conversation-item:hover { background:#f6fbfb; }
 .adopter-conversation-item.is-selected { background:#eaf7f6; }
+.adopter-conversation-item.is-pinned .adopter-conversation-top strong::before { content:'Fijada · '; color:var(--primary-strong); font-size:.72em; }
+.adopter-conversation-select { display:flex; min-width:0; flex:1; align-items:center; gap:11px; padding:8px 0; border:0; background:transparent; color:inherit; cursor:pointer; text-align:left; }
+.adopter-conversation-select:focus-visible,.adopter-conversation-menu-trigger:focus-visible,.adopter-conversation-menu button:focus-visible { outline:2px solid var(--primary-strong); outline-offset:2px; }
+.adopter-conversation-actions { position:relative; flex:0 0 auto; }
+.adopter-conversation-menu-trigger { display:grid; width:34px; height:34px; place-items:center; border:1px solid transparent; border-radius:9px; background:transparent; color:var(--text-soft); cursor:pointer; }
+.adopter-conversation-menu-trigger:hover,.adopter-conversation-menu-trigger[aria-expanded="true"] { border-color:var(--border); background:var(--white); color:var(--primary-strong); }
+.adopter-conversation-menu-trigger span { font-size:1.12rem; font-weight:900; letter-spacing:1px; line-height:1; }
+.adopter-conversation-menu { position:fixed; z-index:10000; display:grid; width:min(208px,calc(100vw - 16px)); padding:5px; border:1px solid var(--border); border-radius:11px; background:var(--white); box-shadow:0 12px 30px #17383a35; }
+.adopter-conversation-menu button { padding:10px 11px; border:0; border-radius:7px; background:transparent; color:var(--text); cursor:pointer; font:600 .76rem "Montserrat",sans-serif; text-align:left; }
+.adopter-conversation-menu button:hover { background:var(--background); }
+.adopter-conversation-menu button.is-danger { color:#b42318; }
 .adopter-pet-avatar { display:grid; width:48px; height:48px; flex:0 0 48px; overflow:hidden; place-items:center; border:1px solid #d9ebec; border-radius:50%; background:#e7f6f5; color:var(--primary-strong); }
 .adopter-pet-avatar img { width:100%; height:100%; object-fit:cover; }
 .adopter-conversation-copy { display:flex; min-width:0; flex:1; flex-direction:column; gap:5px; }
@@ -171,6 +232,7 @@ onMounted(loadThreads);
 .adopter-chat-contact { display:flex; min-width:0; flex:1; flex-direction:column; gap:3px; }
 .adopter-chat-contact strong { overflow:hidden; color:var(--text); font-size:.89rem; text-overflow:ellipsis; white-space:nowrap; }
 .adopter-chat-contact span { overflow:hidden; color:var(--text-soft); font-size:.72rem; text-overflow:ellipsis; white-space:nowrap; }
+.adopter-chat-contact .adopter-chat-location { overflow:hidden; color:var(--primary-strong); font-size:.66rem; font-weight:700; text-overflow:ellipsis; white-space:nowrap; }
 .adopter-profile-link { display:inline-flex; min-height:36px; align-items:center; padding:0 12px; border:1px solid #cfe4e5; border-radius:9px; color:var(--primary-strong); font-size:.72rem; font-weight:800; text-decoration:none; }
 .adopter-profile-link:hover { background:#eaf7f6; }
 .adopter-chat-back { display:none; }

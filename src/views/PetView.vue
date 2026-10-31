@@ -13,7 +13,24 @@ const pet = ref({ id: '', name: 'Mascota', species: 'Mascota', description: '' }
 const loadError = ref('');
 const favorites = ref([]); const activeTrackIndex = ref(1); const transitionEnabled = ref(true); const isTransitioning = ref(false);
 const pendingDirections = [];
-const photos = computed(() => pet.value.photos?.length ? pet.value.photos : ['/img/pet-gallery.png']);
+const photos = computed(() => Array.isArray(pet.value.photos) ? pet.value.photos : []);
+const generalInformation = computed(() => [
+  ['Especie', pet.value.species], ['Raza', pet.value.breed], ['Sexo', pet.value.gender],
+  ['Etapa de vida', pet.value.age], ['Tamaño', pet.value.size],
+  ['Peso', pet.value.weight == null ? '' : `${pet.value.weight} kg`], ['Ubicación', pet.value.location]
+]);
+const healthInformation = computed(() => [
+  ['Condición de salud', pet.value.healthCondition], ['Observaciones', pet.value.healthSummary],
+  ['Esterilización', pet.value.sterilization], ['Vacunación', pet.value.vaccination], ['Desparasitación', pet.value.deworming]
+].filter(([, value]) => value));
+const personalityTraits = computed(() => (pet.value.personalityTraits || []).filter(value => !value.startsWith('Convive con ')));
+const cohabitationInformation = computed(() => [
+  ['Perros', 'Convive con perros'], ['Gatos', 'Convive con gatos'], ['Niños', 'Convive con niños']
+].filter(([, trait]) => pet.value.personalityTraits?.includes(trait)).map(([label]) => label));
+const adoptionRequirements = computed(() => [
+  ['Tipo de hogar', pet.value.homeType], ['Condiciones necesarias', pet.value.conditions],
+  ['Experiencia recomendada', pet.value.experience], ['Otros requisitos', pet.value.requirements]
+].filter(([, value]) => value));
 const carouselSlides = computed(() => photos.value.length > 1
   ? [{ photo: photos.value.at(-1), sourceIndex: photos.value.length - 1, clone: true, key: 'clone-last' }, ...photos.value.map((photo, sourceIndex) => ({ photo, sourceIndex, clone: false, key: `photo-${sourceIndex}` })), { photo: photos.value[0], sourceIndex: 0, clone: true, key: 'clone-first' }]
   : photos.value.map((photo, sourceIndex) => ({ photo, sourceIndex, clone: false, key: `photo-${sourceIndex}` })));
@@ -75,15 +92,66 @@ async function askShelter() {
 }
 </script>
 <template>
-  <div><SiteHeader /><main><p v-if="loadError" class="pet-profile-error" role="alert">{{ loadError }}</p><section class="pet-profile" :data-pet-id="pet.id" :data-description="pet.description">
-    <div class="pet-profile-container"><RouterLink to="/explorar.html" class="back-link"><Icon name="arrow-left" /> Volver a explorar</RouterLink><div class="pet-profile-grid">
-        <div class="pet-gallery-column"><div class="pet-profile-heading"><h1>{{ pet.name }}</h1></div>
-        <div class="pet-gallery pet-profile-photo" :aria-label="`Galería de imágenes de referencia de ${pet.name}`" tabindex="0" @keydown="handleGalleryKey"><div class="gallery-viewport" role="region" aria-roledescription="carrusel" :aria-label="`Imágenes de referencia de ${pet.name}`" @touchstart.passive="startSwipe" @touchend.passive="endSwipe"><div class="gallery-track" :class="{ 'gallery-track-no-transition': !transitionEnabled, 'gallery-track-moving': isTransitioning }" :style="{ transform: galleryTransform }" @transitionend="finishGalleryTransition"><div v-for="(slide, index) in carouselSlides" :key="slide.key" class="gallery-card" :class="{ 'gallery-card-center': index === centerTrackIndex, 'gallery-card-adjacent': Math.abs(index - centerTrackIndex) === 1 }" role="group" aria-roledescription="diapositiva" :aria-label="`Imagen ${slide.sourceIndex + 1} de ${photos.length}`" :aria-hidden="index !== centerTrackIndex"><ImageWithSkeleton frame-class="gallery-slide-frame" image-class="gallery-slide-image" :src="photoSrc(slide.photo)" :alt="pet.photos?.length ? `Fotografía ${slide.sourceIndex + 1} de ${pet.name}.` : `Imagen de referencia ${slide.sourceIndex + 1} de ${pet.name}. Confirma con el refugio si corresponde a esta mascota.`" /></div></div></div><button v-if="photos.length > 1" class="gallery-arrow gallery-prev" type="button" aria-label="Ver imagen anterior" @click="nextPhoto(-1)"><Icon name="chevron-right" class="gallery-arrow-icon-left" :stroke-width="2.2" /></button><button v-if="photos.length > 1" class="gallery-arrow gallery-next" type="button" aria-label="Ver imagen siguiente" @click="nextPhoto(1)"><Icon name="chevron-right" :stroke-width="2.2" /></button><button class="gallery-favorite" :class="{ active: favorites.includes(pet.id) }" type="button" :aria-pressed="favorites.includes(pet.id)" :aria-label="favorites.includes(pet.id) ? `Quitar ${pet.name} de favoritos` : `Agregar ${pet.name} a favoritos`" @click="favorite"><Icon name="heart" :filled="favorites.includes(pet.id)" /></button></div>
-        <p class="gallery-caption">Imágenes de referencia. Confirma con el refugio cuáles corresponden a {{ pet.name }}.</p><section class="pet-story" :aria-label="`Descripción de ${pet.name}`"><h2 class="pet-story-title">Detalles extra de {{ pet.name }}</h2><p>{{ pet.description || `El refugio aún no ha compartido una descripción sobre ${pet.name}. Puedes preguntarle cómo convive, qué actividades disfruta y qué tipo de hogar se adapta mejor a ${pet.name}.` }}</p></section>
-      </div>
-      <div class="pet-profile-info"><div class="pet-information"><span class="profile-eyebrow">INFORMACIÓN</span><h2>Datos de {{ pet.name }}</h2><div class="information-grid"><div v-for="[label, value] in [['Ubicación', pet.location ? `${pet.location}, Quintana Roo` : 'Ubicación por confirmar'], ['Especie', pet.species], ['Edad', pet.age], ['Sexo', pet.gender], ['Tamaño', pet.size], ['Vacunación', pet.vaccination || 'Pendiente de confirmar'], ['Desparasitación', pet.deworming || 'Pendiente de confirmar'], ['Esterilización', pet.sterilization || 'Pendiente de confirmar']]" :key="label" class="information-item"><div class="information-icon" aria-hidden="true"><Icon v-if="label === 'Ubicación'" name="map-pin" /><Icon v-else-if="label === 'Especie'" :name="pet.species.toLowerCase() === 'gato' ? 'cat' : pet.species.toLowerCase() === 'perro' ? 'dog' : 'paw-print'" /><span v-else>{{ ({ Edad: 'A', Sexo: pet.gender?.[0] || 'S', Tamaño: 'T', Vacunación: 'V', Desparasitación: 'D', Esterilización: 'E' })[label] }}</span></div><div><strong>{{ label }}</strong><span>{{ value || 'Por confirmar' }}</span></div></div></div></div>
-        <div class="adoption-notice"><h2>Adopción responsable</h2><p>Conoce las características y la información de salud de {{ pet.name }} antes de enviar tu solicitud. El refugio puede resolver cualquier dato pendiente.</p></div><button type="button" class="message-shelter-button" @click="askShelter">Preguntar al refugio</button><RouterLink class="pet-apply-button login-button" :to="{ path: '/solicitud.html', query: { pet: pet.id } }">Solicitar adopción</RouterLink></div>
-    </div></div>
-  </section></main><SiteFooter />
+  <div>
+    <SiteHeader />
+    <main>
+      <p v-if="loadError" class="pet-profile-error" role="alert">{{ loadError }}</p>
+      <section class="pet-profile" :data-pet-id="pet.id" :data-description="pet.description">
+        <div class="pet-profile-container">
+          <RouterLink to="/explorar.html" class="back-link"><Icon name="arrow-left" /> Volver a explorar</RouterLink>
+          <div class="pet-profile-grid">
+            <div class="pet-gallery-column">
+              <div class="pet-profile-heading"><h1>{{ pet.name }}</h1><p v-if="pet.shelterName" class="pet-profile-publisher">Publicado por <strong>{{ pet.shelterName }}</strong></p></div>
+              <div class="pet-gallery pet-profile-photo" :aria-label="`Fotografías de ${pet.name}`" tabindex="0" @keydown="handleGalleryKey">
+                <div v-if="photos.length" class="gallery-viewport" role="region" aria-roledescription="carrusel" :aria-label="`Fotografías de ${pet.name}`" @touchstart.passive="startSwipe" @touchend.passive="endSwipe">
+                  <div class="gallery-track" :class="{ 'gallery-track-no-transition': !transitionEnabled, 'gallery-track-moving': isTransitioning }" :style="{ transform: galleryTransform }" @transitionend="finishGalleryTransition">
+                    <div v-for="(slide,index) in carouselSlides" :key="slide.key" class="gallery-card" :class="{ 'gallery-card-center':index===centerTrackIndex,'gallery-card-adjacent':Math.abs(index-centerTrackIndex)===1 }" role="group" aria-roledescription="diapositiva" :aria-label="`Fotografía ${slide.sourceIndex+1} de ${photos.length}`" :aria-hidden="index!==centerTrackIndex">
+                      <ImageWithSkeleton frame-class="gallery-slide-frame" image-class="gallery-slide-image" :src="photoSrc(slide.photo)" :alt="`Fotografía ${slide.sourceIndex+1} de ${pet.name}`" />
+                    </div>
+                  </div>
+                </div>
+                <div v-else class="gallery-no-photo" role="img" :aria-label="`${pet.name} aún no tiene fotografías`"><Icon name="paw-print" /><span>El refugio aún no ha agregado fotografías.</span></div>
+                <button v-if="photos.length > 1" class="gallery-arrow gallery-prev" type="button" aria-label="Ver imagen anterior" @click="nextPhoto(-1)"><Icon name="chevron-right" class="gallery-arrow-icon-left" :stroke-width="2.2" /></button>
+                <button v-if="photos.length > 1" class="gallery-arrow gallery-next" type="button" aria-label="Ver imagen siguiente" @click="nextPhoto(1)"><Icon name="chevron-right" :stroke-width="2.2" /></button>
+                <button class="gallery-favorite" :class="{ active:favorites.includes(pet.id) }" type="button" :aria-pressed="favorites.includes(pet.id)" :aria-label="favorites.includes(pet.id) ? `Quitar ${pet.name} de favoritos` : `Agregar ${pet.name} a favoritos`" @click="favorite"><Icon name="heart" :filled="favorites.includes(pet.id)" /></button>
+              </div>
+              <section class="pet-story pet-profile-story" :aria-label="`Descripción e historia de ${pet.name}`">
+                <h2 class="pet-story-title">Descripción e historia</h2>
+                <div class="pet-profile-copy"><strong>Descripción</strong><p>{{ pet.description || 'No se proporcionó una descripción.' }}</p></div>
+                <div v-if="pet.story" class="pet-profile-copy"><strong>¿Cómo llegó a la adopción?</strong><p>{{ pet.story }}</p></div>
+                <div v-if="pet.background" class="pet-profile-copy"><strong>Antecedentes relevantes</strong><p>{{ pet.background }}</p></div>
+              </section>
+            </div>
+            <div class="pet-profile-info">
+              <div class="pet-information">
+                <h2>Datos de {{ pet.name }}</h2>
+                <div class="information-grid pet-general-grid">
+                  <div v-for="[label,value] in generalInformation" :key="label" class="information-item">
+                    <strong>{{ label }}</strong><span>{{ value || 'No proporcionado' }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="pet-information">
+                <h2>Salud y cuidados</h2>
+                <div class="information-grid pet-health-grid"><div v-for="[label,value] in healthInformation" :key="label" class="information-item" :class="{ 'is-long': label==='Observaciones' && value.length>70 }"><strong>{{ label }}</strong><span>{{ value }}</span></div></div>
+              </div>
+              <div class="pet-information">
+                <h2>Cómo es {{ pet.name }}</h2>
+                <div class="pet-profile-copy"><strong>Características</strong><div v-if="personalityTraits.length" class="pet-trait-list"><span v-for="trait in personalityTraits" :key="trait">{{ trait }}</span></div><span v-else class="pet-profile-empty">Sin características registradas.</span></div>
+                <div class="pet-profile-copy"><strong>Convive con:</strong><div v-if="cohabitationInformation.length" class="pet-trait-list pet-cohabitation-list"><span v-for="item in cohabitationInformation" :key="item">{{ item }}</span></div><span v-else class="pet-profile-empty">No especificado.</span></div>
+              </div>
+              <div v-if="pet.homeType || pet.conditions || pet.experience || pet.requirements" class="pet-information">
+                <span class="profile-eyebrow">REQUISITOS DE ADOPCIÓN</span><h2>El hogar que necesita</h2>
+                <div class="information-grid pet-requirements-grid"><div v-for="[label,value] in adoptionRequirements" :key="label" class="information-item" :class="{ 'is-long': ['Condiciones necesarias','Otros requisitos'].includes(label) && value.length>70 }"><strong>{{ label }}</strong><span>{{ value }}</span></div></div>
+              </div>
+              <div class="adoption-notice"><h2>Adopción responsable</h2><p>Conoce la información disponible de {{ pet.name }} antes de enviar tu solicitud. Puedes consultar con el refugio cualquier dato pendiente.</p></div>
+              <button type="button" class="message-shelter-button" @click="askShelter">Preguntar al refugio</button>
+              <RouterLink class="pet-apply-button login-button" :to="{path:'/solicitud.html',query:{pet:pet.id}}">Solicitar adopción</RouterLink>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <SiteFooter />
   </div>
 </template>
