@@ -9,6 +9,9 @@ import jakarta.persistence.criteria.Predicate;
 public final class PetSpecifications {
     private PetSpecifications() { }
     public static Specification<Pet> filters(PetSpecies species, PetSex sex, PetSize size, String location, String search, AdoptionStatus status, java.util.UUID shelterId) {
+        return filters(species, sex, size, location, search, status, shelterId, null);
+    }
+    public static Specification<Pet> filters(PetSpecies species, PetSex sex, PetSize size, String location, String search, AdoptionStatus status, java.util.UUID shelterId, ModerationStatus moderationStatus) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.isNull(root.get("deletedAt")));
@@ -16,6 +19,7 @@ public final class PetSpecifications {
             if (sex != null) predicates.add(cb.equal(root.get("sex"), sex));
             if (size != null) predicates.add(cb.equal(root.get("size"), size));
             if (status != null) predicates.add(cb.equal(root.get("adoptionStatus"), status));
+            if (moderationStatus != null) predicates.add(cb.equal(root.get("moderationStatus"), moderationStatus));
             if (shelterId != null) predicates.add(cb.equal(root.get("shelter").get("id"), shelterId));
             if (location != null && !location.isBlank()) predicates.add(cb.like(cb.lower(root.get("location")), "%" + location.trim().toLowerCase(Locale.ROOT) + "%"));
             if (search != null && !search.isBlank()) {

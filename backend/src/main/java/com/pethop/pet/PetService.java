@@ -2,6 +2,9 @@ package com.pethop.pet;
 
 import com.pethop.common.exception.ApiException;
 import com.pethop.common.response.PageResponse;
+import com.pethop.adoption.AdoptionRepository;
+import com.pethop.adoption.ApplicationRepository;
+import com.pethop.adoption.ApplicationStatus;
 import com.pethop.pet.dto.PetImageResponse;
 import com.pethop.pet.dto.PetRequest;
 import com.pethop.pet.dto.PetResponse;
@@ -28,12 +31,19 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class PetService {
+    private static final List<ApplicationStatus> ACTIVE_APPLICATION_STATUSES =
+            List.of(ApplicationStatus.DRAFT, ApplicationStatus.SUBMITTED, ApplicationStatus.UNDER_REVIEW,
+                    ApplicationStatus.APPROVED);
     private final PetRepository pets;
     private final PetImageRepository images;
     private final ShelterRepository shelters;
     private final FileStorage files;
-    public PetService(PetRepository pets, PetImageRepository images, ShelterRepository shelters, FileStorage files) {
+    private final ApplicationRepository applications;
+    private final AdoptionRepository adoptions;
+    public PetService(PetRepository pets, PetImageRepository images, ShelterRepository shelters, FileStorage files,
+            ApplicationRepository applications, AdoptionRepository adoptions) {
         this.pets = pets; this.images = images; this.shelters = shelters; this.files = files;
+        this.applications = applications; this.adoptions = adoptions;
     }
 
     @Transactional(readOnly=true)
@@ -49,14 +59,28 @@ public class PetService {
                 else status = AdoptionStatus.AVAILABLE;
             } else status = null;
         }
-        Specification<Pet> spec = PetSpecifications.filters(species, sex, size, location, search, status, shelterId);
+        Specification<Pet> spec = PetSpecifications.filters(species, sex, size, location, search, status, shelterId,
+                status == AdoptionStatus.AVAILABLE ? ModerationStatus.APPROVED : null);
+        return PageResponse.from(pets.findAll(spec, pageable), this::response);
+    }
+
+    @Transactional(readOnly=true)
+    public PageResponse<PetResponse> listMine(PetSpecies species, PetSex sex, PetSize size, String location,
+            String search, String sort, int page, int sizeLimit, SecurityUser principal) {
+        Pageable pageable = PageRequest.of(page, sizeLimit, sortOrder(sort));
+        UUID shelterId = null;
+        if (principal.user().getRole() == UserRole.SHELTER)
+            shelterId = shelters.findByUserId(principal.id())
+                    .orElseThrow(() -> ApiException.notFound("Perfil de refugio no encontrado.")).getId();
+        Specification<Pet> spec = PetSpecifications.filters(species, sex, size, location, search, null, shelterId);
         return PageResponse.from(pets.findAll(spec, pageable), this::response);
     }
 
     @Transactional(readOnly=true)
     public PetResponse get(UUID id, SecurityUser principal) {
         Pet pet = find(id);
-        if (pet.getAdoptionStatus() != AdoptionStatus.AVAILABLE && !owns(pet, principal)) throw ApiException.notFound("Mascota no encontrada.");
+        if ((pet.getAdoptionStatus() != AdoptionStatus.AVAILABLE || pet.getModerationStatus() != ModerationStatus.APPROVED)
+                && !owns(pet, principal)) throw ApiException.notFound("Mascota no encontrada.");
         return response(pet);
     }
 
@@ -65,25 +89,38 @@ public class PetService {
         ShelterProfile shelter = ownedShelter(principal);
         Pet pet = new Pet(); pet.setShelter(shelter); apply(pet, request, true);
         pet.setAdoptionStatus(request.adoptionStatus() == null ? AdoptionStatus.DRAFT : requestedEditableStatus(request.adoptionStatus()));
+        pet.setModerationStatus(ModerationStatus.PENDING);
         if (pet.getAdoptionStatus() == AdoptionStatus.AVAILABLE) pet.setPublishedAt(Instant.now());
         return response(pets.save(pet));
     }
 
     @Transactional
     public PetResponse update(UUID id, SecurityUser principal, PetRequest request) {
-        Pet pet = ownedPet(id, principal); apply(pet, request, false);
+        Pet pet = ownedPetForUpdate(id, principal);
+        ensurePetCanBeEdited(pet);
+        apply(pet, request, false);
+        pet.setModerationStatus(ModerationStatus.PENDING);
+        pet.setModerationReason(null); pet.setModeratedAt(null);
         if (request.adoptionStatus() != null) setStatus(pet, requestedEditableStatus(request.adoptionStatus()));
         return response(pets.save(pet));
     }
 
     @Transactional
     public PetResponse updateStatus(UUID id, SecurityUser principal, AdoptionStatus status) {
-        Pet pet = ownedPet(id, principal); setStatus(pet, requestedEditableStatus(status));
+        Pet pet = ownedPetForUpdate(id, principal); setStatus(pet, requestedEditableStatus(status));
         return response(pets.save(pet));
     }
 
     @Transactional
-    public void delete(UUID id, SecurityUser principal) { Pet pet = ownedPet(id, principal); pet.setDeletedAt(Instant.now()); pets.save(pet); }
+    public void delete(UUID id, SecurityUser principal) {
+        Pet pet = ownedPetForUpdate(id, principal);
+        ensurePetCanBeEdited(pet);
+        if (applications.existsByPetIdAndStatusIn(pet.getId(), ACTIVE_APPLICATION_STATUSES))
+            throw ApiException.conflict("La mascota tiene solicitudes de adopción activas.");
+        if (adoptions.existsByPetId(pet.getId()))
+            throw ApiException.conflict("La mascota ya tiene una adopción registrada.");
+        pet.setDeletedAt(Instant.now()); pets.save(pet);
+    }
 
     @Transactional
     public PetImageResponse addImage(UUID id, SecurityUser principal, MultipartFile file) throws IOException {
@@ -94,10 +131,16 @@ public class PetService {
         PetImage image = new PetImage(); image.setPet(pet); image.setStoragePath(stored.path());
         image.setOriginalFilename(stored.originalFilename()); image.setContentType(stored.contentType()); image.setFileSize(stored.size());
         image.setDisplayOrder((short) count); image.setPrimary(count == 0);
-        return PetImageResponse.from(images.save(image));
+        try {
+            return PetImageResponse.from(images.save(image));
+        } catch (RuntimeException failure) {
+            try { files.delete(stored.path()); }
+            catch (IOException cleanupFailure) { failure.addSuppressed(cleanupFailure); }
+            throw failure;
+        }
     }
 
-    @Transactional
+    @Transactional(rollbackFor = IOException.class)
     public void deleteImage(UUID petId, UUID imageId, SecurityUser principal) throws IOException {
         ownedPet(petId, principal);
         PetImage image = images.findByIdAndPetId(imageId, petId).orElseThrow(() -> ApiException.notFound("Imagen no encontrada."));
@@ -109,14 +152,16 @@ public class PetService {
     @Transactional(readOnly=true)
     public PetImage image(UUID imageId, SecurityUser principal) {
         PetImage image = images.findById(imageId).orElseThrow(() -> ApiException.notFound("Imagen no encontrada."));
-        if (image.getPet().getAdoptionStatus() != AdoptionStatus.AVAILABLE && !owns(image.getPet(), principal)) throw ApiException.notFound("Imagen no encontrada.");
+        if ((image.getPet().getAdoptionStatus() != AdoptionStatus.AVAILABLE || image.getPet().getModerationStatus() != ModerationStatus.APPROVED)
+                && !owns(image.getPet(), principal)) throw ApiException.notFound("Imagen no encontrada.");
         return image;
     }
 
     @Transactional(readOnly=true)
     public List<PetImageResponse> images(UUID petId, SecurityUser principal) {
         Pet pet = find(petId);
-        if (pet.getAdoptionStatus() != AdoptionStatus.AVAILABLE && !owns(pet, principal)) throw ApiException.notFound("Mascota no encontrada.");
+        if ((pet.getAdoptionStatus() != AdoptionStatus.AVAILABLE || pet.getModerationStatus() != ModerationStatus.APPROVED)
+                && !owns(pet, principal)) throw ApiException.notFound("Mascota no encontrada.");
         return images.findAllByPetIdOrderByDisplayOrder(petId).stream().map(PetImageResponse::from).toList();
     }
 
@@ -127,6 +172,13 @@ public class PetService {
     }
     private Pet ownedPet(UUID id, SecurityUser principal) {
         Pet pet = find(id);
+        if (principal.user().getRole() == UserRole.ADMIN) return pet;
+        ShelterProfile shelter = ownedShelter(principal);
+        if (!pet.getShelter().getId().equals(shelter.getId())) throw ApiException.notFound("Mascota no encontrada.");
+        return pet;
+    }
+    private Pet ownedPetForUpdate(UUID id, SecurityUser principal) {
+        Pet pet = pets.findByIdForUpdate(id).orElseThrow(() -> ApiException.notFound("Mascota no encontrada."));
         if (principal.user().getRole() == UserRole.ADMIN) return pet;
         ShelterProfile shelter = ownedShelter(principal);
         if (!pet.getShelter().getId().equals(shelter.getId())) throw ApiException.notFound("Mascota no encontrada.");
@@ -143,8 +195,17 @@ public class PetService {
         throw ApiException.badRequest("El estado solicitado solo puede ser borrador, disponible o no disponible.");
     }
     private void setStatus(Pet pet, AdoptionStatus status) {
+        if (pet.getAdoptionStatus() == AdoptionStatus.IN_PROCESS || pet.getAdoptionStatus() == AdoptionStatus.ADOPTED)
+            throw ApiException.conflict("La mascota ya está comprometida con una adopción.");
+        if (status == AdoptionStatus.AVAILABLE
+                && applications.existsByPetIdAndStatusIn(pet.getId(), ACTIVE_APPLICATION_STATUSES))
+            throw ApiException.conflict("La mascota tiene una solicitud de adopción activa.");
         pet.setAdoptionStatus(status);
         if (status == AdoptionStatus.AVAILABLE && pet.getPublishedAt() == null) pet.setPublishedAt(Instant.now());
+    }
+    private void ensurePetCanBeEdited(Pet pet) {
+        if (pet.getAdoptionStatus() == AdoptionStatus.IN_PROCESS || pet.getAdoptionStatus() == AdoptionStatus.ADOPTED)
+            throw ApiException.conflict("La mascota ya está comprometida con una adopción.");
     }
     private void apply(Pet pet, PetRequest request, boolean creating) {
         pet.setName(request.name().trim()); pet.setSpecies(request.species()); pet.setBreed(request.breed());

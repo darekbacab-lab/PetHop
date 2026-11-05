@@ -1,4 +1,9 @@
-const API_BASE = (import.meta.env?.VITE_API_URL || 'http://localhost:8080/api/v1').replace(/\/$/, '');
+const configuredApi = String(import.meta.env?.VITE_API_URL || '').trim();
+const localApi = /^https?:\/\/(localhost|127\.0\.0\.1)(?::\d+)?(?:\/|$)/i.test(configuredApi);
+const productionFallback = `${globalThis.location?.origin || ''}/api/v1`;
+const API_BASE = (configuredApi && !(import.meta.env?.PROD && localApi)
+  ? configuredApi
+  : (import.meta.env?.PROD ? productionFallback : 'http://localhost:8080/api/v1')).replace(/\/$/, '');
 let csrfToken = '';
 
 export class ApiError extends Error {
@@ -10,7 +15,7 @@ async function request(url, init) {
     return await fetch(url, init);
   } catch (error) {
     if (error instanceof TypeError) {
-      throw new ApiError(`No se pudo conectar con la API (${API_BASE}). Inicia PostgreSQL y el backend, y vuelve a intentarlo.`);
+      throw new ApiError('No se pudo conectar con PetHop. Inténtalo de nuevo en unos momentos.');
     }
     throw error;
   }

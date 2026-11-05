@@ -53,4 +53,5 @@ public class ShelterProfile {
     public String getContactPhone() { return contactPhone; }
     public void setContactPhone(String contactPhone) { this.contactPhone = contactPhone; }
     public VerificationStatus getVerificationStatus() { return verificationStatus; }
+    public void setVerificationStatus(VerificationStatus status) { verificationStatus = status; }
 }

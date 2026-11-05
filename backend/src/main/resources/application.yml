@@ -23,7 +23,7 @@ spring:
       max-file-size: 10MB
       max-request-size: 60MB
 server:
-  port: ${SERVER_PORT:8080}
+  port: ${PORT:${SERVER_PORT:8080}}
   error:
     include-message: never
     include-stacktrace: never
@@ -49,8 +49,35 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
 pethop:
+  rate-limit:
+    enabled: ${RATE_LIMIT_ENABLED:true}
+    trust-forwarded-headers: ${RATE_LIMIT_TRUST_FORWARDED_HEADERS:false}
+    login:
+      max-requests: ${RATE_LIMIT_LOGIN_MAX_REQUESTS:10}
+      window-seconds: ${RATE_LIMIT_LOGIN_WINDOW_SECONDS:60}
+    registration:
+      max-requests: ${RATE_LIMIT_REGISTRATION_MAX_REQUESTS:5}
+      window-seconds: ${RATE_LIMIT_REGISTRATION_WINDOW_SECONDS:3600}
+    uploads:
+      max-requests: ${RATE_LIMIT_UPLOAD_MAX_REQUESTS:30}
+      window-seconds: ${RATE_LIMIT_UPLOAD_WINDOW_SECONDS:60}
+    reports:
+      max-requests: ${RATE_LIMIT_REPORT_MAX_REQUESTS:10}
+      window-seconds: ${RATE_LIMIT_REPORT_WINDOW_SECONDS:3600}
+    veterinary-assistant:
+      max-requests: ${RATE_LIMIT_VETERINARY_MAX_REQUESTS:20}
+      window-seconds: ${RATE_LIMIT_VETERINARY_WINDOW_SECONDS:3600}
   cors:
     allowed-origins: ${FRONTEND_ORIGINS:http://localhost:5173,http://127.0.0.1:5173}
   storage:
     local-path: ${FILE_STORAGE_PATH:./var/pethop-files}
     max-image-size: 10485760
+  veterinary-ai:
+    enabled: ${VETERINARY_AI_ENABLED:false}
+    api-key: ${VETERINARY_AI_API_KEY:}
+    base-url: ${VETERINARY_AI_BASE_URL:https://api.openai.com/v1/chat/completions}
+    model: ${VETERINARY_AI_MODEL:gpt-4o-mini}
+    connect-timeout-ms: ${VETERINARY_AI_CONNECT_TIMEOUT_MS:5000}
+    read-timeout-seconds: ${VETERINARY_AI_READ_TIMEOUT_SECONDS:30}
+    max-output-tokens: ${VETERINARY_AI_MAX_OUTPUT_TOKENS:700}
+    max-retries: ${VETERINARY_AI_MAX_RETRIES:1}

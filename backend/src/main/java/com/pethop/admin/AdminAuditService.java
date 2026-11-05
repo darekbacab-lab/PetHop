@@ -1,0 +1,3 @@
+package com.pethop.admin;
+import com.pethop.user.User; import java.util.UUID; import org.springframework.stereotype.Service; import org.springframework.transaction.annotation.Transactional;
+@Service public class AdminAuditService{private final AdminAuditEventRepository events; public AdminAuditService(AdminAuditEventRepository e){events=e;} @Transactional public void record(User admin,String action,String type,UUID id,String previous,String next,String reason){AdminAuditEvent e=new AdminAuditEvent();e.setAdmin(admin);e.setAction(action);e.setEntityType(type);e.setEntityId(id);e.setPreviousState(previous);e.setNewState(next);e.setReason(reason);events.save(e);}}

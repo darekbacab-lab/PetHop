@@ -27,6 +27,7 @@ const activityLoading = ref(false);
 const activityError = ref('');
 const initials = computed(() => String(user.value?.fullName || '').trim().split(/\s+/).slice(0, 2).map(part => part[0]).join('').toLocaleUpperCase('es-MX') || 'P');
 const pendingCount = computed(() => applications.value.filter(item => ['SUBMITTED', 'UNDER_REVIEW'].includes(item.status)).length);
+const isAdmin = computed(() => user.value?.role === 'ADMIN');
 
 async function loadProfile() {
   loading.value = true;
@@ -35,10 +36,11 @@ async function loadProfile() {
     const authenticated = await loadCurrentUser();
     if (!authenticated) { await router.replace({ path: '/acceso.html', query: { redirect: '/perfil.html' } }); return; }
     if (authenticated.role === 'SHELTER') { await router.replace('/proveedor.html?section=perfil'); return; }
-    if (authenticated.role !== 'ADOPTER') { pageError.value = 'Este perfil está disponible para cuentas adoptantes.'; return; }
+    if (!['ADOPTER', 'ADMIN'].includes(authenticated.role)) { pageError.value = 'Este perfil está disponible para cuentas adoptantes y administradores.'; return; }
     user.value = await api('/users/me');
     currentUser.value = user.value;
     form.value = { fullName: user.value.fullName || '', phone: user.value.phone || '' };
+    if (authenticated.role === 'ADMIN') return;
     const results = await Promise.allSettled([
       api('/adoption-applications/mine?page=0&size=50'),
       api('/adoptions/mine?page=0&size=50'),
@@ -110,7 +112,7 @@ onMounted(async () => {
       <template v-else>
         <section class="adopter-identity" aria-labelledby="adopter-name">
           <div class="adopter-avatar" aria-hidden="true">{{ initials }}</div>
-          <div class="adopter-identity-copy"><span class="eyebrow">MI ESPACIO EN PETHOP</span><h1 id="adopter-name">{{ user.fullName }}</h1><div class="adopter-identity-meta"><span>Adoptante</span><span v-if="user.createdAt">Desde {{ new Date(user.createdAt).toLocaleDateString('es-MX', { month: 'long', year: 'numeric' }) }}</span></div></div>
+          <div class="adopter-identity-copy"><span class="eyebrow">MI ESPACIO EN PETHOP</span><h1 id="adopter-name">{{ user.fullName }}</h1><div class="adopter-identity-meta"><span>{{ isAdmin ? 'Administrador' : 'Adoptante' }}</span><span v-if="user.createdAt">Desde {{ new Date(user.createdAt).toLocaleDateString('es-MX', { month: 'long', year: 'numeric' }) }}</span></div></div>
           <div class="adopter-identity-actions"><button v-if="!editing" type="button" class="button button-outline adopter-edit-button" @click="startEditing"><Icon name="pencil" />Editar perfil</button><button type="button" class="button button-logout" @click="signOut"><Icon name="log-out" />Cerrar sesión</button></div>
         </section>
 
@@ -122,11 +124,11 @@ onMounted(async () => {
             <label>Correo electrónico<input :value="user.email" type="email" readonly disabled><small>El correo es un dato de cuenta y no se puede cambiar desde el perfil.</small></label>
             <div class="adopter-form-actions"><button class="button button-outline" type="button" @click="cancelEditing">Cancelar</button><button class="button button-primary" type="submit" :disabled="saving">{{ saving ? 'Guardando…' : 'Guardar cambios' }}</button></div>
           </form>
-          <dl v-else class="adopter-personal-grid"><div><dt>Nombre completo</dt><dd>{{ user.fullName }}</dd></div><div><dt>Correo electrónico</dt><dd>{{ user.email }}</dd></div><div><dt>Teléfono</dt><dd>{{ user.phone || 'No proporcionado' }}</dd></div><div><dt>Tipo de cuenta</dt><dd>Adoptante</dd></div></dl>
+          <dl v-else class="adopter-personal-grid"><div><dt>Nombre completo</dt><dd>{{ user.fullName }}</dd></div><div><dt>Correo electrónico</dt><dd>{{ user.email }}</dd></div><div><dt>Teléfono</dt><dd>{{ user.phone || 'No proporcionado' }}</dd></div><div><dt>Tipo de cuenta</dt><dd>{{ isAdmin ? 'Administrador' : 'Adoptante' }}</dd></div></dl>
           <p v-if="feedback" class="adopter-feedback" role="status">{{ feedback }}</p>
         </section>
 
-        <section class="adopter-activity" aria-labelledby="activity-title">
+        <section v-if="!isAdmin" class="adopter-activity" aria-labelledby="activity-title">
           <div class="adopter-section-heading adopter-activity-heading"><div><span class="eyebrow">TU CAMINO DE ADOPCIÓN</span><h2 id="activity-title">Actividad</h2></div><span class="adopter-activity-summary">{{ totals.applications }} solicitudes · {{ totals.adoptions }} adopciones</span></div>
           <div class="adopter-activity-grid">
             <section id="solicitudes" class="panel adopter-activity-panel"><div class="adopter-panel-heading"><div><Icon name="clipboard-list" /><h3>Mis solicitudes</h3></div><span class="adopter-count">{{ totals.applications }}</span></div><p v-if="activityErrors.applications" class="adopter-inline-error" role="alert">{{ activityErrors.applications }}</p><p v-else-if="!applications.length" class="adopter-empty-copy">Aún no has enviado solicitudes.</p><div v-else class="adopter-activity-list"><button v-for="item in applications" :key="item.id" type="button" class="adopter-activity-row" @click="openActivity('application', item)"><span class="adopter-activity-pet"><strong>{{ item.petName }}</strong><small>{{ item.submittedAt ? new Date(item.submittedAt).toLocaleDateString('es-MX') : 'Fecha no disponible' }}</small></span><span class="adopter-status-pill">{{ statusLabel(item.status) }}</span><Icon name="chevron-right" /></button><p v-if="pendingCount" class="adopter-activity-footnote">{{ pendingCount }} pendientes o en revisión</p></div></section>

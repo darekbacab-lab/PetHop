@@ -29,7 +29,7 @@ class PetServiceProfileTest {
                 PetLifeStage.SENIOR, List.of("Tranquila", "Convive con gatos"), "Condición conocida",
                 "Llegó por rescate", "Antecedente separado", "Casa", "Patio seguro", "Con experiencia", "Ventanas protegidas");
 
-        PetService service = new PetService(null, null, null, null);
+        PetService service = new PetService(null, null, null, null, null, null);
         ReflectionTestUtils.invokeMethod(service, "apply", pet, request, true);
         pet.setAdoptionStatus(request.adoptionStatus());
         PetResponse response = PetResponse.from(pet, List.of(), List.copyOf(pet.getPersonalityTraits()));

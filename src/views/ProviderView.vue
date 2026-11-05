@@ -10,6 +10,7 @@ import { API_BASE, api } from '../services/api.js';
 import { currentUser, loadCurrentUser, logout } from '../services/auth.js';
 import { mapPet } from '../services/petApi.js';
 import { mergePhotoSelection, normalizePersonality, petPayload, PERSONALITY_OPTIONS } from '../services/petForm.js';
+import { providerWorkspaceKey } from '../services/providerWorkspace.js';
 
 const router = useRouter();
 const route = useRoute();
@@ -23,8 +24,8 @@ const NAV_ITEMS = [
 ];
 const PROFILE_SECTIONS = { perfil: 'Perfil / Organización', inicio: 'Inicio', mascotas: 'Mis mascotas', solicitudes: 'Solicitudes', mensajes: 'Mensajes', 'en-proceso': 'En proceso', completadas: 'Completadas' };
 const routeSection = query => PROFILE_SECTIONS[String(query || '').toLowerCase()] || '';
-function initialState() {
-  const stored = storageService.read('pethop_provider_workspace', {}) || {};
+function initialState(stored = {}) {
+  stored = stored || {};
   const draft = { ...(stored.draft || {}) };
   draft.lifeStage ||= draft.age || '';
   draft.personalityTraits = normalizePersonality(draft.personalityTraits ?? draft.personality);
@@ -102,7 +103,14 @@ const conversations = computed(() => {
 });
 const activeConversation = computed(() => conversations.value.find(item => item.id === selectedMessageId.value) || conversations.value[0]);
 const completion = computed(() => Math.round((state.step / (steps.length - 1)) * 100));
-function persist(message = '') { const { photos, photoNames, photoKeys, ...draft } = state.draft || {}; if (!storageService.write('pethop_provider_workspace', { ...state, draft })) { notice.value = 'No se pudieron guardar las preferencias locales.'; return false; } if (message) toast(message); return true; }
+function persist(message = '') {
+  const workspaceKey = providerWorkspaceKey(currentProviderId.value);
+  if (!workspaceKey) return true;
+  const { photos, photoNames, photoKeys, ...draft } = state.draft || {};
+  if (!storageService.write(workspaceKey, { ...state, draft })) { notice.value = 'No se pudieron guardar las preferencias locales.'; return false; }
+  if (message) toast(message);
+  return true;
+}
 let toastTimer;
 function toast(message) { notice.value = message; clearTimeout(toastTimer); toastTimer = setTimeout(() => notice.value = '', 3200); }
 function chooseRole() { router.push({ path: '/acceso.html', query: { mode: 'register', role: 'provider' } }); }
@@ -117,6 +125,7 @@ async function loadProviderData() {
     if (!authenticated || authenticated.role !== 'SHELTER') { state.role = ''; return; }
     const user = await api('/users/me');
     currentProviderId.value = user.id;
+    Object.assign(state, initialState(storageService.read(providerWorkspaceKey(user.id), {})));
     state.role = 'organization';
     let shelter;
     try { shelter = await api('/shelters/me'); }

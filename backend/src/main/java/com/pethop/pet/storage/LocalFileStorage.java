@@ -2,7 +2,11 @@ package com.pethop.pet.storage;
 
 import com.pethop.common.exception.ApiException;
 import java.io.IOException;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.awt.image.BufferedImage;
+import java.util.Arrays;
+import javax.imageio.ImageIO;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,10 +30,11 @@ public class LocalFileStorage implements FileStorage {
     @Override public StoredFile store(MultipartFile file) throws IOException {
         if (file == null || file.isEmpty()) throw ApiException.badRequest("Selecciona una imagen.");
         if (file.getSize() > maximumSize) throw ApiException.badRequest("La imagen excede el tamaño máximo de 10 MB.");
-        byte[] header;
-        try (InputStream input = file.getInputStream()) { header = input.readNBytes(16); }
+        byte[] data = file.getBytes();
+        if (data.length == 0 || data.length > maximumSize) throw ApiException.badRequest("La imagen excede el tamaño máximo de 10 MB.");
+        byte[] header = Arrays.copyOf(data, Math.min(data.length, 16));
         String type = detectType(header);
-        if (type == null) throw ApiException.badRequest("El archivo no es una imagen JPEG, PNG o WebP válida.");
+        if (type == null || !isDecodable(type, data)) throw ApiException.badRequest("El archivo no es una imagen JPEG, PNG o WebP válida.");
         String suppliedType = file.getContentType();
         if (suppliedType != null && !suppliedType.isBlank() && !suppliedType.equalsIgnoreCase(type)) {
             throw ApiException.badRequest("El tipo declarado no coincide con el contenido real de la imagen.");
@@ -41,8 +46,8 @@ public class LocalFileStorage implements FileStorage {
         Files.createDirectories(root);
         Path destination = root.resolve(relative).normalize();
         if (!destination.getParent().equals(root)) throw ApiException.badRequest("Nombre de archivo no válido.");
-        try (InputStream input = file.getInputStream()) { Files.copy(input, destination); }
-        return new StoredFile(relative, type, file.getSize(), original);
+        try (InputStream input = new ByteArrayInputStream(data)) { Files.copy(input, destination); }
+        return new StoredFile(relative, type, data.length, original);
     }
     @Override public InputStream open(String path) throws IOException { return Files.newInputStream(resolve(path)); }
     @Override public void delete(String path) throws IOException { Files.deleteIfExists(resolve(path)); }
@@ -66,4 +71,25 @@ public class LocalFileStorage implements FileStorage {
     }
     private String extension(String name) { int dot = name.lastIndexOf('.'); return dot < 0 ? "" : name.substring(dot+1).toLowerCase(Locale.ROOT); }
     private String extensionFor(String type) { return switch(type) { case "image/jpeg" -> "jpg"; case "image/png" -> "png"; case "image/webp" -> "webp"; default -> ""; }; }
+    private boolean isDecodable(String type, byte[] data) {
+        if ("image/webp".equals(type)) return validWebp(data);
+        try {
+            BufferedImage image = ImageIO.read(new ByteArrayInputStream(data));
+            return image != null && image.getWidth() > 0 && image.getHeight() > 0;
+        } catch (IOException ex) {
+            return false;
+        }
+    }
+    private boolean validWebp(byte[] data) {
+        if (data.length < 20 || data[0] != 'R' || data[1] != 'I' || data[2] != 'F' || data[3] != 'F'
+                || data[8] != 'W' || data[9] != 'E' || data[10] != 'B' || data[11] != 'P') return false;
+        long riffSize = littleEndianInt(data, 4);
+        if (riffSize + 8L > data.length || data[12] != 'V' || data[13] != 'P' || data[14] != '8') return false;
+        if (data[15] != ' ' && data[15] != 'L' && data[15] != 'X') return false;
+        long chunkSize = littleEndianInt(data, 16);
+        return chunkSize >= 0 && chunkSize + 20L <= data.length;
+    }
+    private long littleEndianInt(byte[] data, int offset) {
+        return (data[offset] & 255L) | ((data[offset + 1] & 255L) << 8) | ((data[offset + 2] & 255L) << 16) | ((data[offset + 3] & 255L) << 24);
+    }
 }

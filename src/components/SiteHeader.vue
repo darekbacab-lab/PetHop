@@ -16,7 +16,7 @@ const favoritesLoading = ref(false);
 const favoritesError = ref('');
 const favoritesActionError = ref('');
 const count = computed(() => favorites.value.length);
-const accountRoute = computed(() => currentUser.value?.role === 'SHELTER' ? '/proveedor.html?section=perfil' : currentUser.value?.role === 'ADOPTER' ? '/perfil.html' : '/');
+const accountRoute = computed(() => currentUser.value?.role === 'SHELTER' ? '/proveedor.html?section=perfil' : currentUser.value?.role === 'ADOPTER' ? '/perfil.html' : '/perfil.html');
 const profileLabel = computed(() => currentUser.value?.role === 'SHELTER' ? 'Perfil de organización' : 'Mi perfil');
 const links = [
   { label: 'Inicio', to: '/', icon: 'house' },
@@ -95,6 +95,7 @@ onUnmounted(() => window.removeEventListener('pethop:shelter-updated', onShelter
       <div class="menu-drawer-header"><div class="menu-drawer-brand"><img class="brand-logo-color" src="/img/image1.png" alt=""><img class="brand-logo-mono" src="/img/Logomonocr.png" alt=""></div><button type="button" class="menu-drawer-close" aria-label="Cerrar menú" @click="closeMenu"><Icon name="x" /></button></div>
       <template v-for="(item, index) in links" :key="item.to"><RouterLink class="nav-link" :class="{ active: isNavActive(item) }" :to="item.to" @click="open = false"><Icon :name="item.icon" class="nav-item-icon" /><span>{{ item.label }}</span></RouterLink><button v-if="index === 1" type="button" class="favorites-button menu-favorites" @click="openFavorites"><Icon name="heart" class="nav-item-icon" /><span class="favorites-label">Favoritos</span><span class="favorites-count">{{ count }}</span></button></template>
       <template v-if="currentUser"><RouterLink class="nav-link account-nav-link" :to="accountRoute" @click="open=false"><Icon name="user-round" class="nav-item-icon" /><span>{{ profileLabel }}</span></RouterLink></template>
+      <RouterLink v-if="currentUser?.role === 'ADMIN'" class="nav-link account-nav-link" to="/admin.html" @click="open=false"><Icon name="shield-check" class="nav-item-icon" /><span>Administración</span></RouterLink>
       <ThemeToggle />
       <button v-if="currentUser" type="button" class="nav-link account-nav-signout" @click="signOut"><Icon name="log-out" class="nav-item-icon" /><span>Cerrar sesión</span></button>
     </nav>

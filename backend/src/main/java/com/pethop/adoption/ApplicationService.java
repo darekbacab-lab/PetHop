@@ -82,8 +82,18 @@ public class ApplicationService {
             boolean valid=(previous==ApplicationStatus.SUBMITTED&&(next==ApplicationStatus.UNDER_REVIEW||next==ApplicationStatus.APPROVED||next==ApplicationStatus.REJECTED))
                     ||(previous==ApplicationStatus.UNDER_REVIEW&&(next==ApplicationStatus.APPROVED||next==ApplicationStatus.REJECTED));
             if(!valid)throw ApiException.conflict("El cambio de estado no está permitido.");
+            if(next==ApplicationStatus.APPROVED){
+                // Serialize approvals for the same pet. The status check must use the locked row,
+                // otherwise two concurrent approvals can both observe AVAILABLE.
+                Pet pet = pets.findByIdForUpdate(application.getPet().getId())
+                        .orElseThrow(() -> ApiException.notFound("Mascota no encontrada."));
+                if(pet.getAdoptionStatus()!=AdoptionStatus.AVAILABLE)
+                    throw ApiException.conflict("La mascota ya no está disponible para aprobación.");
+                application.setPet(pet);
+                pet.setAdoptionStatus(AdoptionStatus.IN_PROCESS);
+                pets.save(pet);
+            }
             application.setReviewedAt(Instant.now());application.setReviewedBy(principal.user());
-            if(next==ApplicationStatus.APPROVED){application.getPet().setAdoptionStatus(AdoptionStatus.IN_PROCESS);pets.save(application.getPet());}
         }
         application.setStatus(next);applications.save(application);addHistory(application,previous,next,principal,comment);
         notifications.create(application.getAdopter(),"APPLICATION_STATUS_CHANGED","Actualización de solicitud",

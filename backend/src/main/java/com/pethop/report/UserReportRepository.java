@@ -1,0 +1,3 @@
+package com.pethop.report;
+import java.util.*; import org.springframework.data.domain.*; import org.springframework.data.jpa.repository.*; import jakarta.persistence.LockModeType;
+public interface UserReportRepository extends JpaRepository<UserReport,UUID>{boolean existsByReporterIdAndPetIdAndStatusIn(UUID reporter,UUID pet,Collection<ReportStatus> statuses);Page<UserReport> findAllByOrderByCreatedAtDesc(Pageable pageable);@Lock(LockModeType.PESSIMISTIC_WRITE)@Query("select r from UserReport r where r.id=:id")Optional<UserReport> findByIdForUpdate(@org.springframework.data.repository.query.Param("id")UUID id);}

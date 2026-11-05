@@ -1,10 +1,17 @@
 <script setup>
-import { nextTick, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import Icon from './Icon.vue';
+import { api } from '../services/api.js';
+import { isVeterinaryQuestion } from '../services/assistantIntent.js';
 
+const route = useRoute();
 const isOpen = ref(false);
 const draft = ref('');
 const messages = ref([]);
+const isSending = ref(false);
+const error = ref('');
+const lastVeterinaryQuestion = ref('');
 const composer = ref(null);
 const panel = ref(null);
 const transcript = ref(null);
@@ -13,6 +20,12 @@ const quickQuestions = [
   '¿Cómo puedo adoptar una mascota?',
   '¿Qué debo considerar antes de adoptar?',
   '¿Cómo puedo conocer el estado de salud de una mascota?'
+];
+const currentPetId = computed(() => route.path === '/mascota.html' && route.query.pet ? String(route.query.pet) : null);
+const generalAnswers = [
+  { match: /adoptar|adopción|adopcion/i, text: 'Para adoptar, explora las mascotas disponibles, revisa su información y envía una solicitud desde el perfil de la mascota. El refugio revisará tus datos y podrá contactarte para continuar el proceso.' },
+  { match: /antes de adoptar|considerar/i, text: 'Antes de adoptar, considera el tiempo, espacio, presupuesto y cuidados que podrás ofrecer. También revisa la edad, tamaño, personalidad y requisitos de la mascota para encontrar una buena compatibilidad.' },
+  { match: /hola|ayuda|puedes/i, text: 'Puedo orientarte sobre adopción, preparación del hogar, bienestar y cuidados responsables. Escribe tu pregunta y te ayudaré.' }
 ];
 let previousOverflow = '';
 
@@ -32,8 +45,48 @@ function addMessage(value) {
   scrollToLatest();
 }
 
+function generalAnswer(text) {
+  return generalAnswers.find(answer => answer.match.test(text))?.text
+    || 'Puedo ayudarte con el proceso de adopción, el cuidado responsable y dudas veterinarias generales. Cuéntame qué necesitas saber.';
+}
+
+async function submitMessage(value, { recordUser = true } = {}) {
+  const text = value.trim();
+  if (!text || isSending.value) return;
+  if (!isVeterinaryQuestion(text)) {
+    messages.value.push({ id: `${Date.now()}-${messages.value.length}`, role: 'user', text });
+    messages.value.push({ id: `${Date.now()}-${messages.value.length + 1}`, role: 'assistant', text: generalAnswer(text) });
+    draft.value = '';
+    error.value = '';
+    scrollToLatest();
+    return;
+  }
+  if (recordUser) messages.value.push({ id: `${Date.now()}-${messages.value.length}`, role: 'user', text });
+  if (recordUser) draft.value = '';
+  error.value = '';
+  lastVeterinaryQuestion.value = text;
+  isSending.value = true;
+  scrollToLatest();
+  try {
+    const response = await api('/veterinary-assistant/messages', {
+      method: 'POST',
+      body: { message: text, petId: currentPetId.value }
+    });
+    messages.value.push({ id: `${Date.now()}-${messages.value.length}`, role: 'assistant', response });
+  } catch (requestError) {
+    error.value = requestError.message || 'No se pudo obtener orientación veterinaria.';
+  } finally {
+    isSending.value = false;
+    scrollToLatest();
+  }
+}
+
 function sendMessage() {
-  addMessage(draft.value);
+  submitMessage(draft.value);
+}
+
+function urgencyLabel(value) {
+  return ({ GREEN: 'Orientación preventiva', YELLOW: 'Consulta recomendada', RED: 'Atención urgente' })[value] || 'Orientación veterinaria';
 }
 
 function scrollToLatest() {
@@ -116,9 +169,21 @@ onBeforeUnmount(() => { document.body.style.overflow = previousOverflow; });
           </div>
           <div v-if="!messages.length" class="assistant-quick-questions" aria-label="Preguntas frecuentes">
             <p>¿Qué te gustaría saber?</p>
-            <button v-for="question in quickQuestions" :key="question" type="button" @click="addMessage(question)">{{ question }}</button>
+            <button v-for="question in quickQuestions" :key="question" type="button" @click="submitMessage(question)">{{ question }}</button>
           </div>
-          <article v-for="message in messages" :key="message.id" class="assistant-user-message"><p>{{ message.text }}</p></article>
+          <article v-for="message in messages" :key="message.id" :class="message.role === 'assistant' && message.response ? 'assistant-ai-message' : message.role === 'assistant' ? 'assistant-general-message' : 'assistant-user-message'">
+            <p v-if="message.role === 'user' || !message.response">{{ message.text }}</p>
+            <template v-else>
+              <div :class="['assistant-urgency', `urgency-${message.response.urgency.toLowerCase()}`]"><strong>{{ urgencyLabel(message.response.urgency) }}</strong><span>{{ message.response.urgency }}</span></div>
+              <p class="assistant-ai-summary">{{ message.response.summary }}</p>
+              <div v-if="message.response.reasons?.length"><strong>Por qué</strong><ul><li v-for="item in message.response.reasons" :key="item">{{ item }}</li></ul></div>
+              <div v-if="message.response.warningSigns?.length"><strong>Señales de alarma</strong><ul><li v-for="item in message.response.warningSigns" :key="item">{{ item }}</li></ul></div>
+              <div v-if="message.response.guidance?.length"><strong>Qué hacer</strong><ul><li v-for="item in message.response.guidance" :key="item">{{ item }}</li></ul></div>
+              <small class="assistant-ai-disclaimer">{{ message.response.disclaimer }}</small>
+            </template>
+          </article>
+          <p v-if="isSending" class="assistant-status" role="status">Estoy revisando la orientación veterinaria…</p>
+          <p v-if="error" class="assistant-error" role="alert">{{ error }} <button type="button" @click="submitMessage(lastVeterinaryQuestion, { recordUser: false })">Reintentar</button></p>
         </div>
 
         <form class="assistant-composer" @submit.prevent="sendMessage">
@@ -154,6 +219,12 @@ onBeforeUnmount(() => { document.body.style.overflow = previousOverflow; });
 .assistant-quick-questions button:hover { transform:translateX(2px); border-color:var(--primary-strong); background:#e7f6f5; }
 .assistant-user-message { max-width:84%; align-self:flex-end; padding:10px 13px; border:1px solid var(--primary-strong); border-radius:14px 14px 4px 14px; background:var(--primary-strong); box-shadow:0 3px 10px rgba(18,63,75,.08); }
 .assistant-user-message p { color:#fff; font-size:.8rem; line-height:1.5; overflow-wrap:anywhere; white-space:pre-wrap; }
+.assistant-general-message { max-width:92%; align-self:flex-start; padding:11px 13px; border:1px solid #d6ecee; border-radius:4px 14px 14px 14px; background:#fff; box-shadow:0 3px 10px rgba(18,63,75,.04); }
+.assistant-general-message p { color:var(--text); font-size:.8rem; line-height:1.5; }
+.assistant-ai-message { max-width:92%; align-self:flex-start; padding:11px 13px; border:1px solid #d6ecee; border-radius:4px 14px 14px 14px; background:#fff; color:var(--text); font-size:.78rem; line-height:1.5; box-shadow:0 3px 10px rgba(18,63,75,.04); }
+.assistant-ai-message strong { font-size:.72rem; }.assistant-ai-message ul { margin:5px 0 10px 18px; }.assistant-ai-message li { margin:3px 0; }.assistant-ai-summary { margin:10px 0; }.assistant-ai-disclaimer { display:block; margin-top:10px; color:var(--text-soft); font-size:.66rem; line-height:1.45; }
+.assistant-urgency { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:7px 9px; border-radius:9px; font-size:.7rem; }.assistant-urgency span { font-weight:800; }.urgency-green { background:#e5f6e9; color:#216b39; }.urgency-yellow { background:#fff4d9; color:#825e09; }.urgency-red { background:#ffe3e3; color:#9c2525; }
+.assistant-status,.assistant-error { align-self:flex-start; max-width:92%; color:var(--text-soft); font-size:.74rem; }.assistant-error { color:#9c2525; }.assistant-error button { margin-left:5px; border:0; background:transparent; color:inherit; cursor:pointer; text-decoration:underline; }
 .assistant-composer { display:flex; align-items:flex-end; gap:10px; padding:14px; border-top:1px solid #dcebed; background:#fff; }
 .assistant-composer textarea { min-height:44px; max-height:120px; flex:1; resize:vertical; padding:12px 13px; border:1px solid #b7dfe2; border-radius:14px; outline:0; background:#f8fcfc; color:var(--text); font:500 .8rem/1.4 "Montserrat",sans-serif; }
 .assistant-composer textarea:focus { border-color:var(--primary-strong); box-shadow:0 0 0 3px rgba(22,127,135,.1); }

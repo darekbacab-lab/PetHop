@@ -15,6 +15,7 @@ Base: `/api/v1`. DTOs de solicitud y respuesta separados de las entidades. Las r
 - `GET /pets/{id}`, `POST /pets`, `PATCH /pets/{id}`, `PATCH /pets/{id}/status`, `DELETE /pets/{id}` (baja lógica).
 - `GET /pets/{id}/images`, `POST /pets/{id}/images`, `DELETE /pets/{id}/images/{imageId}`, `GET /pet-images/{id}`.
 - `GET/POST /pets/{petId}/health-records`; `GET /pets/{petId}/health-records/upcoming`.
+- `GET /pets/{petId}/veterinary-assistant/context`; `POST /pets/{petId}/veterinary-assistant/messages` (sesión autenticada y acceso autorizado a la mascota).
 
 ## Solicitudes y adopciones
 
@@ -30,3 +31,7 @@ Base: `/api/v1`. DTOs de solicitud y respuesta separados de las entidades. Las r
 - `GET /notifications`, `PATCH /notifications/{id}/read`.
 
 Esquemas interactivos: `/swagger-ui.html`; documento JSON: `/api-docs`.
+
+## Asistente veterinario
+
+El asistente usa únicamente contexto no identificable de la mascota autorizado para el usuario: especie, raza, edad, sexo, tamaño, peso, color, etapa, resumen/condición de salud, vacunación, esterilización, desparasitación y requisitos de cuidado. No se envían nombre del usuario, correo, teléfono, refugio ni registros personales. La orientación es preventiva, no es un diagnóstico ni una receta y siempre debe confirmarse con un veterinario. Si `VETERINARY_AI_ENABLED=false` o falta `VETERINARY_AI_API_KEY`, el backend responde `503` y el frontend informa que el servicio no está disponible.

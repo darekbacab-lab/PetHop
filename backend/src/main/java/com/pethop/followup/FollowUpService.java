@@ -47,7 +47,13 @@ public class FollowUpService {
         if(!report.getCreatedBy().getId().equals(user.id()))throw ApiException.forbidden("Solo quien creó el reporte puede adjuntar fotografías.");
         if(media.countByFollowUpId(reportId)>=6)throw ApiException.badRequest("Cada reporte puede tener hasta 6 fotografías.");
         StoredFile stored=files.store(file);FollowUpMedia item=new FollowUpMedia();item.setFollowUp(report);item.setStoragePath(stored.path());item.setOriginalFilename(stored.originalFilename());item.setContentType(stored.contentType());item.setFileSize(stored.size());
-        return FollowUpMediaResponse.from(media.save(item));
+        try {
+            return FollowUpMediaResponse.from(media.save(item));
+        } catch (RuntimeException failure) {
+            try { files.delete(stored.path()); }
+            catch (IOException cleanupFailure) { failure.addSuppressed(cleanupFailure); }
+            throw failure;
+        }
     }
     @Transactional(readOnly=true)
     public FollowUpMedia getMedia(SecurityUser user,UUID mediaId){

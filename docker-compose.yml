@@ -17,6 +17,30 @@ services:
       timeout: 3s
       retries: 20
       start_period: 10s
+  backend:
+    profiles: ["app"]
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pethop-backend
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: ${COMPOSE_DB_URL:-jdbc:postgresql://postgres:5432/${POSTGRES_DB:-pethop}}
+      DB_USERNAME: ${DB_USERNAME:?Set DB_USERNAME for the backend container}
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD for the backend container}
+      SERVER_PORT: 8080
+      FRONTEND_ORIGINS: ${FRONTEND_ORIGINS:?Set FRONTEND_ORIGINS for the backend container}
+      SESSION_COOKIE_SAME_SITE: ${SESSION_COOKIE_SAME_SITE:?Set SESSION_COOKIE_SAME_SITE for the backend container}
+      FILE_STORAGE_PATH: /var/lib/pethop/files
+    ports:
+      - "127.0.0.1:${BACKEND_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - pethop-file-storage:/var/lib/pethop/files
 
 volumes:
   pethop-postgres-data:
+  pethop-file-storage:

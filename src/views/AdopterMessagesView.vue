@@ -111,7 +111,7 @@ async function deleteConversation(thread) {
     }
   } catch (error) {
     conversationActionError.value = error.status === 404
-      ? 'El backend respondió 404. Reinicia Spring Boot para cargar la ruta de eliminación y la migración V10, y vuelve a intentarlo.'
+      ? 'No fue posible completar la eliminación de la conversación. Inténtalo de nuevo.'
       : error.message || 'No se pudo eliminar la conversación.';
   }
 }

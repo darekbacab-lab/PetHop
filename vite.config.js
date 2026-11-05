@@ -1,7 +1,7 @@
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import vue from '@vitejs/plugin-vue';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
@@ -33,11 +33,22 @@ function legacyPublicAssets() {
   };
 }
 
-export default defineConfig({
-  plugins: [vue(), legacyPublicAssets()],
-  build: {
-    rollupOptions: {
-      input: Object.fromEntries(pages.map(page => [page, path.join(root, `${page}.html`)]))
-    }
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, root, '');
+  let apiUrl = env.VITE_API_URL || '';
+  if (mode === 'production' && apiUrl) {
+    try {
+      const hostname = new URL(apiUrl).hostname.toLowerCase();
+      if (['localhost', '127.0.0.1', '::1'].includes(hostname)) apiUrl = '';
+    } catch { apiUrl = ''; }
   }
+  return {
+    define: { 'import.meta.env.VITE_API_URL': JSON.stringify(apiUrl) },
+    plugins: [vue(), legacyPublicAssets()],
+    build: {
+      rollupOptions: {
+        input: Object.fromEntries(pages.map(page => [page, path.join(root, `${page}.html`)]))
+      }
+    }
+  };
 });

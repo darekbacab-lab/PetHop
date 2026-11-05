@@ -55,7 +55,7 @@ public class PetController {
             @RequestParam(defaultValue="0") @Min(0) int page,
             @RequestParam(defaultValue="24") @Min(1) @Max(48) int pageSize,
             @AuthenticationPrincipal SecurityUser principal) {
-        return service.list(species, sex, petSize, location, search, sort, page, pageSize, principal);
+        return service.listMine(species, sex, petSize, location, search, sort, page, pageSize, principal);
     }
 
     @GetMapping("/{id}") PetResponse get(@PathVariable UUID id, @AuthenticationPrincipal SecurityUser principal) { return service.get(id, principal); }

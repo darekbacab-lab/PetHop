@@ -1,0 +1,3 @@
+package com.pethop.admin;
+import com.pethop.admin.dto.AdminAuditResponse; import com.pethop.common.response.PageResponse; import jakarta.validation.constraints.*; import org.springframework.data.domain.PageRequest; import org.springframework.web.bind.annotation.*;
+@RestController @RequestMapping("/api/v1/admin/audit") public class AdminAuditController{private final AdminAuditEventRepository events;public AdminAuditController(AdminAuditEventRepository e){events=e;}@GetMapping PageResponse<AdminAuditResponse> list(@RequestParam(defaultValue="0")@Min(0)int page,@RequestParam(defaultValue="50")@Min(1)@Max(100)int size){return PageResponse.from(events.findAllByOrderByCreatedAtDesc(PageRequest.of(page,size)),AdminAuditResponse::from);}}

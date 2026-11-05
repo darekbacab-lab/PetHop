@@ -18,6 +18,7 @@ public class ShelterService {
         ShelterProfile profile = new ShelterProfile();
         profile.setUser(user);
         apply(profile, request);
+        profile.setVerificationStatus(VerificationStatus.PENDING);
         return shelters.save(profile);
     }
     @Transactional(readOnly = true)
@@ -28,6 +29,7 @@ public class ShelterService {
     public ShelterProfile update(User user, ShelterRequest request) {
         ShelterProfile profile = mine(user);
         apply(profile, request);
+        profile.setVerificationStatus(VerificationStatus.PENDING);
         return shelters.save(profile);
     }
     private void apply(ShelterProfile profile, ShelterRequest request) {

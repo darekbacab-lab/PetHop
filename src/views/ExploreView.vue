@@ -37,7 +37,7 @@ async function loadPets() {
     const result = await listPets({ ...filters, search: query.value, sort: filters.sort === 'age' ? '' : filters.sort });
     pets.value = result.content;
     if (filters.sort === 'age') { const rank = { cachorro: 0, joven: 1, adulto: 2, senior: 3 }; pets.value.sort((a,b) => (rank[normalize(a.ageGroup)] ?? 99) - (rank[normalize(b.ageGroup)] ?? 99)); }
-  } catch (error) { pets.value = []; loadError.value = error.message || 'No fue posible cargar las mascotas. Verifica que el backend esté iniciado.'; }
+  } catch (error) { pets.value = []; loadError.value = error.message || 'No fue posible cargar las mascotas. Inténtalo de nuevo.'; }
   finally { loading.value = false; }
 }
 async function loadFavorites() { try { favorites.value = (await listFavorites()).map(pet => String(pet.id).toLowerCase()); } catch { favorites.value = []; } }

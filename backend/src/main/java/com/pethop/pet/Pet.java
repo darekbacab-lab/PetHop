@@ -58,6 +58,9 @@ public class Pet {
     @Column private Boolean dewormed;
     @Column(length = 180) private String location;
     @Enumerated(EnumType.STRING) @Column(name = "adoption_status", nullable = false, length = 16) private AdoptionStatus adoptionStatus = AdoptionStatus.DRAFT;
+    @Enumerated(EnumType.STRING) @Column(name = "moderation_status", nullable = false, length = 20) private ModerationStatus moderationStatus = ModerationStatus.PENDING;
+    @Column(name = "moderation_reason", columnDefinition = "text") private String moderationReason;
+    @Column(name = "moderated_at") private Instant moderatedAt;
     @Column(name = "published_at") private Instant publishedAt;
     @Column(name = "created_at", nullable = false, updatable = false) private Instant createdAt;
     @Column(name = "updated_at", nullable = false) private Instant updatedAt;
@@ -119,6 +122,12 @@ public class Pet {
     public void setLocation(String location) { this.location = location; }
     public AdoptionStatus getAdoptionStatus() { return adoptionStatus; }
     public void setAdoptionStatus(AdoptionStatus adoptionStatus) { this.adoptionStatus = adoptionStatus; }
+    public ModerationStatus getModerationStatus() { return moderationStatus; }
+    public void setModerationStatus(ModerationStatus moderationStatus) { this.moderationStatus = moderationStatus; }
+    public String getModerationReason() { return moderationReason; }
+    public void setModerationReason(String moderationReason) { this.moderationReason = moderationReason; }
+    public Instant getModeratedAt() { return moderatedAt; }
+    public void setModeratedAt(Instant moderatedAt) { this.moderatedAt = moderatedAt; }
     public Instant getPublishedAt() { return publishedAt; }
     public void setPublishedAt(Instant publishedAt) { this.publishedAt = publishedAt; }
     public Instant getCreatedAt() { return createdAt; }
