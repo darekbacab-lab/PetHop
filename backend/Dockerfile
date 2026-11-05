@@ -18,7 +18,6 @@ RUN apt-get update \
     && useradd --system --gid pethop --home-dir /app --no-create-home pethop \
     && mkdir -p /var/lib/pethop/files \
     && chown -R pethop:pethop /app /var/lib/pethop
-VOLUME ["/var/lib/pethop/files"]
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 CMD curl --fail --silent "http://127.0.0.1:${PORT:-8080}/actuator/health" || exit 1
 USER pethop
