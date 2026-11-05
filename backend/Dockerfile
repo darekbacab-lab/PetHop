@@ -1,5 +1,8 @@
 FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /build
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends unzip \
+    && rm -rf /var/lib/apt/lists/*
 COPY pom.xml mvnw ./
 COPY .mvn .mvn
 RUN chmod +x mvnw
