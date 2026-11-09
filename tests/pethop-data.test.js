@@ -336,6 +336,7 @@ test('auth redesign keeps real session flows, role payloads, validation and resp
 test('password recovery uses expiring one-time tokens and does not store raw tokens', () => {
     const service = fs.readFileSync(path.join(projectRoot, 'backend/src/main/java/com/pethop/security/PasswordResetService.java'), 'utf8');
     const migration = fs.readFileSync(path.join(projectRoot, 'backend/src/main/resources/db/migration/V15__create_password_reset_tokens.sql'), 'utf8');
+    const typeFixMigration = fs.readFileSync(path.join(projectRoot, 'backend/src/main/resources/db/migration/V16__align_password_reset_token_hash_type.sql'), 'utf8');
     const auth = fs.readFileSync(path.join(projectRoot, 'backend/src/main/java/com/pethop/security/AuthController.java'), 'utf8');
     assert.match(service, /SecureRandom/);
     assert.match(service, /MessageDigest\.getInstance\("SHA-256"\)/);
@@ -347,6 +348,7 @@ test('password recovery uses expiring one-time tokens and does not store raw tok
     assert.match(auth, /password-reset\/confirm/);
     assert.match(migration, /expires_at TIMESTAMPTZ NOT NULL/);
     assert.match(migration, /used_at TIMESTAMPTZ/);
+    assert.match(typeFixMigration, /ALTER COLUMN token_hash TYPE VARCHAR\(64\)/);
 });
 
 test('follow-up dashboard uses real applications, history, adoptions, reports and media endpoints', () => {

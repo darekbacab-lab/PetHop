@@ -18,7 +18,7 @@ async function request(url, init) {
     return await fetch(url, { ...init, signal: controller.signal });
   } catch (error) {
     if (error?.name === 'AbortError') {
-      throw new ApiError('El servidor no respondió a tiempo. Comprueba que el backend esté iniciado e inténtalo de nuevo.');
+      throw new ApiError('No pudimos completar la solicitud. Inténtalo de nuevo en unos momentos.');
     }
     if (error instanceof TypeError) {
       throw new ApiError('No se pudo conectar con PetHop. Inténtalo de nuevo en unos momentos.');
