@@ -49,6 +49,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
     private Rule ruleFor(String path) {
         if ("/api/v1/auth/login".equals(path)) return new Rule("login", properties.getLogin(), true);
         if ("/api/v1/auth/register".equals(path)) return new Rule("registration", properties.getRegistration(), true);
+        if ("/api/v1/auth/password-reset/request".equals(path)) return new Rule("password-reset", properties.getPasswordReset(), true);
         if (PET_UPLOAD.matcher(path).matches() || FOLLOW_UP_UPLOAD.matcher(path).matches()) return new Rule("uploads", properties.getUploads(), false);
         if (PET_REPORT.matcher(path).matches()) return new Rule("reports", properties.getReports(), false);
         if (VETERINARY_ASSISTANT.matcher(path).matches()) return new Rule("veterinary-assistant", properties.getVeterinaryAssistant(), false);

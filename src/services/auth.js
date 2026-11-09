@@ -35,6 +35,14 @@ export async function register(account) {
   return api('/auth/register', { method: 'POST', body: account });
 }
 
+export async function requestPasswordReset(email) {
+  return api('/auth/password-reset/request', { method: 'POST', body: { email } });
+}
+
+export async function confirmPasswordReset(token, newPassword) {
+  return api('/auth/password-reset/confirm', { method: 'POST', body: { token, newPassword } });
+}
+
 export async function logout() {
   try { await api('/auth/logout', { method: 'POST' }); }
   finally { clearApiSession(); currentUser.value = null; sessionLoaded.value = true; }

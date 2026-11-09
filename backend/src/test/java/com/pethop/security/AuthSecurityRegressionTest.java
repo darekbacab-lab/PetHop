@@ -24,6 +24,7 @@ class AuthSecurityRegressionTest {
     @MockitoBean AuthService authService;
     @MockitoBean AuthenticationManager authenticationManager;
     @MockitoBean SecurityUserService securityUserService;
+    @MockitoBean PasswordResetService passwordResetService;
 
     @Test
     void missingSessionReturnsUnauthorizedInsteadOfForbidden() throws Exception {

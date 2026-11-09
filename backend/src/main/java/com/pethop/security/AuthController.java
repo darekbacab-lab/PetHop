@@ -2,6 +2,8 @@ package com.pethop.security;
 
 import com.pethop.security.dto.LoginRequest;
 import com.pethop.security.dto.RegisterRequest;
+import com.pethop.security.dto.PasswordResetConfirmRequest;
+import com.pethop.security.dto.PasswordResetRequest;
 import com.pethop.user.dto.UserResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,13 +34,16 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final SecurityContextRepository contextRepository;
     private final SessionAuthenticationStrategy sessionStrategy;
+    private final PasswordResetService passwordReset;
 
     public AuthController(AuthService authService, AuthenticationManager authenticationManager,
-            SecurityContextRepository contextRepository, SessionAuthenticationStrategy sessionStrategy) {
+            SecurityContextRepository contextRepository, SessionAuthenticationStrategy sessionStrategy,
+            PasswordResetService passwordReset) {
         this.authService = authService;
         this.authenticationManager = authenticationManager;
         this.contextRepository = contextRepository;
         this.sessionStrategy = sessionStrategy;
+        this.passwordReset = passwordReset;
     }
 
     @GetMapping("/csrf")
@@ -66,6 +71,18 @@ public class AuthController {
     @PostMapping("/logout")
     ResponseEntity<Void> logout(Authentication authentication, HttpServletRequest request, HttpServletResponse response) {
         new SecurityContextLogoutHandler().logout(request, response, authentication);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/password-reset/request")
+    ResponseEntity<Void> requestPasswordReset(@Valid @RequestBody PasswordResetRequest request) {
+        passwordReset.request(request.email());
+        return ResponseEntity.accepted().build();
+    }
+
+    @PostMapping("/password-reset/confirm")
+    ResponseEntity<Void> confirmPasswordReset(@Valid @RequestBody PasswordResetConfirmRequest request) {
+        passwordReset.confirm(request.token(), request.newPassword());
         return ResponseEntity.noContent().build();
     }
 

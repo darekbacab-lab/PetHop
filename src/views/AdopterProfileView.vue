@@ -22,6 +22,9 @@ const editing = ref(false);
 const saving = ref(false);
 const form = ref({ fullName: '', phone: '' });
 const feedback = ref('');
+const passwordForm = ref({ currentPassword: '', newPassword: '', confirm: '' });
+const passwordFeedback = ref('');
+const passwordSaving = ref(false);
 const selectedActivity = ref(null);
 const activityLoading = ref(false);
 const activityError = ref('');
@@ -78,6 +81,17 @@ async function saveProfile() {
   } catch (error) { feedback.value = error.message || 'No se pudo guardar el perfil. Tus cambios siguen disponibles para reintentar.'; }
   finally { saving.value = false; }
 }
+async function changePassword() {
+  passwordFeedback.value = '';
+  if (passwordForm.value.newPassword !== passwordForm.value.confirm) { passwordFeedback.value = 'Las contraseñas nuevas no coinciden.'; return; }
+  passwordSaving.value = true;
+  try {
+    await api('/users/me/password', { method: 'PATCH', body: { currentPassword: passwordForm.value.currentPassword, newPassword: passwordForm.value.newPassword } });
+    passwordForm.value = { currentPassword: '', newPassword: '', confirm: '' };
+    passwordFeedback.value = 'Tu contraseña se actualizó correctamente.';
+  } catch (error) { passwordFeedback.value = error.message || 'No se pudo actualizar la contraseña.'; }
+  finally { passwordSaving.value = false; }
+}
 
 async function openActivity(type, item) {
   selectedActivity.value = { type, data: item };
@@ -126,6 +140,14 @@ onMounted(async () => {
           </form>
           <dl v-else class="adopter-personal-grid"><div><dt>Nombre completo</dt><dd>{{ user.fullName }}</dd></div><div><dt>Correo electrónico</dt><dd>{{ user.email }}</dd></div><div><dt>Teléfono</dt><dd>{{ user.phone || 'No proporcionado' }}</dd></div><div><dt>Tipo de cuenta</dt><dd>{{ isAdmin ? 'Administrador' : 'Adoptante' }}</dd></div></dl>
           <p v-if="feedback" class="adopter-feedback" role="status">{{ feedback }}</p>
+          <form class="adopter-password-form" @submit.prevent="changePassword">
+            <h3>Cambiar contraseña</h3>
+            <label>Contraseña actual<input v-model="passwordForm.currentPassword" type="password" autocomplete="current-password" required></label>
+            <label>Nueva contraseña<input v-model="passwordForm.newPassword" type="password" autocomplete="new-password" minlength="12" maxlength="72" required></label>
+            <label>Confirmar contraseña<input v-model="passwordForm.confirm" type="password" autocomplete="new-password" minlength="12" maxlength="72" required></label>
+            <button class="button button-outline" type="submit" :disabled="passwordSaving">{{ passwordSaving ? 'Actualizando…' : 'Actualizar contraseña' }}</button>
+            <p v-if="passwordFeedback" class="adopter-feedback" role="status">{{ passwordFeedback }}</p>
+          </form>
         </section>
 
         <section v-if="!isAdmin" class="adopter-activity" aria-labelledby="activity-title">
@@ -178,6 +200,12 @@ onMounted(async () => {
 .adopter-personal-form label { display:grid; gap:6px; color:var(--text); font-size:.76rem; font-weight:750; }
 .adopter-personal-form input { width:100%; min-height:44px; padding:10px 12px; border:1px solid var(--border); border-radius:10px; background:var(--background); color:var(--text); font:500 .85rem "Montserrat",sans-serif; }
 .adopter-personal-form input:disabled { opacity:.7; }
+.adopter-password-form { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px 16px; margin-top:24px; padding-top:20px; border-top:1px solid var(--border); }
+.adopter-password-form h3 { grid-column:1/-1; margin:0; color:var(--text); font:750 1rem "Poppins",sans-serif; }
+.adopter-password-form label { display:grid; gap:6px; color:var(--text); font-size:.76rem; font-weight:750; }
+.adopter-password-form input { width:100%; min-height:44px; padding:10px 12px; border:1px solid var(--border); border-radius:10px; background:var(--background); color:var(--text); font:500 .85rem "Montserrat",sans-serif; }
+.adopter-password-form button { align-self:end; justify-self:start; }
+.adopter-password-form .adopter-feedback { grid-column:1/-1; }
 .adopter-personal-form small { color:var(--text-soft); font-size:.67rem; font-weight:500; }
 .adopter-form-actions { display:flex; grid-column:1/-1; justify-content:flex-end; gap:9px; }
 .adopter-feedback { margin:12px 0 0; color:var(--primary-strong); font-size:.78rem; }
@@ -220,5 +248,5 @@ onMounted(async () => {
 .adopter-detail-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:15px; margin:0 0 22px; }
 .adopter-detail-modal > .button { text-decoration:none; }
 @media(max-width:760px) { .adopter-profile-main { width:min(620px,calc(100% - 28px)); padding:24px 0 50px; } .adopter-identity { flex-wrap:wrap; gap:14px; padding:19px; } .adopter-avatar { width:62px; height:62px; flex-basis:62px; } .adopter-personal-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .adopter-activity-grid { grid-template-columns:1fr; } }
-@media(max-width:480px) { .adopter-profile-main { width:calc(100% - 24px); } .adopter-identity { padding:16px; } .adopter-identity-copy { flex-basis:calc(100% - 80px); } .adopter-identity-copy h1 { font-size:1.55rem; } .adopter-identity-actions { width:100%; } .adopter-identity-actions .button { flex:1; } .adopter-personal { padding:17px 15px; } .adopter-personal-grid,.adopter-personal-form,.adopter-detail-grid { grid-template-columns:1fr; } .adopter-form-actions { grid-column:auto; } .adopter-activity-summary { font-size:.68rem; } .adopter-activity-panel { padding:16px 14px; } .adopter-status-pill { max-width:100px; text-align:center; } .adopter-detail-modal { padding:22px 17px; } }
+@media(max-width:480px) { .adopter-profile-main { width:calc(100% - 24px); } .adopter-identity { padding:16px; } .adopter-identity-copy { flex-basis:calc(100% - 80px); } .adopter-identity-copy h1 { font-size:1.55rem; } .adopter-identity-actions { width:100%; } .adopter-identity-actions .button { flex:1; } .adopter-personal { padding:17px 15px; } .adopter-personal-grid,.adopter-personal-form,.adopter-detail-grid,.adopter-password-form { grid-template-columns:1fr; } .adopter-form-actions { grid-column:auto; } .adopter-activity-summary { font-size:.68rem; } .adopter-activity-panel { padding:16px 14px; } .adopter-status-pill { max-width:100px; text-align:center; } .adopter-detail-modal { padding:22px 17px; } }
 </style>

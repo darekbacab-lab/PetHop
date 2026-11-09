@@ -318,12 +318,35 @@ test('auth redesign keeps real session flows, role payloads, validation and resp
     assert.match(access, /reportValidity\(\)/);
     assert.match(access, /showLoginPassword/);
     assert.match(access, /showRegisterConfirm/);
+    assert.match(access, /requestPasswordReset/);
+    assert.match(access, /confirmPasswordReset/);
+    assert.match(access, /¿Olvidaste tu contraseña\?/);
+    assert.match(access, /Cambiar contraseña/);
+    const provider = fs.readFileSync(path.join(projectRoot, 'src/views/ProviderView.vue'), 'utf8');
+    assert.match(provider, /api\('\/users\/me\/password'/);
+    assert.match(provider, /Cambiar contraseña/);
     assert.match(access, /:disabled="loading"/);
     assert.match(access, /mascotas-hero-v2\.png/);
     assert.doesNotMatch(access, /google|facebook|apple/i);
     assert.match(css, /grid-template-columns/);
     assert.match(css, /@media \(max-width:780px\)/);
     assert.match(css, /@media \(max-width:430px\)/);
+});
+
+test('password recovery uses expiring one-time tokens and does not store raw tokens', () => {
+    const service = fs.readFileSync(path.join(projectRoot, 'backend/src/main/java/com/pethop/security/PasswordResetService.java'), 'utf8');
+    const migration = fs.readFileSync(path.join(projectRoot, 'backend/src/main/resources/db/migration/V15__create_password_reset_tokens.sql'), 'utf8');
+    const auth = fs.readFileSync(path.join(projectRoot, 'backend/src/main/java/com/pethop/security/AuthController.java'), 'utf8');
+    assert.match(service, /SecureRandom/);
+    assert.match(service, /MessageDigest\.getInstance\("SHA-256"\)/);
+    assert.match(service, /invalidateForUser/);
+    assert.match(service, /findActive/);
+    assert.match(service, /token\.setUsedAt/);
+    assert.match(service, /!properties\.isEnabled\(\) \|\| !properties\.isMailEnabled\(\)/);
+    assert.match(auth, /password-reset\/request/);
+    assert.match(auth, /password-reset\/confirm/);
+    assert.match(migration, /expires_at TIMESTAMPTZ NOT NULL/);
+    assert.match(migration, /used_at TIMESTAMPTZ/);
 });
 
 test('follow-up dashboard uses real applications, history, adoptions, reports and media endpoints', () => {
