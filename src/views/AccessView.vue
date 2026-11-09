@@ -48,7 +48,11 @@ async function submitReset(event) {
       await requestPasswordReset(resetForm.value.email.trim());
       resetNotice.value = 'Si existe una cuenta con ese correo, recibirás instrucciones para continuar.';
     }
-  } catch (error) { resetError.value = error.message || 'No se pudo completar la recuperación.'; }
+  } catch (error) {
+    resetError.value = error.status === 429
+      ? 'Has realizado varios intentos. Espera un momento y vuelve a intentarlo.'
+      : error.message || 'No se pudo completar la recuperación.';
+  }
   finally { loading.value = false; }
 }
 
