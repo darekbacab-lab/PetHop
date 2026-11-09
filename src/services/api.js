@@ -5,19 +5,27 @@ const API_BASE = (configuredApi && !(import.meta.env?.PROD && localApi)
   ? configuredApi
   : (import.meta.env?.PROD ? productionFallback : 'http://localhost:8080/api/v1')).replace(/\/$/, '');
 let csrfToken = '';
+const REQUEST_TIMEOUT_MS = 15000;
 
 export class ApiError extends Error {
   constructor(message, status, payload) { super(message); this.name = 'ApiError'; this.status = status; this.payload = payload; }
 }
 
 async function request(url, init) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
   try {
-    return await fetch(url, init);
+    return await fetch(url, { ...init, signal: controller.signal });
   } catch (error) {
+    if (error?.name === 'AbortError') {
+      throw new ApiError('El servidor no respondió a tiempo. Comprueba que el backend esté iniciado e inténtalo de nuevo.');
+    }
     if (error instanceof TypeError) {
       throw new ApiError('No se pudo conectar con PetHop. Inténtalo de nuevo en unos momentos.');
     }
     throw error;
+  } finally {
+    clearTimeout(timeout);
   }
 }
 

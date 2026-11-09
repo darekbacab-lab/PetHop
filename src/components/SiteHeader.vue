@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { listFavorites, removeFavorite as deleteFavorite } from '../services/petApi.js';
 import { currentUser, loadCurrentUser, logout } from '../services/auth.js';
@@ -9,6 +9,7 @@ import ThemeToggle from './ThemeToggle.vue';
 const route = useRoute();
 const router = useRouter();
 const open = ref(false);
+const menuToggle = ref(null);
 const accountDisplayName = ref('');
 const favoritesOpen = ref(false);
 const favorites = ref([]);
@@ -31,7 +32,7 @@ function isNavActive(item) {
   return route.path === item.to || (item.to === '/' && route.path === '/index.html');
 }
 watch(open, value => document.body.classList.toggle('menu-open', value));
-watch(() => route.fullPath, () => { open.value = false; });
+watch(() => route.fullPath, () => closeMenu());
 async function refreshAccountDisplayName() {
   const user = currentUser.value;
   accountDisplayName.value = user?.fullName || '';
@@ -43,13 +44,16 @@ async function refreshAccountDisplayName() {
 }
 watch(() => [currentUser.value?.id, currentUser.value?.role], refreshAccountDisplayName, { immediate: true });
 function onShelterUpdated() { refreshAccountDisplayName(); }
-function closeMenu() { open.value = false; }
+function closeMenu() {
+  open.value = false;
+  nextTick(() => menuToggle.value?.focus());
+}
 async function signOut() {
   try { await logout(); }
-  finally { open.value = false; await router.push('/'); }
+  finally { closeMenu(); await router.push('/'); }
 }
 async function openFavorites() {
-  open.value = false;
+  closeMenu();
   favoritesOpen.value = true;
   favoritesLoading.value = true;
   favoritesError.value = '';
@@ -89,18 +93,18 @@ onUnmounted(() => window.removeEventListener('pethop:shelter-updated', onShelter
 </script>
 <template>
   <header class="site-header" @keydown.esc.window="closeMenu"><div class="header-container">
-    <button type="button" class="menu-toggle" :class="{ 'menu-toggle-open': open }" :aria-expanded="open" aria-controls="main-menu" :aria-label="open ? 'Cerrar menú' : 'Abrir menú'" @click="open = !open"><Icon :name="open ? 'x' : 'menu'" /></button>
+    <button ref="menuToggle" type="button" class="menu-toggle" :class="{ 'menu-toggle-open': open }" :aria-expanded="open" aria-controls="main-menu" :aria-label="open ? 'Cerrar menú' : 'Abrir menú'" @click="open = !open"><Icon :name="open ? 'x' : 'menu'" /></button>
     <RouterLink to="/" class="brand" aria-label="PetHop"><img class="brand-logo-color" src="/img/image1.png" alt=""><img class="brand-logo-mono" src="/img/Logomonocr.png" alt=""></RouterLink>
-    <nav id="main-menu" class="main-nav" :class="{ open }" :inert="!open" :aria-hidden="!open" aria-label="Navegación principal">
+    <nav id="main-menu" class="main-nav" :class="{ open }" :inert="!open" aria-label="Navegación principal">
       <div class="menu-drawer-header"><div class="menu-drawer-brand"><img class="brand-logo-color" src="/img/image1.png" alt=""><img class="brand-logo-mono" src="/img/Logomonocr.png" alt=""></div><button type="button" class="menu-drawer-close" aria-label="Cerrar menú" @click="closeMenu"><Icon name="x" /></button></div>
-      <template v-for="(item, index) in links" :key="item.to"><RouterLink class="nav-link" :class="{ active: isNavActive(item) }" :to="item.to" @click="open = false"><Icon :name="item.icon" class="nav-item-icon" /><span>{{ item.label }}</span></RouterLink><button v-if="index === 1" type="button" class="favorites-button menu-favorites" @click="openFavorites"><Icon name="heart" class="nav-item-icon" /><span class="favorites-label">Favoritos</span><span class="favorites-count">{{ count }}</span></button></template>
-      <template v-if="currentUser"><RouterLink class="nav-link account-nav-link" :to="accountRoute" @click="open=false"><Icon name="user-round" class="nav-item-icon" /><span>{{ profileLabel }}</span></RouterLink></template>
-      <RouterLink v-if="currentUser?.role === 'ADMIN'" class="nav-link account-nav-link" to="/admin.html" @click="open=false"><Icon name="shield-check" class="nav-item-icon" /><span>Administración</span></RouterLink>
+      <template v-for="(item, index) in links" :key="item.to"><RouterLink class="nav-link" :class="{ active: isNavActive(item) }" :to="item.to" @click="closeMenu"><Icon :name="item.icon" class="nav-item-icon" /><span>{{ item.label }}</span></RouterLink><button v-if="index === 1" type="button" class="favorites-button menu-favorites" @click="openFavorites"><Icon name="heart" class="nav-item-icon" /><span class="favorites-label">Favoritos</span><span class="favorites-count">{{ count }}</span></button></template>
+      <template v-if="currentUser"><RouterLink class="nav-link account-nav-link" :to="accountRoute" @click="closeMenu"><Icon name="user-round" class="nav-item-icon" /><span>{{ profileLabel }}</span></RouterLink></template>
+      <RouterLink v-if="currentUser?.role === 'ADMIN'" class="nav-link account-nav-link" to="/admin.html" @click="closeMenu"><Icon name="shield-check" class="nav-item-icon" /><span>Administración</span></RouterLink>
       <ThemeToggle />
       <button v-if="currentUser" type="button" class="nav-link account-nav-signout" @click="signOut"><Icon name="log-out" class="nav-item-icon" /><span>Cerrar sesión</span></button>
     </nav>
     <div class="header-right"><RouterLink to="/#como-funciona" class="how-button">Cómo funciona</RouterLink><span v-if="currentUser" class="account-display-name" :title="accountDisplayName">{{ accountDisplayName }}</span><RouterLink v-if="!currentUser" to="/acceso.html" class="login-button"><Icon name="log-in" />Ingresar</RouterLink><RouterLink v-else :to="accountRoute" class="account-trigger" :aria-label="currentUser.role === 'SHELTER' ? 'Abrir perfil de organización' : 'Abrir mi perfil'"><span class="account-avatar"><Icon name="user-round" /></span><span class="account-presence" aria-label="Sesión activa"></span></RouterLink></div>
-  </div></header><button v-if="open" class="menu-backdrop is-visible" type="button" aria-label="Cerrar menú" @click="open=false"></button>
+  </div></header><button v-if="open" class="menu-backdrop is-visible" type="button" aria-label="Cerrar menú" @click="closeMenu"></button>
   <div v-if="favoritesOpen" class="dynamic-modal open favorites-modal" role="presentation" @click.self="favoritesOpen=false"><section class="dynamic-modal-content favorites-modal-content" role="dialog" aria-modal="true" aria-labelledby="favorites-title" :aria-busy="favoritesLoading" @keydown.esc="favoritesOpen=false"><button type="button" class="dynamic-modal-close" aria-label="Cerrar favoritos" @click="favoritesOpen=false"><Icon name="x" /></button><span class="favorites-modal-eyebrow">TUS MASCOTAS GUARDADAS</span><h2 id="favorites-title">Favoritos <span class="favorites-modal-count">{{ count }}</span></h2><p v-if="favoritesLoading" class="favorites-empty-copy" role="status">Cargando tus mascotas guardadas…</p><p v-else-if="favoritesError" class="favorites-empty-copy" role="alert">{{ favoritesError }}</p><p v-else-if="!favorites.length" class="favorites-empty-copy">Aún no tienes mascotas guardadas. Explora y guarda las que te gustaría conocer.</p><p v-if="favoritesActionError" class="favorites-empty-copy" role="alert">{{ favoritesActionError }}</p><template v-if="!favoritesLoading && !favoritesError && favorites.length"><p class="favorites-modal-intro">Tus mascotas guardadas están aquí para que vuelvas a ellas cuando quieras.</p><div class="dynamic-modal-list favorites-modal-list"><article v-for="pet in favorites" :key="pet.id" class="dynamic-modal-list-item favorites-modal-item"><img v-if="petPhoto(pet)" class="favorites-pet-thumbnail" :src="petPhoto(pet)" :alt="`Fotografía de ${pet.name}`" loading="lazy"><span v-else class="favorites-pet-thumbnail favorites-pet-thumbnail-empty" aria-hidden="true"><Icon name="paw-print" /></span><div class="favorites-pet-copy"><strong>{{ pet.name }}</strong><span>{{ pet.species }}<template v-if="pet.location"> · {{ pet.location }}</template></span></div><div class="favorites-pet-actions"><RouterLink class="pet-button favorites-profile-link" :to="{ path: '/mascota.html', query: { pet: pet.id } }" @click="favoritesOpen=false">Ver perfil</RouterLink><button class="favorites-remove-button" type="button" :aria-label="`Quitar a ${pet.name} de favoritos`" @click="removeFavorite(pet.id)"><Icon name="heart" :filled="true" /><span>Quitar</span></button></div></article></div></template><div v-if="!favoritesLoading && !favoritesError && !favorites.length" class="favorites-empty-state"><span class="favorites-empty-icon"><Icon name="paw-print" :size="27" /></span><RouterLink to="/explorar.html" class="primary-button favorites-explore-link" @click="favoritesOpen=false">Explorar mascotas<Icon name="arrow-right" :size="17" /></RouterLink></div></section></div>
 </template>
 

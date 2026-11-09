@@ -22,6 +22,7 @@ const quickQuestions = [
   '¿Cómo puedo conocer el estado de salud de una mascota?'
 ];
 const currentPetId = computed(() => route.path === '/mascota.html' && route.query.pet ? String(route.query.pet) : null);
+const isAuthRoute = computed(() => route.path === '/acceso.html');
 const generalAnswers = [
   { match: /adoptar|adopción|adopcion/i, text: 'Para adoptar, explora las mascotas disponibles, revisa su información y envía una solicitud desde el perfil de la mascota. El refugio revisará tus datos y podrá contactarte para continuar el proceso.' },
   { match: /antes de adoptar|considerar/i, text: 'Antes de adoptar, considera el tiempo, espacio, presupuesto y cuidados que podrás ofrecer. También revisa la edad, tamaño, personalidad y requisitos de la mascota para encontrar una buena compatibilidad.' },
@@ -133,7 +134,7 @@ onBeforeUnmount(() => { document.body.style.overflow = previousOverflow; });
 
 <template>
   <button
-    v-if="!isOpen"
+    v-if="!isOpen && !isAuthRoute"
     ref="launcher"
     class="assistant-launcher"
     type="button"

@@ -258,7 +258,9 @@ test('the sidebar stays above its backdrop and can close through Vue controls', 
     const source = fs.readFileSync(path.join(projectRoot, 'src/components/SiteHeader.vue'), 'utf8');
     assert.match(source, /:class="\{ open \}"/);
     assert.match(source, /:inert="!open"/);
-    assert.match(source, /@click="open=false"/);
+    assert.match(source, /function closeMenu\(\)/);
+    assert.match(source, /menuToggle\.value\?\.focus\(\)/);
+    assert.doesNotMatch(source, /:aria-hidden="!open"/);
     assert.match(source, /@click="open = !open"/);
     for (const label of ['Inicio', 'Explorar', 'Dar en adopción', 'Seguimiento', 'Favoritos']) assert.ok(source.includes(label));
 });
@@ -304,6 +306,39 @@ test('organization registration uses one account form then creates and edits its
     assert.match(provider, /api\('\/shelters', \{ method: 'POST'/);
     assert.match(provider, /api\('\/users\/me', \{ method: 'PATCH'/);
     assert.match(provider, /api\('\/shelters\/me', \{ method: 'PATCH'/);
+});
+
+test('auth redesign keeps real session flows, role payloads, validation and responsive layout', () => {
+    const access = fs.readFileSync(path.join(projectRoot, 'src/views/AccessView.vue'), 'utf8');
+    const css = fs.readFileSync(path.join(projectRoot, 'css/acceso.css'), 'utf8');
+    assert.match(access, /loginApi\(\{ email: loginForm\.value\.email\.trim\(\), password: loginForm\.value\.password \}\)/);
+    assert.match(access, /register\(\{ fullName:/);
+    assert.match(access, /role = registration\.value\.profile === 'provider' \? 'SHELTER' : 'ADOPTER'/);
+    assert.match(access, /registration\.value\.password !== registration\.value\.confirm/);
+    assert.match(access, /reportValidity\(\)/);
+    assert.match(access, /showLoginPassword/);
+    assert.match(access, /showRegisterConfirm/);
+    assert.match(access, /:disabled="loading"/);
+    assert.match(access, /mascotas-hero-v2\.png/);
+    assert.doesNotMatch(access, /google|facebook|apple/i);
+    assert.match(css, /grid-template-columns/);
+    assert.match(css, /@media \(max-width:780px\)/);
+    assert.match(css, /@media \(max-width:430px\)/);
+});
+
+test('follow-up dashboard uses real applications, history, adoptions, reports and media endpoints', () => {
+    const source = fs.readFileSync(path.join(projectRoot, 'src/views/FollowUpView.vue'), 'utf8');
+    assert.match(source, /api\('\/adoption-applications\/mine\?page=0&size=50'\)/);
+    assert.match(source, /api\(`\/adoption-applications\/\$\{id\}\/history`\)/);
+    assert.match(source, /api\('\/adoptions\/mine\?page=0&size=50'\)/);
+    assert.match(source, /api\(`\/adoptions\/\$\{currentAdoption\.value\.id\}\/follow-ups`/);
+    assert.match(source, /api\(`\/follow-ups\/\$\{report\.id\}\/media`/);
+    assert.match(source, /applications\.value\.filter\(item => item\.status === 'UNDER_REVIEW'\)/);
+    assert.match(source, /currentApplication\.value\?\.status === 'APPROVED'/);
+    assert.match(source, /La organización recibió tu solicitud/);
+    assert.match(source, /reportMediaSources/);
+    assert.doesNotMatch(source, /backend|localhost:8080/i);
+    assert.doesNotMatch(source, /Math\.random|fake|mock|demo/i);
 });
 
 test('Vue icons use Lucide paths from the locally vendored library with original navigation names', () => {

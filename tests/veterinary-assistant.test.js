@@ -12,6 +12,8 @@ const controller = fs.readFileSync(new URL('../backend/src/main/java/com/pethop/
 test('Paw keeps its single global launcher and calls veterinary AI from the existing panel', () => {
   assert.equal((app.match(/<AssistantChat\b/g) || []).length, 1);
   assert.equal((assistant.match(/class="assistant-launcher"/g) || []).length, 1);
+  assert.match(assistant, /isAuthRoute = computed\(\(\) => route\.path === '\/acceso\.html'\)/);
+  assert.match(assistant, /v-if="!isOpen && !isAuthRoute"/);
   assert.match(assistant, /aria-label="Abrir Asistente PetHop"/);
   assert.match(assistant, /@click="openChat"/);
   assert.match(assistant, /id="pethop-assistant-panel"/);

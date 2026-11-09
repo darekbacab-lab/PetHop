@@ -13,6 +13,7 @@ import jakarta.persistence.LockModeType;
 
 public interface ApplicationRepository extends JpaRepository<AdoptionApplication,UUID> {
     boolean existsByAdopterIdAndPetIdAndStatusIn(UUID adopterId,UUID petId,List<ApplicationStatus> statuses);
+    boolean existsByAdopterIdAndPetId(UUID adopterId,UUID petId);
     boolean existsByPetIdAndStatusIn(UUID petId,List<ApplicationStatus> statuses);
     Page<AdoptionApplication> findAllByAdopterIdOrderByCreatedAtDesc(UUID adopterId,Pageable pageable);
     Page<AdoptionApplication> findAllByShelterIdOrderByCreatedAtDesc(UUID shelterId,Pageable pageable);

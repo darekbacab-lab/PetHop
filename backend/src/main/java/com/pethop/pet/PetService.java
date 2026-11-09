@@ -80,7 +80,7 @@ public class PetService {
     public PetResponse get(UUID id, SecurityUser principal) {
         Pet pet = find(id);
         if ((pet.getAdoptionStatus() != AdoptionStatus.AVAILABLE || pet.getModerationStatus() != ModerationStatus.APPROVED)
-                && !owns(pet, principal)) throw ApiException.notFound("Mascota no encontrada.");
+                && !canView(pet, principal)) throw ApiException.notFound("Mascota no encontrada.");
         return response(pet);
     }
 
@@ -153,7 +153,7 @@ public class PetService {
     public PetImage image(UUID imageId, SecurityUser principal) {
         PetImage image = images.findById(imageId).orElseThrow(() -> ApiException.notFound("Imagen no encontrada."));
         if ((image.getPet().getAdoptionStatus() != AdoptionStatus.AVAILABLE || image.getPet().getModerationStatus() != ModerationStatus.APPROVED)
-                && !owns(image.getPet(), principal)) throw ApiException.notFound("Imagen no encontrada.");
+                && !canView(image.getPet(), principal)) throw ApiException.notFound("Imagen no encontrada.");
         return image;
     }
 
@@ -161,7 +161,7 @@ public class PetService {
     public List<PetImageResponse> images(UUID petId, SecurityUser principal) {
         Pet pet = find(petId);
         if ((pet.getAdoptionStatus() != AdoptionStatus.AVAILABLE || pet.getModerationStatus() != ModerationStatus.APPROVED)
-                && !owns(pet, principal)) throw ApiException.notFound("Mascota no encontrada.");
+                && !canView(pet, principal)) throw ApiException.notFound("Mascota no encontrada.");
         return images.findAllByPetIdOrderByDisplayOrder(petId).stream().map(PetImageResponse::from).toList();
     }
 
@@ -189,6 +189,11 @@ public class PetService {
         if (principal.user().getRole() == UserRole.ADMIN) return true;
         if (principal.user().getRole() != UserRole.SHELTER) return false;
         return shelters.findByUserId(principal.id()).map(shelter -> shelter.getId().equals(pet.getShelter().getId())).orElse(false);
+    }
+    private boolean canView(Pet pet, SecurityUser principal) {
+        if (owns(pet, principal)) return true;
+        return principal != null && principal.user().getRole() == UserRole.ADOPTER
+                && applications.existsByAdopterIdAndPetId(principal.id(), pet.getId());
     }
     private AdoptionStatus requestedEditableStatus(AdoptionStatus status) {
         if (status == AdoptionStatus.DRAFT || status == AdoptionStatus.AVAILABLE || status == AdoptionStatus.UNAVAILABLE) return status;
