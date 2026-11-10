@@ -64,7 +64,7 @@ async function submitLogin(event) {
   loading.value = true;
   try {
     await loginApi({ email: loginForm.value.email.trim(), password: loginForm.value.password });
-    await router.push(String(route.query.redirect || '/'));
+    await router.push(String(route.query.redirect || '/inicio.html'));
   } catch (error) {
     feedback.value.login = error.message || 'No se pudo iniciar sesión. Revisa tus datos e inténtalo de nuevo.';
   } finally { loading.value = false; }
@@ -83,7 +83,7 @@ async function submitRegistration(event) {
   try {
     await register({ fullName: registration.value.fullName.trim(), email: registration.value.email.trim(), password: registration.value.password, phone: registration.value.phone.trim() || null, role });
     await loginApi({ email: registration.value.email.trim(), password: registration.value.password });
-    await router.push(role === 'SHELTER' ? '/proveedor.html?section=perfil' : String(route.query.redirect || '/'));
+    await router.push(role === 'SHELTER' ? '/proveedor.html?section=perfil' : String(route.query.redirect || '/inicio.html'));
   } catch (error) {
     feedback.value.register = error.message || 'No se pudo completar el registro.';
     feedback.value.registerError = true;
@@ -95,7 +95,7 @@ async function submitRegistration(event) {
   <div class="auth-page">
     <main class="auth-card" :class="{ 'is-register': isRegistering }">
       <section class="auth-panel" aria-labelledby="auth-title">
-        <RouterLink class="auth-brand" to="/" aria-label="PetHop, volver al inicio"><img src="/img/image1.png" alt="PetHop"></RouterLink>
+        <RouterLink class="auth-brand" to="/inicio.html" aria-label="PetHop, volver al inicio"><img src="/img/image1.png" alt="PetHop"></RouterLink>
         <div class="auth-panel-heading">
           <h1 id="auth-title"><template v-if="isRegistering">Crea tu <span>cuenta.</span></template><template v-else>¡Hola de <span>nuevo!</span></template></h1>
           <p>{{ isRegistering ? 'Únete a una comunidad que conecta mascotas con hogares responsables.' : 'Ingresa para continuar con tu proceso de adopción.' }}</p>

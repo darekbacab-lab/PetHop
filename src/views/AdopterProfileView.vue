@@ -68,7 +68,7 @@ function startEditing() { form.value = { fullName: user.value?.fullName || '', p
 function cancelEditing() { editing.value = false; feedback.value = ''; }
 async function signOut() {
   try { await logout(); }
-  finally { await router.push('/'); }
+  finally { await router.push('/acceso.html'); }
 }
 async function saveProfile() {
   saving.value = true;

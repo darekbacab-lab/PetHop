@@ -6,8 +6,9 @@ export const routeLoadingName = ref('inicio');
 let pendingFullPath = '';
 
 const routes = [
-  { path: '/', name: 'inicio', meta: { title: 'PetHop | Adopta, conecta, cambia vidas' }, component: () => import('../views/HomeView.vue') },
-  { path: '/index.html', redirect: '/' },
+  { path: '/', redirect: '/acceso.html' },
+  { path: '/inicio.html', name: 'inicio', meta: { title: 'PetHop | Adopta, conecta, cambia vidas' }, component: () => import('../views/HomeView.vue') },
+  { path: '/index.html', redirect: '/acceso.html' },
   { path: '/acceso.html', name: 'acceso', meta: { title: 'Ingresar | PetHop' }, component: () => import('../views/AccessView.vue') },
   { path: '/explorar.html', name: 'explorar', meta: { title: 'Explorar mascotas | PetHop' }, component: () => import('../views/ExploreView.vue') },
   { path: '/mascota.html', name: 'mascota', meta: { title: 'Mascota | PetHop' }, component: () => import('../views/PetView.vue') },
@@ -17,7 +18,7 @@ const routes = [
   { path: '/perfil.html', name: 'perfil', meta: { title: 'Mi perfil | PetHop' }, component: () => import('../views/AdopterProfileView.vue') },
   { path: '/proveedor.html', name: 'proveedor', meta: { title: 'Dar en adopción | PetHop' }, component: () => import('../views/ProviderView.vue') },
   { path: '/admin.html', name: 'admin', meta: { title: 'Moderación | PetHop' }, component: () => import('../views/AdminView.vue') },
-  { path: '/:pathMatch(.*)*', redirect: '/' }
+  { path: '/:pathMatch(.*)*', redirect: '/acceso.html' }
 ];
 
 const router = createRouter({
