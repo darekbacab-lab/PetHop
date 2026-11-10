@@ -53,6 +53,9 @@ public class PasswordResetService {
 
     @Transactional
     public void confirm(String rawToken, String newPassword) {
+        if (!properties.isEnabled() || !properties.isMailEnabled()) {
+            throw ApiException.serviceUnavailable("La recuperación de contraseña no está disponible en este momento.");
+        }
         PasswordResetToken token = tokens.findActive(hash(rawToken), Instant.now())
                 .orElseThrow(() -> ApiException.badRequest("El enlace de recuperación no es válido o ya expiró."));
         User user = token.getUser();

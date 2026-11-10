@@ -32,12 +32,12 @@ PetHop es una aplicación Vue 3 + Vite que conserva rutas `.html` históricas. N
 | Seguimiento (`FollowUpView.vue`) | Muestra etapas derivadas del estado local y permite agregar notas. | `pethop_followups`; la propia interfaz aclara que son notas locales y no cambian el estado oficial. No hay adopciones formalizadas ni permisos. |
 | Mensajería (`PetView.vue`, `AdopterMessagesView.vue`, `ProviderView.vue`, `js/pethop-data.js`) | Hilos REST-like locales entre vistas, envío y listado en el dispositivo. | `pethop_messages`, con compatibilidad de formato antiguo/workspace. No hay identidad, participantes autenticados, autorización ni sondeo de servidor. |
 | Asistente (`AssistantChat.vue`) | Respuestas/atajos predefinidos en UI; no hay proveedor de IA ni servicio sanitario conectado. | Solo estado de conversación en memoria. No debe anunciarse ni persistirse como diagnóstico o IA real. |
-| Preferencias | Tema y filtros temporales. | `pethop_theme` y otros estados UI; pueden permanecer locales. |
+| Preferencias | Filtros temporales de interfaz. | Pueden permanecer locales. |
 | Notificaciones | No se encontró un centro de notificaciones funcional ni persistencia de notificaciones. | No implementar UI/API de notificaciones como terminado; dejar infraestructura de dominio hasta que existan eventos confirmados. |
 
 ## Inventario de almacenamiento web
 
-- LocalStorage: `pethop_favorites`, `pethop_user`, `pethop_applications`, `pethop_followups`, `pethop_provider_workspace`, `pethop_messages`, `pethop_theme`.
+- LocalStorage: `pethop_favorites`, `pethop_user`, `pethop_applications`, `pethop_followups`, `pethop_provider_workspace`, `pethop_messages`.
 - SessionStorage: `pethop_selected_pet` (selección temporal del detalle).
 - Registros que deben migrarse con estrategia explícita: usuarios, perfiles de refugio, mascotas publicadas, solicitudes, sus estados y sus hilos de mensajes. Favoritos y seguimientos solo pueden asociarse a un usuario tras identificar/autenticarlo. Las fotos base64 deben migrarse a almacenamiento de archivos.
 - Mantener locales el tema, filtros y estado temporal de navegación. No borrar datos de navegador al instalar el cliente HTTP. Para datos antiguos, ofrecer migración autenticada/consentida o export/import controlado; nunca aceptar su identidad o rol como fuente de autoridad.

@@ -61,23 +61,9 @@ VETERINARY_AI_MODEL=openai/gpt-oss-20b
 VETERINARY_AI_API_KEY=<clave configurada como secreto Railway>
 ```
 
-Para habilitar recuperación de contraseña, configura además estas variables únicamente en el backend. Usa credenciales SMTP de un proveedor de correo; no las guardes en Git ni en variables `VITE_*`:
+La recuperación de contraseña está deshabilitada temporalmente. Mantén `PASSWORD_RESET_ENABLED=false` y `PASSWORD_RESET_MAIL_ENABLED=false`; no configures proveedor ni credenciales de correo hasta que se decida una opción gratuita.
 
-```text
-PASSWORD_RESET_ENABLED=true
-PASSWORD_RESET_MAIL_ENABLED=true
-PASSWORD_RESET_FRONTEND_URL=https://<dominio-publico-del-frontend>
-PASSWORD_RESET_MAIL_FROM=no-reply@<dominio-controlado>
-PASSWORD_RESET_TOKEN_TTL_MINUTES=30
-SMTP_HOST=<servidor-smtp>
-SMTP_PORT=587
-SMTP_USERNAME=<usuario-smtp>
-SMTP_PASSWORD=<secreto-smtp>
-SMTP_AUTH=true
-SMTP_STARTTLS=true
-```
-
-Si todavía no tienes un proveedor SMTP, deja `PASSWORD_RESET_ENABLED=false` y `PASSWORD_RESET_MAIL_ENABLED=false`; la aplicación seguirá iniciando y mostrará que la recuperación no está disponible, sin fingir que se envió un correo.
+Railway bloquea SMTP saliente en los planes Free, Trial y Hobby; consulta su [política de red saliente](https://docs.railway.com/networking/outbound-networking).
 
 La clave no debe aparecer en `VITE_*`, commits, logs ni documentación. Si se deja `VETERINARY_AI_ENABLED=false`, el resto de la aplicación funciona y el asistente informa que está no disponible.
 

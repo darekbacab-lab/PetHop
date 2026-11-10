@@ -5,7 +5,6 @@ import { listFavorites, removeFavorite as deleteFavorite } from '../services/pet
 import { currentUser, loadCurrentUser, logout } from '../services/auth.js';
 import { api } from '../services/api.js';
 import Icon from './Icon.vue';
-import ThemeToggle from './ThemeToggle.vue';
 const route = useRoute();
 const router = useRouter();
 const open = ref(false);
@@ -100,7 +99,6 @@ onUnmounted(() => window.removeEventListener('pethop:shelter-updated', onShelter
       <template v-for="(item, index) in links" :key="item.to"><RouterLink class="nav-link" :class="{ active: isNavActive(item) }" :to="item.to" @click="closeMenu"><Icon :name="item.icon" class="nav-item-icon" /><span>{{ item.label }}</span></RouterLink><button v-if="index === 1" type="button" class="favorites-button menu-favorites" @click="openFavorites"><Icon name="heart" class="nav-item-icon" /><span class="favorites-label">Favoritos</span><span class="favorites-count">{{ count }}</span></button></template>
       <template v-if="currentUser"><RouterLink class="nav-link account-nav-link" :to="accountRoute" @click="closeMenu"><Icon name="user-round" class="nav-item-icon" /><span>{{ profileLabel }}</span></RouterLink></template>
       <RouterLink v-if="currentUser?.role === 'ADMIN'" class="nav-link account-nav-link" to="/admin.html" @click="closeMenu"><Icon name="shield-check" class="nav-item-icon" /><span>Administración</span></RouterLink>
-      <ThemeToggle />
       <button v-if="currentUser" type="button" class="nav-link account-nav-signout" @click="signOut"><Icon name="log-out" class="nav-item-icon" /><span>Cerrar sesión</span></button>
     </nav>
     <div class="header-right"><RouterLink to="/inicio.html#como-funciona" class="how-button">Cómo funciona</RouterLink><span v-if="currentUser" class="account-display-name" :title="accountDisplayName">{{ accountDisplayName }}</span><RouterLink v-if="!currentUser" to="/acceso.html" class="login-button"><Icon name="log-in" />Ingresar</RouterLink><RouterLink v-else :to="accountRoute" class="account-trigger" :aria-label="currentUser.role === 'SHELTER' ? 'Abrir perfil de organización' : 'Abrir mi perfil'"><span class="account-avatar"><Icon name="user-round" /></span><span class="account-presence" aria-label="Sesión activa"></span></RouterLink></div>
@@ -110,8 +108,6 @@ onUnmounted(() => window.removeEventListener('pethop:shelter-updated', onShelter
 
 <style scoped>
 .brand-logo-mono { display:none!important; }
-:global(html[data-theme="dark"]) .brand-logo-color { display:none!important; }
-:global(html[data-theme="dark"]) .brand-logo-mono { display:block!important; }
 .account-trigger { position:relative; display:grid; width:48px; height:48px; place-items:center; padding:0; border:1px solid var(--border); border-radius:14px; background:var(--white); color:var(--primary-strong); text-decoration:none; }
 .account-trigger:hover { border-color:var(--primary); background:var(--background); }
 .account-trigger:focus-visible { outline:3px solid color-mix(in srgb,var(--primary) 45%,transparent); outline-offset:2px; }
@@ -123,9 +119,6 @@ onUnmounted(() => window.removeEventListener('pethop:shelter-updated', onShelter
 .main-nav .account-nav-signout:hover { background:var(--primary-soft); color:var(--danger); }
 .main-nav .account-nav-signout:focus-visible { outline:3px solid color-mix(in srgb,var(--primary) 45%,transparent); outline-offset:2px; }
 .main-nav .account-nav-signout .nav-item-icon { width:19px; height:19px; flex:0 0 auto; }
-:global(html[data-theme="dark"]) .account-display-name { color:var(--text); }
-:global(html[data-theme="dark"]) .account-trigger { border-color:var(--border-dark); background:#34393c; color:#a7e2e4; }
-:global(html[data-theme="dark"]) .account-avatar { background:#46595b; }
 .favorites-modal-content { width:min(560px,100%); padding:32px; }
 .favorites-modal-eyebrow { display:block; margin-bottom:5px; color:var(--primary-strong); font-size:.68rem; font-weight:800; letter-spacing:.09em; }
 .favorites-modal h2 { display:flex; align-items:center; gap:10px; margin-bottom:5px; font-size:1.75rem; }
