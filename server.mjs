@@ -22,6 +22,10 @@ const contentTypes = {
   '.woff': 'font/woff',
   '.woff2': 'font/woff2'
 };
+const spaHtmlRoutes = new Set([
+  'acceso.html', 'admin.html', 'explorar.html', 'index.html', 'inicio.html',
+  'mascota.html', 'mensajes.html', 'perfil.html', 'proveedor.html', 'seguimiento.html', 'solicitud.html'
+]);
 
 function safePath(urlPath) {
   const decoded = decodeURIComponent(urlPath.split('?')[0]);
@@ -36,9 +40,9 @@ async function resolveFile(urlPath) {
     const details = await stat(requested);
     if (details.isFile()) return requested;
   } catch {
-    // The SPA fallback below handles extensionless client-side routes.
+    // The SPA fallback below handles known Vue routes when their shell file is absent.
   }
-  if (path.extname(requested)) return null;
+  if (path.extname(requested) && !spaHtmlRoutes.has(path.basename(requested).toLowerCase())) return null;
   const fallback = path.join(root, 'index.html');
   try {
     await access(fallback);

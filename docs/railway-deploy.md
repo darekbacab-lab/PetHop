@@ -17,7 +17,7 @@ Configura el servicio frontend con estos valores:
 - Start Command: `npm start`
 - Watch Paths: `/src/**`, `/public/**`, `/*.html`, `/package.json`, `/package-lock.json`, `/vite.config.js`, `/server.mjs`
 
-El build genera `dist/`. `server.mjs` sirve los archivos estáticos, escucha el `PORT` que Railway inyecta y devuelve `index.html` para rutas SPA sin extensión. Las páginas multipágina existentes (`acceso.html`, `mascota.html`, etc.) continúan sirviéndose como archivos reales.
+El build genera `dist/`. `server.mjs` sirve los archivos estáticos, escucha el `PORT` que Railway inyecta y devuelve `index.html` tanto para rutas SPA sin extensión como para las rutas `.html` reconocidas de Vue cuando no existe su archivo en `dist/`. Si el archivo multipágina existe, se sirve directamente; así, una recarga no depende de que todas las páginas shell se hayan incluido en el deployment.
 
 Define en el servicio frontend:
 
