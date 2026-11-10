@@ -101,7 +101,8 @@ public class PetService {
         apply(pet, request, false);
         pet.setModerationStatus(ModerationStatus.PENDING);
         pet.setModerationReason(null); pet.setModeratedAt(null);
-        if (request.adoptionStatus() != null) setStatus(pet, requestedEditableStatus(request.adoptionStatus()));
+        if (request.adoptionStatus() != null && request.adoptionStatus() != pet.getAdoptionStatus())
+            setStatus(pet, requestedEditableStatus(request.adoptionStatus()));
         return response(pets.save(pet));
     }
 
@@ -124,7 +125,8 @@ public class PetService {
 
     @Transactional
     public PetImageResponse addImage(UUID id, SecurityUser principal, MultipartFile file) throws IOException {
-        Pet pet = ownedPet(id, principal);
+        Pet pet = ownedPetForUpdate(id, principal);
+        ensurePetCanBeEdited(pet);
         long count = images.countByPetId(id);
         if (count >= 6) throw ApiException.badRequest("Cada mascota puede tener hasta 6 fotografías.");
         StoredFile stored = files.store(file);
@@ -132,7 +134,9 @@ public class PetService {
         image.setOriginalFilename(stored.originalFilename()); image.setContentType(stored.contentType()); image.setFileSize(stored.size());
         image.setDisplayOrder((short) count); image.setPrimary(count == 0);
         try {
-            return PetImageResponse.from(images.save(image));
+            PetImageResponse response = PetImageResponse.from(images.save(image));
+            markForReview(pet);
+            return response;
         } catch (RuntimeException failure) {
             try { files.delete(stored.path()); }
             catch (IOException cleanupFailure) { failure.addSuppressed(cleanupFailure); }
@@ -142,11 +146,22 @@ public class PetService {
 
     @Transactional(rollbackFor = IOException.class)
     public void deleteImage(UUID petId, UUID imageId, SecurityUser principal) throws IOException {
-        ownedPet(petId, principal);
+        Pet pet = ownedPetForUpdate(petId, principal);
+        ensurePetCanBeEdited(pet);
         PetImage image = images.findByIdAndPetId(imageId, petId).orElseThrow(() -> ApiException.notFound("Imagen no encontrada."));
         String storedPath = image.getStoragePath();
+        boolean wasPrimary = image.isPrimary();
         images.delete(image);
+        images.flush();
         files.delete(storedPath);
+        List<PetImage> remaining = images.findAllByPetIdOrderByDisplayOrder(petId);
+        for (int index = 0; index < remaining.size(); index++) {
+            PetImage remainingImage = remaining.get(index);
+            remainingImage.setDisplayOrder((short) index);
+            if (wasPrimary) remainingImage.setPrimary(index == 0);
+        }
+        images.saveAll(remaining);
+        markForReview(pet);
     }
 
     @Transactional(readOnly=true)
@@ -211,6 +226,12 @@ public class PetService {
     private void ensurePetCanBeEdited(Pet pet) {
         if (pet.getAdoptionStatus() == AdoptionStatus.IN_PROCESS || pet.getAdoptionStatus() == AdoptionStatus.ADOPTED)
             throw ApiException.conflict("La mascota ya está comprometida con una adopción.");
+    }
+    private void markForReview(Pet pet) {
+        pet.setModerationStatus(ModerationStatus.PENDING);
+        pet.setModerationReason(null);
+        pet.setModeratedAt(null);
+        pets.save(pet);
     }
     private void apply(Pet pet, PetRequest request, boolean creating) {
         pet.setName(request.name().trim()); pet.setSpecies(request.species()); pet.setBreed(request.breed());

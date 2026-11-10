@@ -72,6 +72,23 @@ const petLocationOptions = computed(() => {
 const recentRequests = computed(() => state.requests.filter(item => ['Nueva', 'En revisión'].includes(item.status)).slice(0, 3));
 const recentPets = computed(() => state.pets.slice(0, 3));
 function providerPetPhoto(pet) { return pet.photos?.[0] || pet.image || ''; }
+function providerPetRecord(response, previous = {}) {
+  const pet = mapPet(response);
+  return {
+    ...pet,
+    status: ({ AVAILABLE: 'Publicada', IN_PROCESS: 'En proceso de adopción', ADOPTED: 'Adoptada', UNAVAILABLE: 'Pausada', DRAFT: 'Borrador' })[pet.adoptionStatus],
+    age: pet.ageGroup,
+    requests: previous.requests || 0,
+    days: previous.days || 0,
+    image: pet.photos?.[0] || ''
+  };
+}
+function providerEditPhotos(pet) {
+  return (pet.images || []).map((image, index) => ({
+    ...image,
+    displayUrl: pet.photos?.[index] || `${API_BASE.replace(/\/api\/v1$/, '')}${image.url}`
+  }));
+}
 function imageToJpeg(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -216,10 +233,9 @@ async function deletePet(pet) {
 }
 function editPetInformation() {
   if (!selectedPet.value) return;
-  const images = selectedPet.value.images || [];
   petEditForm.value = {
     ...selectedPet.value,
-    photosToKeep: images.map((image, index) => ({ ...image, displayUrl: selectedPet.value.photos?.[index] || `${API_BASE.replace(/\/api\/v1$/, '')}${image.url}` })),
+    photosToKeep: providerEditPhotos(selectedPet.value),
     newPhotos: [],
     lifeStage: selectedPet.value.age,
     personalityTraits: normalizePersonality(selectedPet.value.personalityTraits?.length ? selectedPet.value.personalityTraits : selectedPet.value.personality)
@@ -248,26 +264,41 @@ function removeNewEditPhoto(index) { petEditForm.value.newPhotos.splice(index, 1
 async function savePetInformation() {
   if (!selectedPet.value) return;
   const updatedPet = { ...petEditForm.value };
+  const originalImageIds = new Set((selectedPet.value.images || []).map(image => image.id));
+  const retainedImageIds = new Set(updatedPet.photosToKeep.map(image => image.id));
+  let uploadedPhotoCount = 0;
   savingPetChanges.value = true;
   try {
-    await api('/pets/' + selectedPet.value.id, { method: 'PATCH', body: petPayload({ ...updatedPet, adoptionStatus: 'AVAILABLE' }) });
-    const retainedImageIds = new Set(updatedPet.photosToKeep.map(image => image.id));
-    const removedImages = (selectedPet.value.images || []).filter(image => !retainedImageIds.has(image.id));
-    for (const image of removedImages) {
-      await api(`/pets/${encodeURIComponent(selectedPet.value.id)}/images/${encodeURIComponent(image.id)}`, { method: 'DELETE' });
-    }
+    await api('/pets/' + selectedPet.value.id, { method: 'PATCH', body: petPayload({ ...updatedPet, adoptionStatus: selectedPet.value.adoptionStatus }) });
     for (const [index, photo] of updatedPet.newPhotos.entries()) {
       const blob = await (await fetch(photo.dataUrl)).blob();
       const baseName = photo.name.replace(/\.[^.]+$/, '') || `mascota-${index + 1}`;
       const file = new File([blob], `${baseName}.jpg`, { type: 'image/jpeg' });
       const form = new FormData(); form.append('file', file);
       await api(`/pets/${encodeURIComponent(selectedPet.value.id)}/images`, { method: 'POST', body: form });
+      uploadedPhotoCount += 1;
     }
-    const refreshed = mapPet(await api('/pets/' + encodeURIComponent(selectedPet.value.id)));
-    const refreshedPet = { ...refreshed, status: ({ AVAILABLE:'Publicada', IN_PROCESS:'En proceso de adopción', ADOPTED:'Adoptada', UNAVAILABLE:'Pausada', DRAFT:'Borrador' })[refreshed.adoptionStatus], age: refreshed.ageGroup, requests: selectedPet.value.requests || 0, days: selectedPet.value.days || 0, image: refreshed.photos?.[0] || '' };
+    const removedImages = (selectedPet.value.images || []).filter(image => !retainedImageIds.has(image.id));
+    for (const image of removedImages) {
+      await api(`/pets/${encodeURIComponent(selectedPet.value.id)}/images/${encodeURIComponent(image.id)}`, { method: 'DELETE' });
+    }
+    const refreshed = await api('/pets/' + encodeURIComponent(selectedPet.value.id));
+    const refreshedPet = providerPetRecord(refreshed, selectedPet.value);
     state.pets = state.pets.map(pet => String(pet.id) === String(refreshedPet.id) ? refreshedPet : pet);
     editingPet.value = false; selectedPet.value = null; persist(); toast('Información y fotografías actualizadas.');
-  } catch (error) { toast(error.message || 'No se pudo actualizar la publicación.'); }
+  } catch (error) {
+    try {
+      const refreshedPet = providerPetRecord(await api('/pets/' + encodeURIComponent(selectedPet.value.id)), selectedPet.value);
+      selectedPet.value = refreshedPet;
+      state.pets = state.pets.map(pet => String(pet.id) === String(refreshedPet.id) ? refreshedPet : pet);
+      petEditForm.value = {
+        ...updatedPet,
+        photosToKeep: providerEditPhotos(refreshedPet).filter(image => retainedImageIds.has(image.id) || !originalImageIds.has(image.id)),
+        newPhotos: updatedPet.newPhotos.slice(uploadedPhotoCount)
+      };
+    } catch { /* Preserve the current form when the server cannot be queried after a partial save. */ }
+    toast(error.message || 'No se pudo actualizar la publicación. Revisa las fotografías e inténtalo de nuevo.');
+  }
   finally { savingPetChanges.value = false; }
 }
 async function advancePublish(event) {

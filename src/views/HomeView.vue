@@ -6,6 +6,7 @@ import SiteFooter from '../components/SiteFooter.vue';
 import Icon from '../components/Icon.vue';
 import ImageWithSkeleton from '../components/ImageWithSkeleton.vue';
 import { listPets, listFavorites, addFavorite, removeFavorite } from '../services/petApi.js';
+import { loadCurrentUser } from '../services/auth.js';
 
 const router = useRouter();
 const pets = ref([]);
@@ -234,7 +235,13 @@ onMounted(async () => {
   petMotionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
   processMotionPreference = petMotionPreference;
   petMotionPreference.addEventListener('change', handleMotionPreference);
-  await Promise.all([refreshPets(), listFavorites().then(items => favorites.value = items.map(item => String(item.id).toLowerCase())).catch(() => favorites.value = [])]);
+  const user = await loadCurrentUser().catch(() => null);
+  await Promise.all([
+    refreshPets(),
+    user?.role === 'ADOPTER'
+      ? listFavorites().then(items => favorites.value = items.map(item => String(item.id).toLowerCase())).catch(() => favorites.value = [])
+      : Promise.resolve()
+  ]);
   updateVisiblePetCount();
   startPetAutoplay();
   requestAnimationFrame(() => centerProcessSlide(1, 'auto'));
