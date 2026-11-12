@@ -506,6 +506,13 @@ ol {
     letter-spacing: 0.1em;
 }
 
+/* Los subtítulos/eyebrows en mayúsculas se retiraron de toda la interfaz. */
+.eyebrow,
+.profile-eyebrow,
+.favorites-modal-eyebrow {
+    display: none !important;
+}
+
 .hero h1 {
     max-width: 670px;
     margin-bottom: 20px;
