@@ -15,6 +15,8 @@ Base: `/api/v1`. DTOs de solicitud y respuesta separados de las entidades. Las r
 - `GET /pets/{id}`, `POST /pets`, `PATCH /pets/{id}`, `PATCH /pets/{id}/status`, `DELETE /pets/{id}` (baja lógica).
 - `GET /pets/{id}/images`, `POST /pets/{id}/images`, `DELETE /pets/{id}/images/{imageId}`, `GET /pet-images/{id}`.
 - `GET/POST /pets/{petId}/health-records`; `GET /pets/{petId}/health-records/upcoming`.
+- La lectura requiere autenticación y respeta el acceso del refugio propietario o de una adopción formalizada; el alta está restringida al refugio propietario y ADMIN.
+- `GET /affiliates` catálogo público de aliados. Administración: `GET/POST /admin/affiliates`, `PATCH/DELETE /admin/affiliates/{id}`.
 - `GET /pets/{petId}/veterinary-assistant/context`; `POST /pets/{petId}/veterinary-assistant/messages` (sesión autenticada y acceso autorizado a la mascota).
 
 ## Solicitudes y adopciones
@@ -29,6 +31,7 @@ Base: `/api/v1`. DTOs de solicitud y respuesta separados de las entidades. Las r
 - `GET /favorites`, `POST /favorites/{petId}`, `DELETE /favorites/{petId}`.
 - `GET/POST /conversations`, `GET/POST /conversations/{id}/messages`.
 - `GET /notifications`, `PATCH /notifications/{id}/read`.
+- Los recordatorios de salud se generan automáticamente hasta siete días antes de la fecha programada y se deduplican por registro y fecha.
 
 Esquemas interactivos: `/swagger-ui.html`; documento JSON: `/api-docs`.
 

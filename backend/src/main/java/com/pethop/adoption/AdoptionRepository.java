@@ -8,4 +8,5 @@ public interface AdoptionRepository extends JpaRepository<Adoption,UUID> {
     Page<Adoption> findAllByShelterIdOrderByAdoptionDateDesc(UUID shelterId,Pageable pageable);
     boolean existsByPetId(UUID petId);
     boolean existsByPetIdAndAdopterId(UUID petId,UUID adopterId);
+    java.util.Optional<Adoption> findByPetId(UUID petId);
 }

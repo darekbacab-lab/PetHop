@@ -8,10 +8,12 @@ import Icon from '../components/Icon.vue';
 import ImageWithSkeleton from '../components/ImageWithSkeleton.vue';
 import { getPetById, listFavorites, addFavorite, removeFavorite } from '../services/petApi.js';
 import { api } from '../services/api.js';
+import { listAffiliates } from '../services/affiliateApi.js';
 const route = useRoute(); const router = useRouter();
 const pet = ref({ id: '', name: 'Mascota', species: 'Mascota', description: '' });
 const loadError = ref('');
 const favorites = ref([]); const activeTrackIndex = ref(1); const transitionEnabled = ref(true); const isTransitioning = ref(false);
+const affiliates = ref([]);
 const pendingDirections = [];
 const photos = computed(() => Array.isArray(pet.value.photos) ? pet.value.photos : []);
 const generalInformation = computed(() => [
@@ -49,6 +51,7 @@ async function loadPet() {
 onMounted(async () => {
   await loadPet();
   try { favorites.value = (await listFavorites()).map(item => String(item.id)); } catch { favorites.value = []; }
+  try { affiliates.value = (await listAffiliates()).slice(0, 3); } catch { affiliates.value = []; }
 });
 const touchStartX = ref(0);
 function nextPhoto(direction) {
@@ -145,6 +148,7 @@ async function askShelter() {
                 <div class="information-grid pet-requirements-grid"><div v-for="[label,value] in adoptionRequirements" :key="label" class="information-item" :class="{ 'is-long': ['Condiciones necesarias','Otros requisitos'].includes(label) && value.length>70 }"><strong>{{ label }}</strong><span>{{ value }}</span></div></div>
               </div>
               <div class="adoption-notice"><h2>Adopción responsable</h2><p>Conoce la información disponible de {{ pet.name }} antes de enviar tu solicitud. Puedes consultar con el refugio cualquier dato pendiente.</p></div>
+              <section v-if="affiliates.length" class="pet-information pet-affiliate-section"><div class="pet-affiliate-heading"><div><span class="profile-eyebrow">BENEFICIOS PARA TU NUEVA HISTORIA</span><h2>Aliados que pueden acompañarte</h2></div><RouterLink class="pet-affiliate-all-link" :to="{ path: '/aliados.html', query: { pet: pet.id } }">Ver todos</RouterLink></div><div class="pet-affiliate-list"><article v-for="item in affiliates" :key="item.id"><Icon name="badge-check" /><div><strong>{{ item.name }}</strong><small>{{ item.discountText || item.category }}<template v-if="item.discountCode"> · Código {{ item.discountCode }}</template></small></div></article></div></section>
               <button type="button" class="message-shelter-button" @click="askShelter">Preguntar al refugio</button>
               <RouterLink class="pet-apply-button login-button" :to="{path:'/solicitud.html',query:{pet:pet.id}}">Solicitar adopción</RouterLink>
             </div>

@@ -9,4 +9,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface NotificationRepository extends JpaRepository<Notification, UUID> {
     Page<Notification> findAllByUserIdOrderByCreatedAtDesc(UUID userId, Pageable pageable);
     Optional<Notification> findByIdAndUserId(UUID id, UUID userId);
+    boolean existsByDedupeKey(String dedupeKey);
 }

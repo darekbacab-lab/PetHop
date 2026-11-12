@@ -2,13 +2,15 @@
 import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import Icon from '../components/Icon.vue';
-import { login as loginApi, register } from '../services/auth.js';
+import { login as loginApi, register, requestPasswordReset, confirmPasswordReset } from '../services/auth.js';
 
 const router = useRouter();
 const route = useRoute();
-const mode = ref(route.query.mode === 'register' ? 'register' : 'login');
+const mode = ref(route.query.mode === 'register' ? 'register' : route.query.mode === 'reset' ? 'reset' : 'login');
 const loginForm = ref({ email: '', password: '' });
 const registration = ref({ profile: route.query.role === 'provider' ? 'provider' : '', fullName: '', phone: '', email: '', password: '', confirm: '' });
+const resetForm = ref({ email: '', newPassword: '', confirm: '' });
+const resetToken = computed(() => String(route.query.token || ''));
 const showLoginPassword = ref(false);
 const showRegisterPassword = ref(false);
 const showRegisterConfirm = ref(false);
@@ -17,13 +19,34 @@ const feedback = ref({ login: '', register: '', registerError: false });
 const isRegistering = computed(() => mode.value === 'register');
 
 watch(mode, registering => {
-  document.title = `${registering ? 'Crear cuenta' : 'Ingresar'} | PetHop`;
+  document.title = `${registering === 'register' ? 'Crear cuenta' : registering === 'reset' ? 'Recuperar contraseña' : 'Ingresar'} | PetHop`;
   feedback.value = { login: '', register: '', registerError: false };
 }, { immediate: true });
 
 function switchMode(nextMode) {
   mode.value = nextMode;
   feedback.value = { login: '', register: '', registerError: false };
+}
+
+async function submitPasswordResetRequest(event) {
+  feedback.value = { login: '', register: '', registerError: false };
+  if (!event.currentTarget.reportValidity()) return;
+  loading.value = true;
+  try { await requestPasswordReset(resetForm.value.email.trim()); feedback.value.login = 'Si existe una cuenta con ese correo, recibirás instrucciones para continuar.'; }
+  catch (error) { feedback.value.login = error.message || 'No se pudo solicitar la recuperación.'; }
+  finally { loading.value = false; }
+}
+
+async function submitPasswordResetConfirm(event) {
+  feedback.value = { login: '', register: '', registerError: false };
+  if (!resetToken.value || resetForm.value.newPassword !== resetForm.value.confirm || !event.currentTarget.reportValidity()) {
+    feedback.value.login = !resetToken.value ? 'El enlace de recuperación no es válido.' : resetForm.value.newPassword !== resetForm.value.confirm ? 'Las contraseñas no coinciden.' : '';
+    return;
+  }
+  loading.value = true;
+  try { await confirmPasswordReset(resetToken.value, resetForm.value.newPassword); feedback.value.login = 'Contraseña actualizada. Ya puedes iniciar sesión.'; resetForm.value = { email: '', newPassword: '', confirm: '' }; }
+  catch (error) { feedback.value.login = error.message || 'No se pudo actualizar la contraseña.'; }
+  finally { loading.value = false; }
 }
 
 function validatePhone(phone) { return !phone || /^[+()0-9 .-]{7,32}$/.test(phone); }
@@ -71,12 +94,30 @@ async function submitRegistration(event) {
           <p>{{ isRegistering ? 'Únete a una comunidad que conecta mascotas con hogares responsables.' : 'Ingresa para continuar con tu proceso de adopción.' }}</p>
         </div>
 
-        <form v-if="mode === 'login'" class="auth-form" novalidate @submit.prevent="submitLogin">
+        <form v-if="mode === 'reset' && !resetToken" class="auth-form" novalidate @submit.prevent="submitPasswordResetRequest">
+          <label for="reset-email">Correo electrónico</label>
+          <div class="auth-input-wrap"><Icon name="message-circle" /><input id="reset-email" v-model="resetForm.email" type="email" autocomplete="email" placeholder="nombre@correo.com" required></div>
+          <button class="auth-submit" type="submit" :disabled="loading">{{ loading ? 'Enviando…' : 'Enviar instrucciones' }}</button>
+          <p class="auth-feedback" :class="{ 'is-error': feedback.login }" role="alert" aria-live="polite">{{ feedback.login }}</p>
+          <p class="auth-switch-copy"><button type="button" class="auth-text-button" @click="mode = 'login'">Volver a iniciar sesión</button></p>
+        </form>
+        <form v-else-if="mode === 'reset'" class="auth-form" novalidate @submit.prevent="submitPasswordResetConfirm">
+          <h2 class="auth-form-subtitle">Cambiar contraseña</h2>
+          <label for="reset-password">Nueva contraseña</label>
+          <div class="auth-input-wrap"><Icon name="shield-check" /><input id="reset-password" v-model="resetForm.newPassword" type="password" autocomplete="new-password" minlength="12" maxlength="72" required></div>
+          <label for="reset-confirm">Confirmar contraseña</label>
+          <div class="auth-input-wrap"><Icon name="shield-check" /><input id="reset-confirm" v-model="resetForm.confirm" type="password" autocomplete="new-password" minlength="12" maxlength="72" required></div>
+          <button class="auth-submit" type="submit" :disabled="loading">{{ loading ? 'Actualizando…' : 'Actualizar contraseña' }}</button>
+          <p class="auth-feedback" :class="{ 'is-error': feedback.login && !feedback.login.includes('actualizada') }" role="alert" aria-live="polite">{{ feedback.login }}</p>
+          <p class="auth-switch-copy"><button type="button" class="auth-text-button" @click="mode = 'login'">Volver a iniciar sesión</button></p>
+        </form>
+        <form v-else-if="mode === 'login'" class="auth-form" novalidate @submit.prevent="submitLogin">
           <label for="login-email">Correo electrónico</label>
           <div class="auth-input-wrap"><Icon name="message-circle" /><input id="login-email" v-model="loginForm.email" name="email" type="email" autocomplete="email" placeholder="nombre@correo.com" required></div>
           <label for="login-password">Contraseña</label>
           <div class="auth-input-wrap"><Icon name="shield-check" /><input id="login-password" v-model="loginForm.password" name="password" :type="showLoginPassword ? 'text' : 'password'" autocomplete="current-password" placeholder="Tu contraseña" maxlength="72" required><button class="auth-password-toggle" type="button" :aria-label="showLoginPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'" :aria-pressed="showLoginPassword" @click="showLoginPassword = !showLoginPassword"><svg class="auth-eye-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/><path v-if="showLoginPassword" d="m4 4 16 16"/></svg></button></div>
           <button class="auth-submit" type="submit" :disabled="loading"><span v-if="loading" class="auth-spinner" aria-hidden="true"></span>{{ loading ? 'Ingresando…' : 'Ingresar' }}</button>
+          <button type="button" class="auth-text-button auth-recovery-link" @click="mode = 'reset'; feedback.login = ''">¿Olvidaste tu contraseña?</button>
           <p class="auth-feedback" :class="{ 'is-error': feedback.login }" role="alert" aria-live="polite">{{ feedback.login }}</p>
           <p class="auth-switch-copy">¿Aún no tienes una cuenta? <button type="button" class="auth-text-button" @click="switchMode('register')">Crear cuenta</button></p>
         </form>

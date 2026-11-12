@@ -17,7 +17,11 @@ public class NotificationService {
     private final NotificationRepository notifications;
     public NotificationService(NotificationRepository notifications){this.notifications=notifications;}
     @Transactional public void create(User user,String type,String title,String message,String referenceType,UUID referenceId){
-        Notification n=new Notification();n.setUser(user);n.setType(type);n.setTitle(title);n.setMessage(message);n.setReferenceType(referenceType);n.setReferenceId(referenceId);notifications.save(n);
+        create(user,type,title,message,referenceType,referenceId,null);
+    }
+    @Transactional public void create(User user,String type,String title,String message,String referenceType,UUID referenceId,String dedupeKey){
+        if(dedupeKey!=null && notifications.existsByDedupeKey(dedupeKey)) return;
+        Notification n=new Notification();n.setUser(user);n.setType(type);n.setTitle(title);n.setMessage(message);n.setReferenceType(referenceType);n.setReferenceId(referenceId);n.setDedupeKey(dedupeKey);notifications.save(n);
     }
     @Transactional(readOnly=true)
     public PageResponse<NotificationResponse> list(SecurityUser user,int page,int size){

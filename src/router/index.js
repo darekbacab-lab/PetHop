@@ -16,6 +16,8 @@ const routes = [
   { path: '/seguimiento.html', name: 'seguimiento', meta: { title: 'Seguimiento | PetHop' }, component: () => import('../views/FollowUpView.vue') },
   { path: '/mensajes.html', name: 'mensajes', meta: { title: 'Mensajes | PetHop' }, component: () => import('../views/AdopterMessagesView.vue') },
   { path: '/perfil.html', name: 'perfil', meta: { title: 'Mi perfil | PetHop' }, component: () => import('../views/AdopterProfileView.vue') },
+  { path: '/salud.html', name: 'salud', meta: { title: 'Expediente sanitario | PetHop' }, component: () => import('../views/HealthRecordsView.vue') },
+  { path: '/aliados.html', name: 'aliados', meta: { title: 'Aliados PetHop | PetHop' }, component: () => import('../views/AffiliatesView.vue') },
   { path: '/proveedor.html', name: 'proveedor', meta: { title: 'Dar en adopción | PetHop' }, component: () => import('../views/ProviderView.vue') },
   { path: '/admin.html', name: 'admin', meta: { title: 'Moderación | PetHop' }, component: () => import('../views/AdminView.vue') },
   { path: '/:pathMatch(.*)*', redirect: '/acceso.html' }

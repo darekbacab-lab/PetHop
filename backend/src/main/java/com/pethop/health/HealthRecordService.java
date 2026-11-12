@@ -21,10 +21,10 @@ public class HealthRecordService {
         Pet pet=getPet(petId);authorize(user,pet,false);return records.findAllByPetIdOrderByPerformedAtDesc(petId).stream().map(com.pethop.health.dto.HealthRecordResponse::from).toList();
     }
     @Transactional(readOnly=true) public List<com.pethop.health.dto.HealthRecordResponse> upcoming(SecurityUser user,UUID petId){
-        Pet pet=getPet(petId);authorize(user,pet,false);return records.findAllByPetIdAndNextDueAtGreaterThanEqualOrderByNextDueAtAsc(petId,LocalDate.now()).stream().map(com.pethop.health.dto.HealthRecordResponse::from).toList();
+        Pet pet=getPet(petId);authorize(user,pet,false);LocalDate today=LocalDate.now();return records.findAllByPetIdAndNextDueAtBetweenOrderByNextDueAtAsc(petId,today,today.plusYears(1)).stream().map(com.pethop.health.dto.HealthRecordResponse::from).toList();
     }
     @Transactional public com.pethop.health.dto.HealthRecordResponse create(SecurityUser user,UUID petId,com.pethop.health.dto.HealthRecordRequest request){
-        Pet pet=getPet(petId);authorize(user,pet,true);PetHealthRecord record=new PetHealthRecord();record.setPet(pet);record.setCreatedBy(user.user());record.setRecordType(request.recordType());record.setTitle(request.title().trim());record.setDescription(request.description());record.setPerformedAt(request.performedAt());record.setNextDueAt(request.nextDueAt());record.setVeterinarianName(request.veterinarianName());return com.pethop.health.dto.HealthRecordResponse.from(records.save(record));
+        Pet pet=getPet(petId);authorize(user,pet,true);if(request.nextDueAt()!=null&&request.nextDueAt().isBefore(request.performedAt()))throw ApiException.badRequest("La próxima fecha no puede ser anterior a la fecha realizada.");PetHealthRecord record=new PetHealthRecord();record.setPet(pet);record.setCreatedBy(user.user());record.setRecordType(request.recordType());record.setTitle(request.title().trim());record.setDescription(request.description()==null?null:request.description().trim());record.setPerformedAt(request.performedAt());record.setNextDueAt(request.nextDueAt());record.setVeterinarianName(request.veterinarianName()==null?null:request.veterinarianName().trim());return com.pethop.health.dto.HealthRecordResponse.from(records.save(record));
     }
     private Pet getPet(UUID id){return pets.findByIdAndDeletedAtIsNull(id).orElseThrow(()->ApiException.notFound("Mascota no encontrada."));}
     private void authorize(SecurityUser user,Pet pet,boolean write){
