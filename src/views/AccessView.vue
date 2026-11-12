@@ -2,11 +2,11 @@
 import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import Icon from '../components/Icon.vue';
-import { login as loginApi, register, requestPasswordReset, confirmPasswordReset } from '../services/auth.js';
+import { login as loginApi, register, requestPasswordReset, confirmPasswordReset, confirmEmailVerification } from '../services/auth.js';
 
 const router = useRouter();
 const route = useRoute();
-const mode = ref(route.query.mode === 'register' ? 'register' : route.query.mode === 'reset' ? 'reset' : 'login');
+const mode = ref(route.query.mode === 'register' ? 'register' : route.query.mode === 'reset' ? 'reset' : route.query.mode === 'verify' ? 'verify' : 'login');
 const loginForm = ref({ email: '', password: '' });
 const registration = ref({ profile: route.query.role === 'provider' ? 'provider' : '', fullName: '', phone: '', email: '', password: '', confirm: '' });
 const resetForm = ref({ email: '', newPassword: '', confirm: '' });
@@ -19,7 +19,7 @@ const feedback = ref({ login: '', register: '', registerError: false });
 const isRegistering = computed(() => mode.value === 'register');
 
 watch(mode, registering => {
-  document.title = `${registering === 'register' ? 'Crear cuenta' : registering === 'reset' ? 'Recuperar contraseña' : 'Ingresar'} | PetHop`;
+  document.title = `${registering === 'register' ? 'Crear cuenta' : registering === 'reset' ? 'Recuperar contraseña' : registering === 'verify' ? 'Confirmar correo' : 'Ingresar'} | PetHop`;
   feedback.value = { login: '', register: '', registerError: false };
 }, { immediate: true });
 
@@ -46,6 +46,12 @@ async function submitPasswordResetConfirm(event) {
   loading.value = true;
   try { await confirmPasswordReset(resetToken.value, resetForm.value.newPassword); feedback.value.login = 'Contraseña actualizada. Ya puedes iniciar sesión.'; resetForm.value = { email: '', newPassword: '', confirm: '' }; }
   catch (error) { feedback.value.login = error.message || 'No se pudo actualizar la contraseña.'; }
+  finally { loading.value = false; }
+}
+async function submitEmailVerification() {
+  feedback.value = { login: '', register: '', registerError: false }; loading.value = true;
+  try { await confirmEmailVerification(String(route.query.token || '')); feedback.value.login = 'Correo confirmado. Ya puedes iniciar sesión.'; mode.value = 'login'; }
+  catch (error) { feedback.value.login = error.message || 'No se pudo confirmar el correo.'; }
   finally { loading.value = false; }
 }
 
@@ -94,7 +100,14 @@ async function submitRegistration(event) {
           <p>{{ isRegistering ? 'Únete a una comunidad que conecta mascotas con hogares responsables.' : 'Ingresa para continuar con tu proceso de adopción.' }}</p>
         </div>
 
-        <form v-if="mode === 'reset' && !resetToken" class="auth-form" novalidate @submit.prevent="submitPasswordResetRequest">
+        <form v-if="mode === 'verify'" class="auth-form" novalidate @submit.prevent="submitEmailVerification">
+          <h2 class="auth-form-subtitle">Confirma tu correo</h2>
+          <p>Usa el enlace recibido por correo para activar tu cuenta.</p>
+          <button class="auth-submit" type="submit" :disabled="loading">{{ loading ? 'Confirmando…' : 'Confirmar correo' }}</button>
+          <p class="auth-feedback" :class="{ 'is-error': feedback.login && !feedback.login.includes('confirmado') }" role="alert" aria-live="polite">{{ feedback.login }}</p>
+          <p class="auth-switch-copy"><button type="button" class="auth-text-button" @click="mode = 'login'">Volver a iniciar sesión</button></p>
+        </form>
+        <form v-else-if="mode === 'reset' && !resetToken" class="auth-form" novalidate @submit.prevent="submitPasswordResetRequest">
           <label for="reset-email">Correo electrónico</label>
           <div class="auth-input-wrap"><Icon name="message-circle" /><input id="reset-email" v-model="resetForm.email" type="email" autocomplete="email" placeholder="nombre@correo.com" required></div>
           <button class="auth-submit" type="submit" :disabled="loading">{{ loading ? 'Enviando…' : 'Enviar instrucciones' }}</button>

@@ -11,6 +11,8 @@ import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.UUID;
 import org.hibernate.annotations.UuidGenerator;
+import jakarta.persistence.Convert;
+import com.pethop.security.SensitiveDataConverter;
 
 @Entity
 @Table(name = "users")
@@ -23,7 +25,7 @@ public class User {
     private String email;
     @Column(name = "password_hash", nullable = false, length = 100)
     private String passwordHash;
-    @Column(length = 32)
+    @Convert(converter = SensitiveDataConverter.class) @Column(length = 512)
     private String phone;
     @Enumerated(EnumType.STRING) @Column(nullable = false, length = 16)
     private UserRole role;
@@ -52,6 +54,7 @@ public class User {
     public AccountStatus getAccountStatus() { return accountStatus; }
     public void setAccountStatus(AccountStatus accountStatus) { this.accountStatus = accountStatus; }
     public boolean isEmailVerified() { return emailVerified; }
+    public void setEmailVerified(boolean emailVerified) { this.emailVerified = emailVerified; }
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
 }

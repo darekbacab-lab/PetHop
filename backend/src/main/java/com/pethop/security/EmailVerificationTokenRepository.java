@@ -1,0 +1,3 @@
+package com.pethop.security;
+import java.time.Instant; import java.util.Optional; import java.util.UUID; import org.springframework.data.jpa.repository.*; import org.springframework.data.repository.query.Param;
+public interface EmailVerificationTokenRepository extends JpaRepository<EmailVerificationToken,UUID>{@Modifying @Query("update EmailVerificationToken t set t.usedAt=:now where t.user.id=:userId and t.usedAt is null") int invalidateForUser(@Param("userId")UUID userId,@Param("now")Instant now);@Query("select t from EmailVerificationToken t join fetch t.user where t.tokenHash=:hash and t.usedAt is null and t.expiresAt>:now") Optional<EmailVerificationToken> findActive(@Param("hash")String hash,@Param("now")Instant now);}

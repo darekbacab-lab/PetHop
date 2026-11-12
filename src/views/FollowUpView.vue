@@ -11,11 +11,12 @@ import { getPetById } from '../services/petApi.js';
 const route = useRoute();
 const router = useRouter();
 const applications = ref([]); const adoptions = ref([]); const selectedId = ref('');
-const petSnapshots = ref({}); const history = ref([]); const reports = ref([]); const reportMediaSources = ref({});
+const petSnapshots = ref({}); const history = ref([]); const reports = ref([]); const visits = ref([]); const reportMediaSources = ref({});
 const loading = ref(true); const selectionLoading = ref(false); const error = ref(''); const selectionError = ref(''); const saveError = ref(''); const savedNotice = ref('');
 const selectedRequest = ref(null); const uploadFiles = ref([]); const loadSequence = ref(0);
 let loadingWatchdog;
 const form = reactive({ status: '', date: new Date().toISOString().slice(0, 10), notes: '' });
+const visitForm = reactive({ date: new Date().toISOString().slice(0, 10), status: 'PLANNED', outcome: '', notes: '', nextAction: '' });
 
 const conditionLabels = { GOOD: 'Todo marcha bien', ADAPTING: 'En proceso de adaptación', NEEDS_ATTENTION: 'Requiere atención' };
 const statusLabels = { DRAFT: 'Borrador', SUBMITTED: 'Solicitud enviada', UNDER_REVIEW: 'En revisión', APPROVED: 'Aprobada', REJECTED: 'No aprobada', WITHDRAWN: 'Retirada' };
@@ -105,6 +106,7 @@ async function loadSelected(id) {
     }
     const adoption = adoptions.value.find(item => item.applicationId === id);
     reports.value = adoption ? await api(`/adoptions/${adoption.id}/follow-ups`) : [];
+    visits.value = adoption ? await api(`/adoptions/${adoption.id}/visits`) : [];
     void loadReportMedia(reports.value);
   } catch (requestError) { if (sequence === loadSequence.value) selectionError.value = requestError.message || 'No se pudo cargar el detalle del seguimiento.'; }
   finally { if (sequence === loadSequence.value) selectionLoading.value = false; }
@@ -156,6 +158,16 @@ async function saveReport() {
     reports.value = await api(`/adoptions/${currentAdoption.value.id}/follow-ups`); await loadReportMedia(reports.value); form.status = ''; form.notes = ''; uploadFiles.value = []; savedNotice.value = `Actualización guardada en PetHop.${mediaWarning}`;
   } catch (requestError) { saveError.value = requestError.message || 'No se pudo guardar la actualización.'; }
 }
+async function saveVisit() {
+  saveError.value = ''; savedNotice.value = '';
+  if (!currentAdoption.value) { saveError.value = 'Las visitas se habilitan después de formalizar la adopción.'; return; }
+  if (!visitForm.date || !visitForm.status) { saveError.value = 'Completa la fecha y el estado de la visita.'; return; }
+  try {
+    await api(`/adoptions/${currentAdoption.value.id}/visits`, { method: 'POST', body: { visitDate: visitForm.date, status: visitForm.status, outcome: visitForm.outcome.trim(), notes: visitForm.notes.trim(), nextAction: visitForm.nextAction.trim() } });
+    visits.value = await api(`/adoptions/${currentAdoption.value.id}/visits`);
+    visitForm.outcome = ''; visitForm.notes = ''; visitForm.nextAction = ''; savedNotice.value = 'Visita registrada en PetHop.';
+  } catch (requestError) { saveError.value = requestError.message || 'No se pudo registrar la visita.'; }
+}
 onMounted(loadTracking);
 onBeforeUnmount(() => Object.values(reportMediaSources.value).forEach(url => URL.revokeObjectURL(url)));
 </script>
@@ -182,8 +194,23 @@ onBeforeUnmount(() => Object.values(reportMediaSources.value).forEach(url => URL
             </aside>
           </div>
           <section v-if="currentAdoption" class="follow-up-card report-form-card"><div class="follow-up-card-heading"><div><span class="eyebrow">ACTUALIZACIÓN</span><h2>La nueva vida de tu mascota</h2><p>Comparte cómo se encuentra después de la adopción formalizada.</p></div><span class="formalized-badge"><Icon name="check-circle-2" /> Adopción formalizada</span></div><form class="report-form" @submit.prevent="saveReport"><label>Estado de bienestar<select v-model="form.status" required><option value="" disabled>Selecciona una opción</option><option value="GOOD">Todo marcha bien</option><option value="ADAPTING">En proceso de adaptación</option><option value="NEEDS_ATTENTION">Requiere atención</option></select></label><label>Fecha<input v-model="form.date" type="date" required></label><label class="report-form-wide">Notas<textarea v-model="form.notes" maxlength="5000" required placeholder="Describe cómo se encuentra tu mascota."></textarea><small>{{ form.notes.length }}/5000</small></label><label class="report-form-wide">Fotografías (opcional)<input type="file" accept="image/*" multiple @change="onFiles"><small>Hasta 6 archivos por reporte; se guardan en el servidor junto con la actualización.</small></label><div class="report-form-wide report-actions"><p v-if="saveError" class="inline-error" role="alert">{{ saveError }}</p><p v-if="savedNotice" class="inline-success" role="status">{{ savedNotice }}</p><button class="button button-primary" type="submit">Guardar actualización</button></div></form></section>
+          <section v-if="currentAdoption" class="follow-up-card visits-card"><div class="follow-up-card-heading"><div><h2>Visitas de seguimiento</h2><p>Registra visitas, resultados y próximos acuerdos de la familia.</p></div><span class="visits-count">{{ visits.length }} registradas</span></div><div v-if="visits.length" class="visit-list"><article v-for="visit in visits" :key="visit.id"><div><strong>{{ formatDate(visit.visitDate) }}</strong><span class="visit-status" :class="`is-${visit.status.toLowerCase()}`">{{ visit.status === 'COMPLETED' ? 'Completada' : visit.status === 'CANCELLED' ? 'Cancelada' : 'Programada' }}</span></div><p v-if="visit.outcome"><b>Resultado:</b> {{ visit.outcome }}</p><p v-if="visit.notes">{{ visit.notes }}</p><small v-if="visit.nextAction"><b>Próximo paso:</b> {{ visit.nextAction }}</small></article></div><form class="report-form visit-form" @submit.prevent="saveVisit"><label>Fecha<input v-model="visitForm.date" type="date" required></label><label>Estado<select v-model="visitForm.status" required><option value="PLANNED">Programada</option><option value="COMPLETED">Completada</option><option value="CANCELLED">Cancelada</option></select></label><label>Resultado<input v-model="visitForm.outcome" maxlength="120" placeholder="Ej. Adaptación favorable"></label><label class="report-form-wide">Notas<textarea v-model="visitForm.notes" maxlength="5000" placeholder="Observaciones de la visita."></textarea></label><label class="report-form-wide">Próximo paso<textarea v-model="visitForm.nextAction" maxlength="3000" placeholder="Acuerdos o acciones pendientes."></textarea></label><div class="report-form-wide report-actions"><button class="button button-primary" type="submit">Registrar visita</button></div></form></section>
         </template>
       </section>
     </main><SiteFooter />
   </div>
 </template>
+
+<style scoped>
+.visits-card { margin-top: 18px; }
+.visits-count { color: var(--text-soft); font-size: .85rem; }
+.visit-list { display: grid; gap: 10px; margin-bottom: 20px; }
+.visit-list article { padding: 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--background); }
+.visit-list article > div { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.visit-list p { margin: 8px 0 0; color: var(--text-soft); white-space: pre-line; }
+.visit-list small { display: block; margin-top: 8px; color: var(--text-soft); }
+.visit-status { padding: 4px 8px; border-radius: 99px; font-size: .72rem; font-weight: 800; }
+.visit-status.is-planned { background: #fff4d9; color: #8a5b12; }
+.visit-status.is-completed { background: #e6f5ec; color: #287451; }
+.visit-status.is-cancelled { background: #fbe9e9; color: #a13232; }
+</style>

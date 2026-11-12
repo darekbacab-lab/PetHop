@@ -15,6 +15,8 @@ import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.UUID;
 import org.hibernate.annotations.UuidGenerator;
+import jakarta.persistence.Convert;
+import com.pethop.security.SensitiveDataConverter;
 
 @Entity
 @Table(name = "shelter_profiles")
@@ -24,11 +26,11 @@ public class ShelterProfile {
     private User user;
     @Column(name = "organization_name", nullable = false, length = 180) private String organizationName;
     @Column(columnDefinition = "text") private String description;
-    @Column(length = 240) private String address;
-    @Column(length = 100) private String city;
-    @Column(length = 100) private String state;
-    @Column(name = "postal_code", length = 20) private String postalCode;
-    @Column(name = "contact_phone", length = 32) private String contactPhone;
+    @Convert(converter = SensitiveDataConverter.class) @Column(length = 1024) private String address;
+    @Convert(converter = SensitiveDataConverter.class) @Column(length = 512) private String city;
+    @Convert(converter = SensitiveDataConverter.class) @Column(length = 512) private String state;
+    @Convert(converter = SensitiveDataConverter.class) @Column(name = "postal_code", length = 256) private String postalCode;
+    @Convert(converter = SensitiveDataConverter.class) @Column(name = "contact_phone", length = 512) private String contactPhone;
     @Enumerated(EnumType.STRING) @Column(name = "verification_status", nullable = false, length = 20)
     private VerificationStatus verificationStatus = VerificationStatus.PENDING;
     @Column(name = "created_at", nullable = false, updatable = false) private Instant createdAt;
