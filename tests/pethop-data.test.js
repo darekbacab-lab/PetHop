@@ -164,9 +164,10 @@ test('account navigation and profiles use the authenticated session and persiste
     assert.match(auth, /currentUser\s*=\s*ref\(null\)/);
     assert.match(auth, /api\('\/auth\/me'\)/);
     assert.match(auth, /api\('\/auth\/logout'/);
-    assert.match(header, /role === 'ADOPTER'/);
-    assert.match(header, /role === 'SHELTER'/);
+    assert.match(header, /role !== 'SHELTER'/);
     assert.match(header, /:to="accountRoute"/);
+    assert.match(header, /accountRoute = computed\(\(\) => '\/perfil\.html'\)/);
+    assert.match(header, /account-trigger[\s\S]*notification-trigger/);
     assert.doesNotMatch(header, /account-dropdown|accountOpen/);
     assert.match(header, /account-nav-signout/);
     assert.match(header, /accountDisplayName/);
@@ -176,6 +177,9 @@ test('account navigation and profiles use the authenticated session and persiste
     assert.match(adopter, /\/adoption-applications\/mine/);
     assert.match(adopter, /\/adoptions\/mine/);
     assert.match(adopter, /listFavorites\(\)/);
+    assert.match(adopter, /api\('\/users\/me\/role', \{ method: 'PATCH'/);
+    assert.match(adopter, /value="SHELTER">Refugio o rescatista/);
+    assert.match(adopter, /!\['ADOPTER', 'SHELTER', 'ADMIN'\]/);
     assert.match(provider, /api\('\/users\/me'\)/);
     assert.match(provider, /api\('\/shelters\/me'\)/);
     assert.match(provider, /api\('\/shelters',\s*\{\s*method:\s*'POST'/);

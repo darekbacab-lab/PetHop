@@ -25,12 +25,17 @@ const feedback = ref('');
 const passwordForm = ref({ currentPassword: '', newPassword: '', confirm: '' });
 const passwordFeedback = ref('');
 const passwordSaving = ref(false);
+const roleSaving = ref(false);
+const roleFeedback = ref('');
 const selectedActivity = ref(null);
 const activityLoading = ref(false);
 const activityError = ref('');
 const initials = computed(() => String(user.value?.fullName || '').trim().split(/\s+/).slice(0, 2).map(part => part[0]).join('').toLocaleUpperCase('es-MX') || 'P');
 const pendingCount = computed(() => applications.value.filter(item => ['SUBMITTED', 'UNDER_REVIEW'].includes(item.status)).length);
 const isAdmin = computed(() => user.value?.role === 'ADMIN');
+const isAdopter = computed(() => user.value?.role === 'ADOPTER');
+const isShelter = computed(() => user.value?.role === 'SHELTER');
+const accountTypeLabel = computed(() => isAdmin.value ? 'Administrador' : isShelter.value ? 'Refugio o rescatista' : 'Adoptante');
 
 async function loadProfile() {
   loading.value = true;
@@ -38,12 +43,11 @@ async function loadProfile() {
   try {
     const authenticated = await loadCurrentUser();
     if (!authenticated) { await router.replace({ path: '/acceso.html', query: { redirect: '/perfil.html' } }); return; }
-    if (authenticated.role === 'SHELTER') { await router.replace('/proveedor.html?section=perfil'); return; }
-    if (!['ADOPTER', 'ADMIN'].includes(authenticated.role)) { pageError.value = 'Este perfil está disponible para cuentas adoptantes y administradores.'; return; }
+    if (!['ADOPTER', 'SHELTER', 'ADMIN'].includes(authenticated.role)) { pageError.value = 'Este perfil no está disponible para este tipo de cuenta.'; return; }
     user.value = await api('/users/me');
     currentUser.value = user.value;
     form.value = { fullName: user.value.fullName || '', phone: user.value.phone || '' };
-    if (authenticated.role === 'ADMIN') return;
+    if (authenticated.role !== 'ADOPTER') return;
     const results = await Promise.allSettled([
       api('/adoption-applications/mine?page=0&size=50'),
       api('/adoptions/mine?page=0&size=50'),
@@ -92,6 +96,22 @@ async function changePassword() {
   } catch (error) { passwordFeedback.value = error.message || 'No se pudo actualizar la contraseña.'; }
   finally { passwordSaving.value = false; }
 }
+async function changeRole(event) {
+  const role = event.target.value;
+  if (!['ADOPTER', 'SHELTER'].includes(role) || role === user.value?.role || roleSaving.value) return;
+  roleSaving.value = true;
+  roleFeedback.value = '';
+  try {
+    user.value = await api('/users/me/role', { method: 'PATCH', body: { role } });
+    currentUser.value = user.value;
+    roleFeedback.value = role === 'SHELTER'
+      ? 'Ahora tienes una cuenta de refugio o rescatista. Puedes completar el perfil de organización desde tu espacio de proveedor.'
+      : 'Ahora tienes una cuenta adoptante.';
+  } catch (error) {
+    event.target.value = user.value?.role || 'ADOPTER';
+    roleFeedback.value = error.message || 'No se pudo cambiar el tipo de cuenta.';
+  } finally { roleSaving.value = false; }
+}
 
 async function openActivity(type, item) {
   selectedActivity.value = { type, data: item };
@@ -126,7 +146,7 @@ onMounted(async () => {
       <template v-else>
         <section class="adopter-identity" aria-labelledby="adopter-name">
           <div class="adopter-avatar" aria-hidden="true">{{ initials }}</div>
-          <div class="adopter-identity-copy"><span class="eyebrow">MI ESPACIO EN PETHOP</span><h1 id="adopter-name">{{ user.fullName }}</h1><div class="adopter-identity-meta"><span>{{ isAdmin ? 'Administrador' : 'Adoptante' }}</span><span v-if="user.createdAt">Desde {{ new Date(user.createdAt).toLocaleDateString('es-MX', { month: 'long', year: 'numeric' }) }}</span></div></div>
+          <div class="adopter-identity-copy"><span class="eyebrow">MI ESPACIO EN PETHOP</span><h1 id="adopter-name">{{ user.fullName }}</h1><div class="adopter-identity-meta"><span>{{ accountTypeLabel }}</span><span v-if="user.createdAt">Desde {{ new Date(user.createdAt).toLocaleDateString('es-MX', { month: 'long', year: 'numeric' }) }}</span></div></div>
           <div class="adopter-identity-actions"><button v-if="!editing" type="button" class="button button-outline adopter-edit-button" @click="startEditing"><Icon name="pencil" />Editar perfil</button><button type="button" class="button button-logout" @click="signOut"><Icon name="log-out" />Cerrar sesión</button></div>
         </section>
 
@@ -138,7 +158,8 @@ onMounted(async () => {
             <label>Correo electrónico<input :value="user.email" type="email" readonly disabled><small>El correo es un dato de cuenta y no se puede cambiar desde el perfil.</small></label>
             <div class="adopter-form-actions"><button class="button button-outline" type="button" @click="cancelEditing">Cancelar</button><button class="button button-primary" type="submit" :disabled="saving">{{ saving ? 'Guardando…' : 'Guardar cambios' }}</button></div>
           </form>
-          <dl v-else class="adopter-personal-grid"><div><dt>Nombre completo</dt><dd>{{ user.fullName }}</dd></div><div><dt>Correo electrónico</dt><dd>{{ user.email }}</dd></div><div><dt>Teléfono</dt><dd>{{ user.phone || 'No proporcionado' }}</dd></div><div><dt>Tipo de cuenta</dt><dd>{{ isAdmin ? 'Administrador' : 'Adoptante' }}</dd></div></dl>
+          <dl v-else class="adopter-personal-grid"><div><dt>Nombre completo</dt><dd>{{ user.fullName }}</dd></div><div><dt>Correo electrónico</dt><dd>{{ user.email }}</dd></div><div><dt>Teléfono</dt><dd>{{ user.phone || 'No proporcionado' }}</dd></div><div><dt>Tipo de cuenta</dt><dd>{{ accountTypeLabel }}</dd></div></dl>
+          <div v-if="!isAdmin" class="adopter-role-control"><label for="account-role">Tipo de cuenta<select id="account-role" :value="user.role" :disabled="roleSaving" @change="changeRole"><option value="ADOPTER">Adoptante</option><option value="SHELTER">Refugio o rescatista</option></select></label><p>Este cambio conserva tus datos. Puedes completar o editar el perfil de organización desde <RouterLink to="/proveedor.html?section=perfil">tu espacio de proveedor</RouterLink>.</p><p v-if="roleFeedback" class="adopter-feedback" role="status">{{ roleFeedback }}</p></div>
           <p v-if="feedback" class="adopter-feedback" role="status">{{ feedback }}</p>
           <form class="adopter-password-form" @submit.prevent="changePassword">
             <h3>Cambiar contraseña</h3>
@@ -150,7 +171,7 @@ onMounted(async () => {
           </form>
         </section>
 
-        <section v-if="!isAdmin" class="adopter-activity" aria-labelledby="activity-title">
+        <section v-if="isAdopter" class="adopter-activity" aria-labelledby="activity-title">
           <div class="adopter-section-heading adopter-activity-heading"><div><span class="eyebrow">TU CAMINO DE ADOPCIÓN</span><h2 id="activity-title">Actividad</h2></div><span class="adopter-activity-summary">{{ totals.applications }} solicitudes · {{ totals.adoptions }} adopciones</span></div>
           <div class="adopter-activity-grid">
             <section id="solicitudes" class="panel adopter-activity-panel"><div class="adopter-panel-heading"><div><Icon name="clipboard-list" /><h3>Mis solicitudes</h3></div><span class="adopter-count">{{ totals.applications }}</span></div><p v-if="activityErrors.applications" class="adopter-inline-error" role="alert">{{ activityErrors.applications }}</p><p v-else-if="!applications.length" class="adopter-empty-copy">Aún no has enviado solicitudes.</p><div v-else class="adopter-activity-list"><button v-for="item in applications" :key="item.id" type="button" class="adopter-activity-row" @click="openActivity('application', item)"><span class="adopter-activity-pet"><strong>{{ item.petName }}</strong><small>{{ item.submittedAt ? new Date(item.submittedAt).toLocaleDateString('es-MX') : 'Fecha no disponible' }}</small></span><span class="adopter-status-pill">{{ statusLabel(item.status) }}</span><Icon name="chevron-right" /></button><p v-if="pendingCount" class="adopter-activity-footnote">{{ pendingCount }} pendientes o en revisión</p></div></section>
@@ -196,6 +217,11 @@ onMounted(async () => {
 .adopter-personal-grid div,.adopter-detail-grid div { min-width:0; }
 .adopter-personal-grid dt,.adopter-detail-grid dt { margin-bottom:4px; color:var(--text-soft); font-size:.7rem; font-weight:700; }
 .adopter-personal-grid dd,.adopter-detail-grid dd { overflow-wrap:anywhere; margin:0; color:var(--text); font-size:.87rem; font-weight:600; }
+.adopter-role-control { display:grid; gap:8px; margin-top:22px; padding-top:20px; border-top:1px solid var(--border); }
+.adopter-role-control label { display:grid; max-width:330px; gap:6px; color:var(--text); font-size:.76rem; font-weight:750; }
+.adopter-role-control select { min-height:44px; padding:9px 12px; border:1px solid var(--border); border-radius:10px; background:var(--background); color:var(--text); font:600 .82rem "Montserrat",sans-serif; }
+.adopter-role-control p { max-width:720px; margin:0; color:var(--text-soft); font-size:.75rem; line-height:1.55; }
+.adopter-role-control a { color:var(--primary-strong); font-weight:750; }
 .adopter-personal-form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px 18px; }
 .adopter-personal-form label { display:grid; gap:6px; color:var(--text); font-size:.76rem; font-weight:750; }
 .adopter-personal-form input { width:100%; min-height:44px; padding:10px 12px; border:1px solid var(--border); border-radius:10px; background:var(--background); color:var(--text); font:500 .85rem "Montserrat",sans-serif; }
