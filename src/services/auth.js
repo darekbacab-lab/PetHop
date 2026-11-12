@@ -43,6 +43,10 @@ export async function confirmPasswordReset(token, newPassword) {
   return api('/auth/password-reset/confirm', { method: 'POST', body: { token, newPassword } });
 }
 
+export async function confirmEmailVerification(token) {
+  return api('/auth/email-verification/confirm', { method: 'POST', body: { token } });
+}
+
 
 export async function logout() {
   try { await api('/auth/logout', { method: 'POST' }); }

@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 import jakarta.persistence.LockModeType;
 
 public interface ApplicationRepository extends JpaRepository<AdoptionApplication,UUID> {
+    long countByStatus(ApplicationStatus status);
     boolean existsByAdopterIdAndPetIdAndStatusIn(UUID adopterId,UUID petId,List<ApplicationStatus> statuses);
     boolean existsByAdopterIdAndPetId(UUID adopterId,UUID petId);
     boolean existsByPetIdAndStatusIn(UUID petId,List<ApplicationStatus> statuses);

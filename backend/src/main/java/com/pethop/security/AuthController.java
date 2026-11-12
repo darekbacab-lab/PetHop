@@ -4,6 +4,7 @@ import com.pethop.security.dto.LoginRequest;
 import com.pethop.security.dto.RegisterRequest;
 import com.pethop.security.dto.PasswordResetConfirmRequest;
 import com.pethop.security.dto.PasswordResetRequest;
+import com.pethop.common.exception.ApiException;
 import com.pethop.user.dto.UserResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -35,15 +36,17 @@ public class AuthController {
     private final SecurityContextRepository contextRepository;
     private final SessionAuthenticationStrategy sessionStrategy;
     private final PasswordResetService passwordReset;
+    private final EmailVerificationService emailVerification;
+    private final EmailVerificationProperties emailVerificationProperties;
 
     public AuthController(AuthService authService, AuthenticationManager authenticationManager,
             SecurityContextRepository contextRepository, SessionAuthenticationStrategy sessionStrategy,
-            PasswordResetService passwordReset) {
+            PasswordResetService passwordReset, EmailVerificationService emailVerification, EmailVerificationProperties emailVerificationProperties) {
         this.authService = authService;
         this.authenticationManager = authenticationManager;
         this.contextRepository = contextRepository;
         this.sessionStrategy = sessionStrategy;
-        this.passwordReset = passwordReset;
+        this.passwordReset = passwordReset; this.emailVerification = emailVerification; this.emailVerificationProperties = emailVerificationProperties;
     }
 
     @GetMapping("/csrf")
@@ -52,6 +55,7 @@ public class AuthController {
     @PostMapping("/register")
     ResponseEntity<UserResponse> register(@Valid @RequestBody RegisterRequest request) {
         var created = authService.register(request);
+        emailVerification.issue(created);
         var location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/v1/users/me").build().toUri();
         return ResponseEntity.created(location).body(UserResponse.from(created));
     }
@@ -60,6 +64,8 @@ public class AuthController {
     UserResponse login(@Valid @RequestBody LoginRequest request, HttpServletRequest servletRequest, HttpServletResponse response) {
         Authentication authentication = authenticationManager.authenticate(
                 UsernamePasswordAuthenticationToken.unauthenticated(request.email().trim().toLowerCase(), request.password()));
+        if (emailVerificationProperties.isRequired() && !((SecurityUser) authentication.getPrincipal()).user().isEmailVerified())
+            throw ApiException.forbidden("Confirma tu correo electrónico antes de iniciar sesión.");
         sessionStrategy.onAuthentication(authentication, servletRequest, response);
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(authentication);
@@ -85,6 +91,9 @@ public class AuthController {
         passwordReset.confirm(request.token(), request.newPassword());
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/email-verification/confirm")
+    ResponseEntity<Void> confirmEmail(@RequestBody java.util.Map<String, String> request) { emailVerification.confirm(request.get("token")); return ResponseEntity.noContent().build(); }
 
     @GetMapping("/me")
     UserResponse me(@AuthenticationPrincipal SecurityUser principal) { return UserResponse.from(principal.user()); }

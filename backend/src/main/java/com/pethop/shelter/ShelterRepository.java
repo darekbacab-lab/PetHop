@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import jakarta.persistence.LockModeType;
 
 public interface ShelterRepository extends JpaRepository<ShelterProfile, UUID> {
+    long countByVerificationStatus(VerificationStatus status);
     Optional<ShelterProfile> findByUserId(UUID userId);
     java.util.List<ShelterProfile> findAllByVerificationStatusOrderByCreatedAtAsc(VerificationStatus status);
     @Lock(LockModeType.PESSIMISTIC_WRITE) @Query("select s from ShelterProfile s where s.id=:id") Optional<ShelterProfile> findByIdForUpdate(@org.springframework.data.repository.query.Param("id") UUID id);

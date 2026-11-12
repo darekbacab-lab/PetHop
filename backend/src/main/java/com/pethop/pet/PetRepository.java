@@ -10,6 +10,9 @@ import org.springframework.data.repository.query.Param;
 import jakarta.persistence.LockModeType;
 
 public interface PetRepository extends JpaRepository<Pet, UUID>, JpaSpecificationExecutor<Pet> {
+    long countByDeletedAtIsNull();
+    long countByDeletedAtIsNullAndModerationStatus(ModerationStatus status);
+    long countByDeletedAtIsNullAndAdoptionStatus(AdoptionStatus status);
     Optional<Pet> findByIdAndDeletedAtIsNull(UUID id);
     @Lock(LockModeType.PESSIMISTIC_WRITE) @Query("select p from Pet p where p.id=:id and p.deletedAt is null")
     Optional<Pet> findByIdForUpdate(@Param("id") UUID id);

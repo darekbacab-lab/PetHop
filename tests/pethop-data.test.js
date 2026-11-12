@@ -8,7 +8,6 @@ import { createStorageService, sessionStorageService } from '../src/services/sto
 
 const data = globalThis.PetHopData;
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const legacyPages = path.join(projectRoot, 'src', 'legacy', 'pages');
 
 class MemoryStorage {
     #items = new Map();
@@ -105,24 +104,29 @@ test('threads without a pet or a nonempty message cannot be written', () => {
     assert.equal(data.appendMessage(storage, 'missing', { sender: 'provider', text: '  ' }), false);
 });
 
-test('the existing views own declarative templates and do not depend on the legacy renderer', () => {
+test('the active views own declarative templates and the legacy implementation is removed', () => {
     const pages = {
-        'index.html': 'HomeView.vue',
-        'acceso.html': 'AccessView.vue',
-        'explorar.html': 'ExploreView.vue',
-        'mascota.html': 'PetView.vue',
-        'solicitud.html': 'AdoptionView.vue',
-        'seguimiento.html': 'FollowUpView.vue',
-        'proveedor.html': 'ProviderView.vue'
+        'HomeView.vue': 'HomeView.vue',
+        'AccessView.vue': 'AccessView.vue',
+        'ExploreView.vue': 'ExploreView.vue',
+        'PetView.vue': 'PetView.vue',
+        'AdoptionView.vue': 'AdoptionView.vue',
+        'FollowUpView.vue': 'FollowUpView.vue',
+        'ProviderView.vue': 'ProviderView.vue'
     };
-    for (const [page, view] of Object.entries(pages)) {
-        const source = fs.readFileSync(path.join(legacyPages, page), 'utf8');
+    assert.equal(fs.existsSync(path.join(projectRoot, 'src', 'legacy', 'pages')), false, 'archived legacy pages are removed');
+    for (const view of Object.values(pages)) {
         const viewSource = fs.readFileSync(path.join(projectRoot, 'src', 'views', view), 'utf8');
-        assert.ok(source.includes('<body'), `${page} is retained as a migration reference`);
         assert.ok(viewSource.includes('<template'), `${view} has a Vue template`);
         assert.ok(!viewSource.includes('LegacyPageRenderer'), `${view} does not use the legacy renderer`);
         assert.ok(!viewSource.includes('v-html'), `${view} does not inject markup`);
         assert.ok(!viewSource.includes('../legacy/pages/'), `${view} does not import archived HTML`);
+    }
+});
+
+test('former global controllers and navigation scripts are removed', () => {
+    for (const file of ['app.js', 'js/acceso.js', 'js/proveedor.js', 'js/navigation.js', 'js/site-navigation.js']) {
+        assert.equal(fs.existsSync(path.join(projectRoot, file)), false, `${file} is removed`);
     }
 });
 
@@ -138,22 +142,6 @@ test('active HTML entry points load only the Vue/Vite bootstrap', () => {
         const source = fs.readFileSync(path.join(projectRoot, 'src', 'views', view), 'utf8');
         assert.ok(!source.includes('legacyRuntime'), `${view} does not import legacy runtime`);
     }
-});
-
-test('preserved local HTML links and script or stylesheet assets resolve', () => {
-    const pages = ['index.html', 'explorar.html', 'mascota.html', 'proveedor.html', 'seguimiento.html', 'solicitud.html', 'acceso.html'];
-    const missing = [];
-    for (const page of pages) {
-        const html = fs.readFileSync(path.join(legacyPages, page), 'utf8');
-        for (const match of html.matchAll(/\b(?:href|src)\s*=\s*["']([^"']+)["']/gi)) {
-            const value = match[1].trim();
-            if (!value || /^(?:#|https?:|mailto:|tel:|javascript:|data:|\/\/)/i.test(value)) continue;
-            const pathname = decodeURIComponent(value.split(/[?#]/, 1)[0]);
-            if (!pathname) continue;
-            if (!fs.existsSync(path.resolve(projectRoot, pathname))) missing.push(`${page} -> ${value}`);
-        }
-    }
-    assert.deepEqual(missing, [], `Missing local references: ${missing.join(', ')}`);
 });
 
 test('all HTML entry points load the Vue application and route manifest covers every existing page', () => {
@@ -279,10 +267,8 @@ test('adopter favorites modal reads and removes favorites through the API', () =
 
 test('catalog cards retain information hierarchy and link directly to the persisted pet profile', () => {
     const source = fs.readFileSync(path.join(projectRoot, 'src/components/PetCard.vue'), 'utf8');
-    const original = fs.readFileSync(path.join(legacyPages, 'explorar.html'), 'utf8');
     for (const marker of ['catalog-card-image', 'catalog-card-content', 'catalog-card-top', 'catalog-details', 'catalog-location']) {
         assert.ok(source.includes(marker), `Vue card keeps ${marker}`);
-        assert.ok(original.includes(marker), `original card includes ${marker}`);
     }
     assert.match(source, /<RouterLink class="pet-card-hit-area"/);
     assert.match(source, /path: '\/mascota\.html', query: \{ pet: pet\.id \}/);

@@ -10,7 +10,7 @@ import { api } from '../services/api.js';
 
 const route = useRoute(); const router = useRouter();
 const pet = ref({ id: '', name: 'Mascota', species: 'Mascota', location: '', vaccination: 'Pendiente de confirmar', deworming: 'Pendiente de confirmar', sterilization: 'Pendiente de confirmar' });
-const accepted = ref(false); const error = ref('');
+const accepted = ref(false); const error = ref(''); const documentFiles = ref([]);
 const user = ref(null);
 const petImage = computed(() => pet.value?.photos?.[0] || '');
 const form = reactive({ fullName: '', email: '', phone: '', age: '', housing: '', outdoorSpace: '', people: '', permission: '', otherPets: '', otherPetsType: '', otherPetsDetails: '', reason: '', experience: '' });
@@ -31,9 +31,13 @@ async function submit(event) {
       availability: `Espacio exterior: ${form.outdoorSpace}; personas en el hogar: ${form.people}; todos de acuerdo: ${form.permission}`,
       additionalInformation: [`Edad: ${form.age}`, form.otherPetsType, form.otherPetsDetails].filter(Boolean).join(' · ') || null
     } });
+    let documentWarning = '';
+    for (const item of documentFiles.value) { try { const data = new FormData(); data.append('documentType', item.type); data.append('file', item.file); await api(`/adoption-applications/${application.id}/documents`, { method: 'POST', body: data }); } catch { documentWarning = ' La solicitud se envió, pero algún documento no pudo cargarse.'; } }
+    if (documentWarning) error.value = documentWarning;
     await router.push({ path: '/seguimiento.html', query: { application: application.id } });
   } catch (failure) { error.value = failure.message || 'No se pudo enviar la solicitud. Revisa tu conexión e inténtalo de nuevo.'; }
 }
+function onDocumentFiles(event) { documentFiles.value = [...event.target.files].slice(0, 5).map(file => ({ file, type: file.type === 'application/pdf' ? 'IDENTITY_OR_ADDRESS' : 'SUPPORTING_IMAGE' })); }
 </script>
 
 <template>
@@ -60,6 +64,7 @@ async function submit(event) {
         </div></section>
         <section class="form-section"><div class="form-section-heading"><div><h2>¿Por qué quieres adoptar?</h2><p>Comparte tus motivos y expectativas sobre la adopción.</p></div></div><div class="form-grid"><div class="form-field form-field-full"><label for="reason">Motivo de adopción</label><textarea id="reason" v-model="form.reason" name="reason" required :placeholder="`Cuéntanos por qué quieres adoptar a ${pet.name}.`"></textarea></div></div></section>
         <section class="form-section"><div class="form-section-heading"><div><h2>Tu experiencia</h2></div></div><div class="form-grid"><div class="form-field form-field-full"><label for="experience">Experiencia previa con mascotas</label><textarea id="experience" v-model="form.experience" name="experience" placeholder="Cuéntanos brevemente sobre tu experiencia."></textarea></div></div></section>
+        <section class="form-section"><div class="form-section-heading"><div><h2>Documentos de apoyo</h2><p>Si el refugio los solicita, puedes adjuntar comprobantes o documentos de identificación.</p></div></div><div class="form-grid"><div class="form-field form-field-full"><label for="application-documents">Archivos (opcional)</label><input id="application-documents" type="file" accept="application/pdf,image/jpeg,image/png,image/webp" multiple @change="onDocumentFiles"><small>Hasta 5 archivos de máximo 10 MB cada uno. Se almacenan de forma privada.</small></div></div></section>
         <p v-if="error" class="form-error" role="alert">{{ error }}</p>
         <article class="application-pet-card"><ImageWithSkeleton frame-class="application-pet-image" :src="petImage" :alt="`Imagen de ${pet.name}`" role="img" /><div class="application-pet-content"><span class="pet-species">{{ pet.species.toLocaleUpperCase('es-MX') }}</span><h2>{{ pet.name }}</h2><p>{{ pet.location }}</p><div class="application-health"><div>Vacunación: <span>{{ pet.vaccination || 'Pendiente de confirmar' }}</span></div><div>Desparasitación: <span>{{ pet.deworming || 'Pendiente de confirmar' }}</span></div><div>Esterilización: <span>{{ pet.sterilization || 'Pendiente de confirmar' }}</span></div></div></div></article>
         <section class="form-section form-section-confirm"><div class="form-section-heading"><div><h2>Antes de enviar</h2></div></div><label class="checkbox-field"><input v-model="accepted" type="checkbox" name="responsibleAdoption" required><span>Confirmo que la información proporcionada es verdadera y que comprendo que la adopción implica un compromiso de cuidado responsable.</span></label><p v-if="error" class="auth-feedback is-error" role="alert">{{ error }}</p><button type="submit" class="application-submit login-button" :disabled="!accepted">Enviar solicitud</button></section>
