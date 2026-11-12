@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.pethop.common.exception.ApiException;
 import com.pethop.security.dto.RegisterRequest;
+import com.pethop.user.dto.ChangeRoleRequest;
 import com.pethop.user.User;
 import com.pethop.user.UserRepository;
 import com.pethop.user.UserRole;
@@ -54,5 +55,18 @@ class AuthServiceTest {
         ApiException error = assertThrows(ApiException.class, () -> service.register(new RegisterRequest(
                 "Ana", "ana@example.com", "una-clave-larga-123", null, UserRole.ADOPTER)));
         assertEquals(HttpStatus.CONFLICT, error.status());
+    }
+
+    @Test
+    void accountCanChangeBetweenAdopterAndShelterButNeverToAdministrator() {
+        User user = new User();
+        user.setRole(UserRole.ADOPTER);
+        when(users.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        User changed = service.changeRole(user, new ChangeRoleRequest(UserRole.SHELTER));
+        assertEquals(UserRole.SHELTER, changed.getRole());
+
+        ApiException error = assertThrows(ApiException.class, () -> service.changeRole(user, new ChangeRoleRequest(UserRole.ADMIN)));
+        assertEquals(HttpStatus.FORBIDDEN, error.status());
     }
 }

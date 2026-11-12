@@ -3,6 +3,7 @@ package com.pethop.user;
 import com.pethop.security.AuthService;
 import com.pethop.security.SecurityUser;
 import com.pethop.user.dto.ChangePasswordRequest;
+import com.pethop.user.dto.ChangeRoleRequest;
 import com.pethop.user.dto.UpdateProfileRequest;
 import com.pethop.user.dto.UserResponse;
 import jakarta.validation.Valid;
@@ -21,6 +22,9 @@ public class UserController {
     @GetMapping UserResponse get(@AuthenticationPrincipal SecurityUser user) { return UserResponse.from(user.user()); }
     @PatchMapping UserResponse update(@AuthenticationPrincipal SecurityUser user, @Valid @RequestBody UpdateProfileRequest request) {
         return UserResponse.from(auth.updateProfile(user.user(), request));
+    }
+    @PatchMapping("/role") UserResponse changeRole(@AuthenticationPrincipal SecurityUser user, @Valid @RequestBody ChangeRoleRequest request) {
+        return UserResponse.from(auth.changeRole(user.user(), request));
     }
     @PatchMapping("/password")
     org.springframework.http.ResponseEntity<Void> changePassword(@AuthenticationPrincipal SecurityUser user,

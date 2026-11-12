@@ -7,6 +7,7 @@ import com.pethop.user.User;
 import com.pethop.user.UserRepository;
 import com.pethop.user.UserRole;
 import com.pethop.user.dto.ChangePasswordRequest;
+import com.pethop.user.dto.ChangeRoleRequest;
 import com.pethop.user.dto.UpdateProfileRequest;
 import java.util.Locale;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -43,6 +44,15 @@ public class AuthService {
     public User updateProfile(User user, UpdateProfileRequest request) {
         if (request.fullName() != null) user.setFullName(request.fullName().trim());
         if (request.phone() != null) user.setPhone(request.phone().isBlank() ? null : request.phone().trim());
+        return users.save(user);
+    }
+
+    @Transactional
+    public User changeRole(User user, ChangeRoleRequest request) {
+        UserRole role = request.role();
+        if (role == UserRole.ADMIN) throw ApiException.forbidden("No puedes cambiar tu cuenta al rol administrador.");
+        if (role == user.getRole()) throw ApiException.conflict("Tu cuenta ya tiene ese rol.");
+        user.setRole(role);
         return users.save(user);
     }
 
