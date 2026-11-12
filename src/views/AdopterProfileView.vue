@@ -25,6 +25,7 @@ const feedback = ref('');
 const passwordForm = ref({ currentPassword: '', newPassword: '', confirm: '' });
 const passwordFeedback = ref('');
 const passwordSaving = ref(false);
+const passwordOpen = ref(false);
 const roleSaving = ref(false);
 const roleFeedback = ref('');
 const selectedActivity = ref(null);
@@ -161,12 +162,13 @@ onMounted(async () => {
           <dl v-else class="adopter-personal-grid"><div><dt>Nombre completo</dt><dd>{{ user.fullName }}</dd></div><div><dt>Correo electrónico</dt><dd>{{ user.email }}</dd></div><div><dt>Teléfono</dt><dd>{{ user.phone || 'No proporcionado' }}</dd></div><div><dt>Tipo de cuenta</dt><dd>{{ accountTypeLabel }}</dd></div></dl>
           <div v-if="!isAdmin" class="adopter-role-control"><label for="account-role">Tipo de cuenta<select id="account-role" :value="user.role" :disabled="roleSaving" @change="changeRole"><option value="ADOPTER">Adoptante</option><option value="SHELTER">Refugio o rescatista</option></select></label><p>Este cambio conserva tus datos. Puedes completar o editar el perfil de organización desde <RouterLink to="/proveedor.html?section=perfil">tu espacio de proveedor</RouterLink>.</p><p v-if="roleFeedback" class="adopter-feedback" role="status">{{ roleFeedback }}</p></div>
           <p v-if="feedback" class="adopter-feedback" role="status">{{ feedback }}</p>
-          <form class="adopter-password-form" @submit.prevent="changePassword">
+          <button v-if="!passwordOpen" type="button" class="button button-outline adopter-password-toggle" @click="passwordOpen = true">Cambiar contraseña</button>
+          <form v-else class="adopter-password-form" @submit.prevent="changePassword">
             <h3>Cambiar contraseña</h3>
             <label>Contraseña actual<input v-model="passwordForm.currentPassword" type="password" autocomplete="current-password" required></label>
             <label>Nueva contraseña<input v-model="passwordForm.newPassword" type="password" autocomplete="new-password" minlength="12" maxlength="72" required></label>
             <label>Confirmar contraseña<input v-model="passwordForm.confirm" type="password" autocomplete="new-password" minlength="12" maxlength="72" required></label>
-            <button class="button button-outline" type="submit" :disabled="passwordSaving">{{ passwordSaving ? 'Actualizando…' : 'Actualizar contraseña' }}</button>
+            <div class="adopter-password-actions"><button class="button button-outline" type="button" :disabled="passwordSaving" @click="passwordOpen = false">Cancelar</button><button class="button button-outline" type="submit" :disabled="passwordSaving">{{ passwordSaving ? 'Actualizando…' : 'Actualizar contraseña' }}</button></div>
             <p v-if="passwordFeedback" class="adopter-feedback" role="status">{{ passwordFeedback }}</p>
           </form>
         </section>
@@ -206,7 +208,7 @@ onMounted(async () => {
 .adopter-identity-copy { min-width:0; flex:1; }
 .adopter-identity-copy .eyebrow,.adopter-section-heading .eyebrow { margin:0 0 5px; color:var(--primary-strong); font-size:.65rem; }
 .adopter-identity h1 { margin:0; color:var(--text); font:800 clamp(1.7rem,3vw,2.35rem)/1.15 "Poppins",sans-serif; }
-.adopter-identity-meta { display:flex; flex-wrap:wrap; gap:8px; margin-top:9px; color:var(--text-soft); font-size:.78rem; }
+.adopter-identity-meta { display:flex; flex-wrap:nowrap; align-items:center; gap:8px; margin-top:9px; color:var(--text-soft); font-size:.78rem; white-space:nowrap; }
 .adopter-identity-meta span:first-child { padding:4px 9px; border-radius:999px; background:#e8f6f5; color:var(--primary-strong); font-weight:800; }
 .adopter-profile-page :deep(.panel) { border:1px solid var(--border); border-radius:17px; background:var(--white); }
 .adopter-personal { padding:21px 23px; }
@@ -230,7 +232,8 @@ onMounted(async () => {
 .adopter-password-form h3 { grid-column:1/-1; margin:0; color:var(--text); font:750 1rem "Poppins",sans-serif; }
 .adopter-password-form label { display:grid; gap:6px; color:var(--text); font-size:.76rem; font-weight:750; }
 .adopter-password-form input { width:100%; min-height:44px; padding:10px 12px; border:1px solid var(--border); border-radius:10px; background:var(--background); color:var(--text); font:500 .85rem "Montserrat",sans-serif; }
-.adopter-password-form button { align-self:end; justify-self:start; }
+.adopter-password-toggle { margin-top:24px; }
+.adopter-password-actions { display:flex; align-items:end; gap:8px; grid-column:1/-1; }
 .adopter-password-form .adopter-feedback { grid-column:1/-1; }
 .adopter-personal-form small { color:var(--text-soft); font-size:.67rem; font-weight:500; }
 .adopter-form-actions { display:flex; grid-column:1/-1; justify-content:flex-end; gap:9px; }
@@ -274,5 +277,5 @@ onMounted(async () => {
 .adopter-detail-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:15px; margin:0 0 22px; }
 .adopter-detail-modal > .button { text-decoration:none; }
 @media(max-width:760px) { .adopter-profile-main { width:min(620px,calc(100% - 28px)); padding:24px 0 50px; } .adopter-identity { flex-wrap:wrap; gap:14px; padding:19px; } .adopter-avatar { width:62px; height:62px; flex-basis:62px; } .adopter-personal-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .adopter-activity-grid { grid-template-columns:1fr; } }
-@media(max-width:480px) { .adopter-profile-main { width:calc(100% - 24px); } .adopter-identity { padding:16px; } .adopter-identity-copy { flex-basis:calc(100% - 80px); } .adopter-identity-copy h1 { font-size:1.55rem; } .adopter-identity-actions { width:100%; } .adopter-identity-actions .button { flex:1; } .adopter-personal { padding:17px 15px; } .adopter-personal-grid,.adopter-personal-form,.adopter-detail-grid,.adopter-password-form { grid-template-columns:1fr; } .adopter-form-actions { grid-column:auto; } .adopter-activity-summary { font-size:.68rem; } .adopter-activity-panel { padding:16px 14px; } .adopter-status-pill { max-width:100px; text-align:center; } .adopter-detail-modal { padding:22px 17px; } }
+@media(max-width:480px) { .adopter-profile-main { width:calc(100% - 24px); } .adopter-identity { padding:16px; } .adopter-identity-copy { flex-basis:calc(100% - 80px); } .adopter-identity-copy h1 { font-size:1.55rem; } .adopter-identity-meta { flex-wrap:wrap; white-space:normal; } .adopter-identity-actions { width:100%; } .adopter-identity-actions .button { flex:1; } .adopter-personal { padding:17px 15px; } .adopter-personal-grid,.adopter-personal-form,.adopter-detail-grid,.adopter-password-form { grid-template-columns:1fr; } .adopter-form-actions { grid-column:auto; } .adopter-password-actions { grid-column:auto; } .adopter-activity-summary { font-size:.68rem; } .adopter-activity-panel { padding:16px 14px; } .adopter-status-pill { max-width:100px; text-align:center; } .adopter-detail-modal { padding:22px 17px; } }
 </style>

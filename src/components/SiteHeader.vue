@@ -138,7 +138,7 @@ onUnmounted(() => window.removeEventListener('pethop:shelter-updated', onShelter
 .account-avatar :deep(svg) { width:18px; height:18px; }
 .account-presence { position:absolute; right:3px; bottom:3px; width:10px; height:10px; border:2px solid var(--white); border-radius:50%; background:#3dba7c; }
 .account-display-name { max-width:170px; overflow:hidden; color:var(--text); font-size:.78rem; font-weight:750; text-overflow:ellipsis; white-space:nowrap; }
-.notification-trigger { position:relative; display:grid; width:42px; height:42px; place-items:center; border:1px solid var(--border); border-radius:12px; background:var(--white); color:var(--primary-strong); cursor:pointer; }.notification-trigger:hover { border-color:var(--primary); background:var(--background); }.notification-trigger :deep(svg) { width:18px; height:18px; }.notification-badge { position:absolute; top:-5px; right:-5px; display:grid; min-width:18px; height:18px; place-items:center; padding:0 4px; border:2px solid var(--white); border-radius:99px; background:var(--danger); color:#fff; font-size:.58rem; font-weight:800; }
+.notification-trigger { position:relative; display:grid; width:48px; height:48px; place-items:center; border:1px solid var(--border); border-radius:14px; background:var(--white); color:var(--primary-strong); cursor:pointer; }.notification-trigger:hover { border-color:var(--primary); background:var(--background); }.notification-trigger :deep(svg) { width:18px; height:18px; }.notification-badge { position:absolute; top:-5px; right:-5px; display:grid; min-width:18px; height:18px; place-items:center; padding:0 4px; border:2px solid var(--white); border-radius:99px; background:var(--danger); color:#fff; font-size:.58rem; font-weight:800; }
 .main-nav .account-nav-signout { width:100%; min-height:44px; display:flex; align-items:center; gap:10px; padding:10px 14px; border:0; border-radius:10px; background:transparent; color:var(--danger); cursor:pointer; font:750 .82rem "Montserrat",Arial,sans-serif; text-align:left; transition:var(--transition); }
 .main-nav .account-nav-signout:hover { background:var(--primary-soft); color:var(--danger); }
 .main-nav .account-nav-signout:focus-visible { outline:3px solid color-mix(in srgb,var(--primary) 45%,transparent); outline-offset:2px; }
@@ -176,5 +176,5 @@ onUnmounted(() => window.removeEventListener('pethop:shelter-updated', onShelter
   .favorites-profile-link,.favorites-remove-button { flex:1; }
   .favorites-modal-list { max-height:50dvh; }
 }
-@media(max-width:380px) { .header-right { gap:5px; } .account-display-name { max-width:55px; } .account-trigger { width:44px; height:44px; } }
+@media(max-width:380px) { .header-right { gap:5px; } .account-display-name { max-width:55px; } .account-trigger,.notification-trigger { width:44px; height:44px; border-radius:12px; } }
 </style>
