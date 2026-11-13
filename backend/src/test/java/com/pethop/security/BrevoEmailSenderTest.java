@@ -42,12 +42,17 @@ class BrevoEmailSenderTest {
     @Test
     void sendsEmailThroughBrevoApi() {
         BrevoEmailSender sender = sender();
-        sender.send("adoptante@example.test", "Confirma tu correo de PetHop", "Hola");
+        sender.send("adoptante@example.test", "Confirma tu correo de PetHop",
+                "Hola, gracias por registrarte en PetHop.\n\nhttps://pethop-production.up.railway.app/acceso.html?mode=verify&token=abc");
         assertThat(apiKeyHeader.get()).isEqualTo("xkeysib-test");
-        assertThat(body.get()).contains("\"sender\":{\"email\":\"pethop13@gmail.com\"}");
+        assertThat(body.get()).contains("\"sender\":{\"name\":\"PetHop\",\"email\":\"pethop13@gmail.com\"}");
         assertThat(body.get()).contains("\"to\":[{\"email\":\"adoptante@example.test\"}]");
         assertThat(body.get()).contains("\"subject\":\"Confirma tu correo de PetHop\"");
-        assertThat(body.get()).contains("\"textContent\":\"Hola\"");
+        assertThat(body.get()).contains("\"textContent\":\"Hola, gracias por registrarte en PetHop.");
+        assertThat(body.get()).contains("\"htmlContent\":\"");
+        assertThat(body.get()).contains(">Confirma tu correo</a>");
+        assertThat(body.get()).contains("href=\\\"https://pethop-production.up.railway.app/acceso.html?mode=verify&amp;token=abc\\\"");
+        assertThat(body.get()).contains("background:#167F87");
     }
 
     @Test

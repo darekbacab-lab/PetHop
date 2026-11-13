@@ -292,6 +292,8 @@ test('email delivery uses the Brevo HTTP API and verification can be resent', ()
     const client = fs.readFileSync(path.join(projectRoot, 'src/services/auth.js'), 'utf8');
     const access = fs.readFileSync(path.join(projectRoot, 'src/views/AccessView.vue'), 'utf8');
     assert.match(sender, /api-key/);
+    assert.match(sender, /htmlContent/);
+    assert.match(sender, /\\"name\\":\\"PetHop\\"/);
     assert.match(brevoProperties, /api\.brevo\.com\/v3\/smtp\/email/);
     assert.doesNotMatch(sender, /JavaMailSender|SimpleMailMessage/);
     assert.match(service, /void resend\(String email\)/);
@@ -302,6 +304,7 @@ test('email delivery uses the Brevo HTTP API and verification can be resent', ()
     assert.match(access, /onMounted/);
     assert.match(access, /submitEmailVerification\(\);/);
     assert.match(access, /Cuenta creada\. Te enviamos un correo de confirmación/);
+    assert.match(access, /carpeta de spam/);
 });
 
 test('follow-up dashboard uses real applications, history, adoptions, reports and media endpoints', () => {

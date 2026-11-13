@@ -32,7 +32,7 @@ async function submitPasswordResetRequest(event) {
   feedback.value = { login: '', register: '', registerError: false, resend: '' };
   if (!event.currentTarget.reportValidity()) return;
   loading.value = true;
-  try { await requestPasswordReset(resetForm.value.email.trim()); feedback.value.login = 'Si existe una cuenta con ese correo, recibirás instrucciones para continuar.'; }
+  try { await requestPasswordReset(resetForm.value.email.trim()); feedback.value.login = 'Si existe una cuenta con ese correo, recibirás instrucciones para continuar. Revisa también tu carpeta de spam.'; }
   catch (error) { feedback.value.login = error.message || 'No se pudo solicitar la recuperación.'; }
   finally { loading.value = false; }
 }
@@ -59,7 +59,7 @@ async function submitEmailVerificationResend(event) {
   feedback.value = { login: '', register: '', registerError: false, resend: '' };
   if (!event.currentTarget.reportValidity()) return;
   loading.value = true;
-  try { await resendEmailVerification(resendForm.value.email.trim()); feedback.value.resend = 'Si existe una cuenta con ese correo, recibirás un nuevo enlace de verificación.'; }
+  try { await resendEmailVerification(resendForm.value.email.trim()); feedback.value.resend = 'Si existe una cuenta con ese correo, recibirás un nuevo enlace de verificación. Revisa también tu carpeta de spam.'; }
   catch (error) { feedback.value.resend = error.message || 'No se pudo reenviar el correo.'; }
   finally { loading.value = false; }
 }
@@ -96,7 +96,7 @@ async function submitRegistration(event) {
   try {
     await register({ fullName: registration.value.fullName.trim(), email: registration.value.email.trim(), password: registration.value.password, phone: registration.value.phone.trim() || null, role });
     mode.value = 'login';
-    feedback.value.login = 'Cuenta creada. Te enviamos un correo de confirmación: abre el enlace para activar tu cuenta.';
+    feedback.value.login = 'Cuenta creada. Te enviamos un correo de confirmación: revisa tu bandeja de entrada y la carpeta de spam, y abre el enlace para activar tu cuenta.';
   } catch (error) {
     feedback.value.register = error.message || 'No se pudo completar el registro.';
     feedback.value.registerError = true;
