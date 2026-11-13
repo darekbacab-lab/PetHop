@@ -7,6 +7,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -19,6 +20,7 @@ public class BrevoEmailSender implements TransactionalEmailSender {
     private final BrevoProperties properties;
     private final HttpClient http;
 
+    @Autowired
     public BrevoEmailSender(BrevoProperties properties) {
         this(properties, HttpClient.newBuilder().connectTimeout(TIMEOUT).build());
     }
