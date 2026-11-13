@@ -42,7 +42,9 @@ public class EmailVerificationService {
         String link = properties.getFrontendUrl().replaceAll("/+$", "") + "/acceso.html?mode=verify&token=" + raw;
         try {
             emailSender.send(user.getEmail(), "Confirma tu correo de PetHop",
-                    "Confirma tu correo dentro de " + properties.getTokenTtlMinutes() + " minutos:\n\n" + link);
+                    "Hola, gracias por registrarte en PetHop.\n\n"
+                    + "Haz clic en este enlace para confirmar tu correo y activar tu cuenta:\n\n" + link
+                    + "\n\nEl enlace vence en " + properties.getTokenTtlMinutes() + " minutos.");
         } catch (RuntimeException ex) {
             throw ApiException.serviceUnavailable("No fue posible enviar el correo de verificación.");
         }

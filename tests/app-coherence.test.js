@@ -230,7 +230,9 @@ test('organization registration uses one account form then creates and edits its
     assert.match(home, /mode:'register', role:'shelter'/);
     assert.doesNotMatch(home, /organization-registration-modal|registerOrganization|pethop_shelter_registration_draft/);
     assert.match(access, /register\(\{ fullName:/);
-    assert.match(access, /role === 'SHELTER' \? '\/refugio\.html\?section=perfil'/);
+    assert.match(access, /Te enviamos un correo de confirmación/);
+    assert.match(access, /mode\.value = 'login'/);
+    assert.doesNotMatch(access, /await loginApi\(\{ email: registration\.value\.email/);
     assert.doesNotMatch(access, /api\('\/shelters'/);
     assert.match(shelter, /function createOrganizationProfile\(\)/);
     assert.match(shelter, /api\('\/shelters', \{ method: 'POST'/);
@@ -297,6 +299,9 @@ test('email delivery uses the Brevo HTTP API and verification can be resent', ()
     assert.match(filter, /email-verification-resend/);
     assert.match(client, /email-verification\/resend/);
     assert.match(access, /Reenviar correo de verificación/);
+    assert.match(access, /onMounted/);
+    assert.match(access, /submitEmailVerification\(\);/);
+    assert.match(access, /Cuenta creada\. Te enviamos un correo de confirmación/);
 });
 
 test('follow-up dashboard uses real applications, history, adoptions, reports and media endpoints', () => {

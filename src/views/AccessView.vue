@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import Icon from '../components/Icon.vue';
 import { login as loginApi, register, requestPasswordReset, confirmPasswordReset, confirmEmailVerification, resendEmailVerification } from '../services/auth.js';
@@ -21,7 +21,6 @@ const isRegistering = computed(() => mode.value === 'register');
 
 watch(mode, registering => {
   document.title = `${registering === 'register' ? 'Crear cuenta' : registering === 'reset' ? 'Recuperar contraseña' : registering === 'verify' ? 'Confirmar correo' : 'Ingresar'} | PetHop`;
-  feedback.value = { login: '', register: '', registerError: false, resend: '' };
 }, { immediate: true });
 
 function switchMode(nextMode) {
@@ -65,6 +64,11 @@ async function submitEmailVerificationResend(event) {
   finally { loading.value = false; }
 }
 
+// El enlace del correo confirma solo al abrirlo; el botón queda como reintento si falla.
+onMounted(() => {
+  if (mode.value === 'verify' && route.query.token) submitEmailVerification();
+});
+
 function validatePhone(phone) { return !phone || /^[+()0-9 .-]{7,32}$/.test(phone); }
 
 async function submitLogin(event) {
@@ -91,8 +95,8 @@ async function submitRegistration(event) {
   const role = registration.value.profile === 'shelter' ? 'SHELTER' : 'ADOPTER';
   try {
     await register({ fullName: registration.value.fullName.trim(), email: registration.value.email.trim(), password: registration.value.password, phone: registration.value.phone.trim() || null, role });
-    await loginApi({ email: registration.value.email.trim(), password: registration.value.password });
-    await router.push(role === 'SHELTER' ? '/refugio.html?section=perfil' : String(route.query.redirect || '/inicio.html'));
+    mode.value = 'login';
+    feedback.value.login = 'Cuenta creada. Te enviamos un correo de confirmación: abre el enlace para activar tu cuenta.';
   } catch (error) {
     feedback.value.register = error.message || 'No se pudo completar el registro.';
     feedback.value.registerError = true;
@@ -115,7 +119,7 @@ async function submitRegistration(event) {
           <p>Usa el enlace recibido por correo para activar tu cuenta.</p>
           <button class="auth-submit" type="submit" :disabled="loading">{{ loading ? 'Confirmando…' : 'Confirmar correo' }}</button>
           <p class="auth-feedback" :class="{ 'is-error': feedback.login && !feedback.login.includes('confirmado') }" role="alert" aria-live="polite">{{ feedback.login }}</p>
-          <p class="auth-switch-copy"><button type="button" class="auth-text-button" @click="mode = 'login'">Volver a iniciar sesión</button></p>
+          <p class="auth-switch-copy"><button type="button" class="auth-text-button" @click="switchMode('login')">Volver a iniciar sesión</button></p>
         </form>
         <form v-if="mode === 'verify'" class="auth-form" novalidate @submit.prevent="submitEmailVerificationResend">
           <h2 class="auth-form-subtitle">¿No te llegó el correo?</h2>
@@ -129,7 +133,7 @@ async function submitRegistration(event) {
           <div class="auth-input-wrap"><Icon name="message-circle" /><input id="reset-email" v-model="resetForm.email" type="email" autocomplete="email" placeholder="nombre@correo.com" required></div>
           <button class="auth-submit" type="submit" :disabled="loading">{{ loading ? 'Enviando…' : 'Enviar instrucciones' }}</button>
           <p class="auth-feedback" :class="{ 'is-error': feedback.login }" role="alert" aria-live="polite">{{ feedback.login }}</p>
-          <p class="auth-switch-copy"><button type="button" class="auth-text-button" @click="mode = 'login'">Volver a iniciar sesión</button></p>
+          <p class="auth-switch-copy"><button type="button" class="auth-text-button" @click="switchMode('login')">Volver a iniciar sesión</button></p>
         </form>
         <form v-else-if="mode === 'reset'" class="auth-form" novalidate @submit.prevent="submitPasswordResetConfirm">
           <h2 class="auth-form-subtitle">Cambiar contraseña</h2>
@@ -139,7 +143,7 @@ async function submitRegistration(event) {
           <div class="auth-input-wrap"><Icon name="shield-check" /><input id="reset-confirm" v-model="resetForm.confirm" type="password" autocomplete="new-password" minlength="12" maxlength="72" required></div>
           <button class="auth-submit" type="submit" :disabled="loading">{{ loading ? 'Actualizando…' : 'Actualizar contraseña' }}</button>
           <p class="auth-feedback" :class="{ 'is-error': feedback.login && !feedback.login.includes('actualizada') }" role="alert" aria-live="polite">{{ feedback.login }}</p>
-          <p class="auth-switch-copy"><button type="button" class="auth-text-button" @click="mode = 'login'">Volver a iniciar sesión</button></p>
+          <p class="auth-switch-copy"><button type="button" class="auth-text-button" @click="switchMode('login')">Volver a iniciar sesión</button></p>
         </form>
         <form v-else-if="mode === 'login'" class="auth-form" novalidate @submit.prevent="submitLogin">
           <label for="login-email">Correo electrónico</label>
