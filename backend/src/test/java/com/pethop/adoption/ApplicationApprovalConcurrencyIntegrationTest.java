@@ -65,7 +65,7 @@ class ApplicationApprovalConcurrencyIntegrationTest {
         insertUser(shelterUserId, "Shelter concurrency", UserRole.SHELTER);
         insertUser(firstAdopterId, "First adopter", UserRole.ADOPTER);
         insertUser(secondAdopterId, "Second adopter", UserRole.ADOPTER);
-        jdbc.update("insert into shelter_profiles(id, user_id, organization_name) values (?, ?, ?)",
+        jdbc.update("insert into shelter_profiles(id, user_id, organization_name, verification_status) values (?, ?, ?, 'VERIFIED')",
                 shelterId, shelterUserId, "Concurrent Shelter");
         jdbc.update("insert into pets(id, shelter_id, name, species, sex, description, adoption_status) "
                         + "values (?, ?, 'Nube', 'CAT', 'FEMALE', 'Busca un hogar.', 'AVAILABLE')",

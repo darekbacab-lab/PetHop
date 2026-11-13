@@ -93,8 +93,8 @@ public class SecurityConfig {
                     .requestMatchers("/api/v1/auth/csrf", "/api/v1/auth/register", "/api/v1/auth/login",
                             "/api/v1/auth/password-reset/request", "/api/v1/auth/password-reset/confirm", "/api/v1/auth/email-verification/confirm").permitAll()
                     .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-                    .requestMatchers("/api/v1/veterinary-assistant/**").permitAll()
-                    .requestMatchers("/api/v1/pets/*/veterinary-assistant/**").permitAll()
+                    .requestMatchers("/api/v1/veterinary-assistant/**").authenticated()
+                    .requestMatchers("/api/v1/pets/*/veterinary-assistant/**").authenticated()
                     .requestMatchers(HttpMethod.GET, "/api/v1/affiliates").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/v1/pets/*/reports").authenticated()
                     .requestMatchers(HttpMethod.GET, "/api/v1/pets/mine").hasAnyRole("SHELTER", "ADMIN")

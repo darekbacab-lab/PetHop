@@ -29,7 +29,8 @@ test('Paw provides veterinary guidance with or without a selected pet', () => {
   assert.match(assistant, /role="alert"/);
   assert.match(assistant, /no se pudo obtener orientación veterinaria/i);
   assert.match(controller, /@RequestMapping\("\/api\/v1\/veterinary-assistant"\)/);
-  assert.match(security, /veterinary-assistant\/\*\*"\)\.permitAll\(\)/);
+  assert.match(security, /veterinary-assistant\/\*\*"\)\.authenticated\(\)/);
+  assert.doesNotMatch(security, /veterinary-assistant\/\*\*"\)\.permitAll\(\)/);
 });
 
 test('the independent pet-detail veterinary interface is no longer rendered', () => {

@@ -13,6 +13,7 @@ import com.pethop.pet.storage.StoredFile;
 import com.pethop.security.SecurityUser;
 import com.pethop.shelter.ShelterProfile;
 import com.pethop.shelter.ShelterRepository;
+import com.pethop.shelter.VerificationStatus;
 import com.pethop.user.UserRole;
 import java.io.IOException;
 import java.time.Instant;
@@ -87,8 +88,10 @@ public class PetService {
     @Transactional
     public PetResponse create(SecurityUser principal, PetRequest request) {
         ShelterProfile shelter = ownedShelter(principal);
+        AdoptionStatus requested = request.adoptionStatus() == null ? AdoptionStatus.DRAFT : requestedEditableStatus(request.adoptionStatus());
+        if (requested == AdoptionStatus.AVAILABLE) requireVerifiedShelter(principal, shelter);
         Pet pet = new Pet(); pet.setShelter(shelter); apply(pet, request, true);
-        pet.setAdoptionStatus(request.adoptionStatus() == null ? AdoptionStatus.DRAFT : requestedEditableStatus(request.adoptionStatus()));
+        pet.setAdoptionStatus(requested);
         pet.setModerationStatus(ModerationStatus.PENDING);
         if (pet.getAdoptionStatus() == AdoptionStatus.AVAILABLE) pet.setPublishedAt(Instant.now());
         return response(pets.save(pet));
@@ -101,14 +104,18 @@ public class PetService {
         apply(pet, request, false);
         pet.setModerationStatus(ModerationStatus.PENDING);
         pet.setModerationReason(null); pet.setModeratedAt(null);
-        if (request.adoptionStatus() != null && request.adoptionStatus() != pet.getAdoptionStatus())
+        if (request.adoptionStatus() != null && request.adoptionStatus() != pet.getAdoptionStatus()) {
+            if (request.adoptionStatus() == AdoptionStatus.AVAILABLE) requireVerifiedShelter(principal, pet.getShelter());
             setStatus(pet, requestedEditableStatus(request.adoptionStatus()));
+        }
         return response(pets.save(pet));
     }
 
     @Transactional
     public PetResponse updateStatus(UUID id, SecurityUser principal, AdoptionStatus status) {
-        Pet pet = ownedPetForUpdate(id, principal); setStatus(pet, requestedEditableStatus(status));
+        Pet pet = ownedPetForUpdate(id, principal);
+        if (status == AdoptionStatus.AVAILABLE) requireVerifiedShelter(principal, pet.getShelter());
+        setStatus(pet, requestedEditableStatus(status));
         return response(pets.save(pet));
     }
 
@@ -181,6 +188,11 @@ public class PetService {
     }
 
     private Pet find(UUID id) { return pets.findByIdAndDeletedAtIsNull(id).orElseThrow(() -> ApiException.notFound("Mascota no encontrada.")); }
+    private void requireVerifiedShelter(SecurityUser principal, ShelterProfile shelter) {
+        if (principal.user().getRole() == UserRole.ADMIN) return;
+        if (shelter == null || shelter.getVerificationStatus() != VerificationStatus.VERIFIED)
+            throw ApiException.forbidden("Tu refugio debe estar verificado para publicar mascotas.");
+    }
     private ShelterProfile ownedShelter(SecurityUser principal) {
         if (principal.user().getRole() != UserRole.SHELTER) throw ApiException.forbidden("Solo refugios pueden administrar mascotas.");
         return shelters.findByUserId(principal.id()).orElseThrow(() -> ApiException.badRequest("Primero registra el perfil del refugio."));

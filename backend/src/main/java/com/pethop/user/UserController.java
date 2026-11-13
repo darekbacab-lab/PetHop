@@ -7,7 +7,9 @@ import com.pethop.user.dto.ChangeRoleRequest;
 import com.pethop.user.dto.UpdateProfileRequest;
 import com.pethop.user.dto.UserResponse;
 import jakarta.validation.Valid;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,7 +26,11 @@ public class UserController {
         return UserResponse.from(auth.updateProfile(user.user(), request));
     }
     @PatchMapping("/role") UserResponse changeRole(@AuthenticationPrincipal SecurityUser user, @Valid @RequestBody ChangeRoleRequest request) {
-        return UserResponse.from(auth.changeRole(user.user(), request));
+        User changed = auth.changeRole(user.user(), request);
+        SecurityUser refreshed = new SecurityUser(changed);
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(refreshed, null, refreshed.getAuthorities()));
+        return UserResponse.from(changed);
     }
     @PatchMapping("/password")
     org.springframework.http.ResponseEntity<Void> changePassword(@AuthenticationPrincipal SecurityUser user,

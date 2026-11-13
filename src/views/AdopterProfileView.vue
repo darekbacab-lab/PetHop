@@ -100,6 +100,10 @@ async function changePassword() {
 async function changeRole(event) {
   const role = event.target.value;
   if (!['ADOPTER', 'SHELTER'].includes(role) || role === user.value?.role || roleSaving.value) return;
+  const confirmed = role === 'SHELTER'
+    ? window.confirm('Vas a cambiar tu cuenta a refugio o rescatista. Para publicar mascotas y aprobar solicitudes, tu perfil de organización debe estar verificado por un administrador. ¿Continuar?')
+    : window.confirm('Vas a cambiar tu cuenta a adoptante. Tus mascotas y solicitudes como refugio se conservan, pero no podrás administrarlas hasta volver a cambiar a refugio. ¿Continuar?');
+  if (!confirmed) { event.target.value = user.value?.role || 'ADOPTER'; return; }
   roleSaving.value = true;
   roleFeedback.value = '';
   try {

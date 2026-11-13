@@ -14,6 +14,7 @@ import com.pethop.pet.PetRepository;
 import com.pethop.security.SecurityUser;
 import com.pethop.shelter.ShelterProfile;
 import com.pethop.shelter.ShelterRepository;
+import com.pethop.shelter.VerificationStatus;
 import com.pethop.user.User;
 import com.pethop.user.UserRole;
 import java.util.Optional;
@@ -50,6 +51,7 @@ class ApplicationServiceApprovalTest {
         ShelterProfile shelter = new ShelterProfile();
         ReflectionTestUtils.setField(shelter, "id", UUID.randomUUID());
         shelter.setUser(shelterUser);
+        shelter.setVerificationStatus(VerificationStatus.VERIFIED);
         when(shelters.findByUserId(shelterUser.getId())).thenReturn(Optional.of(shelter));
 
         pet = new Pet();
@@ -101,6 +103,19 @@ class ApplicationServiceApprovalTest {
         verify(notifications, never()).create(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.anyString(),
                 org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.anyString(),
                 org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
+    void unverifiedShelterCannotApproveApplications() {
+        application.getShelter().setVerificationStatus(VerificationStatus.PENDING);
+        when(applications.findById(application.getId())).thenReturn(Optional.of(application));
+
+        assertThatThrownBy(() -> service.updateStatus(shelterPrincipal, application.getId(), ApplicationStatus.APPROVED, null))
+                .isInstanceOf(ApiException.class)
+                .hasMessage("Tu refugio debe estar verificado para aprobar solicitudes.");
+
+        assertThat(application.getStatus()).isEqualTo(ApplicationStatus.SUBMITTED);
+        verify(applications, never()).save(org.mockito.ArgumentMatchers.any());
     }
 
     @Test

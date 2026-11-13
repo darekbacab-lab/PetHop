@@ -9,6 +9,7 @@ import com.pethop.common.exception.ApiException;
 import com.pethop.common.response.PageResponse;
 import com.pethop.notification.NotificationService;
 import com.pethop.pet.AdoptionStatus;
+import com.pethop.pet.ModerationStatus;
 import com.pethop.pet.Pet;
 import com.pethop.pet.PetRepository;
 import com.pethop.security.SecurityUser;
@@ -41,6 +42,7 @@ public class ApplicationService {
         if(principal.user().getRole()!=UserRole.ADOPTER)throw ApiException.forbidden("Solo una cuenta adoptante puede enviar una solicitud.");
         Pet pet=pets.findByIdAndDeletedAtIsNull(request.petId()).orElseThrow(()->ApiException.notFound("Mascota no encontrada."));
         if(pet.getAdoptionStatus()!=AdoptionStatus.AVAILABLE)throw ApiException.conflict("La mascota ya no está disponible.");
+        if(pet.getModerationStatus()!=ModerationStatus.APPROVED)throw ApiException.conflict("La mascota aún no está aprobada para recibir solicitudes.");
         if(applications.existsByAdopterIdAndPetIdAndStatusIn(principal.id(),pet.getId(),ACTIVE))throw ApiException.conflict("Ya tienes una solicitud activa para esta mascota.");
         AdoptionApplication application=new AdoptionApplication();application.setPet(pet);application.setAdopter(principal.user());
         application.setShelter(pet.getShelter());application.setStatus(ApplicationStatus.SUBMITTED);
@@ -83,6 +85,11 @@ public class ApplicationService {
                     ||(previous==ApplicationStatus.UNDER_REVIEW&&(next==ApplicationStatus.APPROVED||next==ApplicationStatus.REJECTED));
             if(!valid)throw ApiException.conflict("El cambio de estado no está permitido.");
             if(next==ApplicationStatus.APPROVED){
+                if(principal.user().getRole()==UserRole.SHELTER){
+                    ShelterProfile approver=shelters.findByUserId(principal.id()).orElse(null);
+                    if(approver==null||approver.getVerificationStatus()!=com.pethop.shelter.VerificationStatus.VERIFIED)
+                        throw ApiException.forbidden("Tu refugio debe estar verificado para aprobar solicitudes.");
+                }
                 // Serialize approvals for the same pet. The status check must use the locked row,
                 // otherwise two concurrent approvals can both observe AVAILABLE.
                 Pet pet = pets.findByIdForUpdate(application.getPet().getId())

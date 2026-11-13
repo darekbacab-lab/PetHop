@@ -1,5 +1,6 @@
 package com.pethop.security;
 
+import com.pethop.admin.AdminAuditService;
 import com.pethop.common.exception.ApiException;
 import com.pethop.security.dto.RegisterRequest;
 import com.pethop.user.AccountStatus;
@@ -18,10 +19,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
     private final UserRepository users;
     private final PasswordEncoder passwords;
+    private final AdminAuditService audit;
 
-    public AuthService(UserRepository users, PasswordEncoder passwords) {
+    public AuthService(UserRepository users, PasswordEncoder passwords, AdminAuditService audit) {
         this.users = users;
         this.passwords = passwords;
+        this.audit = audit;
     }
 
     @Transactional
@@ -52,8 +55,11 @@ public class AuthService {
         UserRole role = request.role();
         if (role == UserRole.ADMIN) throw ApiException.forbidden("No puedes cambiar tu cuenta al rol administrador.");
         if (role == user.getRole()) throw ApiException.conflict("Tu cuenta ya tiene ese rol.");
+        UserRole previous = user.getRole();
         user.setRole(role);
-        return users.save(user);
+        User changed = users.save(user);
+        audit.record(changed, "USER_ROLE_CHANGED", "USER", changed.getId(), previous.name(), role.name(), null);
+        return changed;
     }
 
     public void changePassword(User user, ChangePasswordRequest request) {

@@ -10,6 +10,7 @@ import com.pethop.pet.PetRepository;
 import com.pethop.security.SecurityUser;
 import com.pethop.shelter.ShelterProfile;
 import com.pethop.shelter.ShelterRepository;
+import com.pethop.shelter.VerificationStatus;
 import com.pethop.user.UserRole;
 import java.util.UUID;
 import org.springframework.data.domain.PageRequest;
@@ -26,6 +27,8 @@ public class AdoptionService {
     public AdoptionResponse create(SecurityUser principal,com.pethop.adoption.dto.CreateAdoptionRequest request){
         AdoptionApplication app=applications.findByIdForUpdate(request.applicationId()).orElseThrow(()->ApiException.notFound("Solicitud no encontrada."));
         if(principal.user().getRole()!=UserRole.ADMIN&&!isOwner(principal,app.getShelter()))throw ApiException.notFound("Solicitud no encontrada.");
+        if(principal.user().getRole()==UserRole.SHELTER&&app.getShelter().getVerificationStatus()!=VerificationStatus.VERIFIED)
+            throw ApiException.forbidden("Tu refugio debe estar verificado para formalizar adopciones.");
         if(app.getStatus()!=ApplicationStatus.APPROVED)throw ApiException.conflict("Solo se puede formalizar una solicitud aprobada.");
         Pet pet=pets.findByIdForUpdate(app.getPet().getId()).orElseThrow(()->ApiException.notFound("Mascota no encontrada."));
         if(pet.getAdoptionStatus()!=AdoptionStatus.AVAILABLE&&pet.getAdoptionStatus()!=AdoptionStatus.IN_PROCESS)throw ApiException.conflict("La mascota ya no puede formalizar otra adopción.");
