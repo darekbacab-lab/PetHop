@@ -29,11 +29,11 @@ const links = [
   { label: 'Mensajes', to: '/mensajes.html', icon: 'messages-square' },
   { label: 'Seguimiento', to: '/seguimiento.html', icon: 'paw-print' },
   { label: 'Aliados', to: '/aliados.html', icon: 'building-2' },
-  { label: 'Dar en adopción', to: '/proveedor.html', icon: 'hand-heart' }
+  { label: 'Dar en adopción', to: '/refugio.html', icon: 'hand-heart' }
 ];
 function isNavActive(item) {
   if (item.to.includes('?')) return route.fullPath === item.to;
-  if (item.to === '/proveedor.html' && route.query.section === 'mensajes') return false;
+  if (item.to === '/refugio.html' && route.query.section === 'mensajes') return false;
   return route.path === item.to;
 }
 watch(open, value => document.body.classList.toggle('menu-open', value));

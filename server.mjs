@@ -24,7 +24,7 @@ const contentTypes = {
 };
 const spaHtmlRoutes = new Set([
   'acceso.html', 'admin.html', 'explorar.html', 'index.html', 'inicio.html',
-  'mascota.html', 'mensajes.html', 'perfil.html', 'proveedor.html', 'seguimiento.html', 'solicitud.html'
+  'mascota.html', 'mensajes.html', 'perfil.html', 'refugio.html', 'seguimiento.html', 'solicitud.html'
 ]);
 
 function safePath(urlPath) {

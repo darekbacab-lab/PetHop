@@ -106,7 +106,7 @@ async function changeRole(event) {
     user.value = await api('/users/me/role', { method: 'PATCH', body: { role } });
     currentUser.value = user.value;
     roleFeedback.value = role === 'SHELTER'
-      ? 'Ahora tienes una cuenta de refugio o rescatista. Puedes completar el perfil de organización desde tu espacio de proveedor.'
+      ? 'Ahora tienes una cuenta de refugio o rescatista. Puedes completar el perfil de organización desde tu espacio de refugio.'
       : 'Ahora tienes una cuenta adoptante.';
   } catch (error) {
     event.target.value = user.value?.role || 'ADOPTER';
@@ -160,7 +160,7 @@ onMounted(async () => {
             <div class="adopter-form-actions"><button class="button button-outline" type="button" @click="cancelEditing">Cancelar</button><button class="button button-primary" type="submit" :disabled="saving">{{ saving ? 'Guardando…' : 'Guardar cambios' }}</button></div>
           </form>
           <dl v-else class="adopter-personal-grid"><div><dt>Nombre completo</dt><dd>{{ user.fullName }}</dd></div><div><dt>Correo electrónico</dt><dd>{{ user.email }}</dd></div><div><dt>Teléfono</dt><dd>{{ user.phone || 'No proporcionado' }}</dd></div><div><dt>Tipo de cuenta</dt><dd>{{ accountTypeLabel }}</dd></div></dl>
-          <div v-if="!isAdmin" class="adopter-role-control"><label for="account-role">Tipo de cuenta<select id="account-role" :value="user.role" :disabled="roleSaving" @change="changeRole"><option value="ADOPTER">Adoptante</option><option value="SHELTER">Refugio o rescatista</option></select></label><p>Este cambio conserva tus datos. Puedes completar o editar el perfil de organización desde <RouterLink to="/proveedor.html?section=perfil">tu espacio de proveedor</RouterLink>.</p><p v-if="roleFeedback" class="adopter-feedback" role="status">{{ roleFeedback }}</p></div>
+          <div v-if="!isAdmin" class="adopter-role-control"><label for="account-role">Tipo de cuenta<select id="account-role" :value="user.role" :disabled="roleSaving" @change="changeRole"><option value="ADOPTER">Adoptante</option><option value="SHELTER">Refugio o rescatista</option></select></label><p>Este cambio conserva tus datos. Puedes completar o editar el perfil de organización desde <RouterLink to="/refugio.html?section=perfil">tu espacio de refugio</RouterLink>.</p><p v-if="roleFeedback" class="adopter-feedback" role="status">{{ roleFeedback }}</p></div>
           <p v-if="feedback" class="adopter-feedback" role="status">{{ feedback }}</p>
           <button v-if="!passwordOpen" type="button" class="button button-outline adopter-password-toggle" @click="passwordOpen = true">Cambiar contraseña</button>
           <form v-else class="adopter-password-form" @submit.prevent="changePassword">

@@ -8,7 +8,7 @@ const router = useRouter();
 const route = useRoute();
 const mode = ref(route.query.mode === 'register' ? 'register' : route.query.mode === 'reset' ? 'reset' : route.query.mode === 'verify' ? 'verify' : 'login');
 const loginForm = ref({ email: '', password: '' });
-const registration = ref({ profile: route.query.role === 'provider' ? 'provider' : '', fullName: '', phone: '', email: '', password: '', confirm: '' });
+const registration = ref({ profile: route.query.role === 'shelter' ? 'shelter' : '', fullName: '', phone: '', email: '', password: '', confirm: '' });
 const resetForm = ref({ email: '', newPassword: '', confirm: '' });
 const resetToken = computed(() => String(route.query.token || ''));
 const showLoginPassword = ref(false);
@@ -78,11 +78,11 @@ async function submitRegistration(event) {
   if (!validatePhone(registration.value.phone.trim())) { feedback.value.register = 'El teléfono no tiene un formato válido.'; feedback.value.registerError = true; return; }
   if (!form.reportValidity()) return;
   loading.value = true;
-  const role = registration.value.profile === 'provider' ? 'SHELTER' : 'ADOPTER';
+  const role = registration.value.profile === 'shelter' ? 'SHELTER' : 'ADOPTER';
   try {
     await register({ fullName: registration.value.fullName.trim(), email: registration.value.email.trim(), password: registration.value.password, phone: registration.value.phone.trim() || null, role });
     await loginApi({ email: registration.value.email.trim(), password: registration.value.password });
-    await router.push(role === 'SHELTER' ? '/proveedor.html?section=perfil' : String(route.query.redirect || '/inicio.html'));
+    await router.push(role === 'SHELTER' ? '/refugio.html?section=perfil' : String(route.query.redirect || '/inicio.html'));
   } catch (error) {
     feedback.value.register = error.message || 'No se pudo completar el registro.';
     feedback.value.registerError = true;
@@ -136,7 +136,7 @@ async function submitRegistration(event) {
         </form>
 
         <form v-else class="auth-form auth-register-form" novalidate @submit.prevent="submitRegistration">
-          <fieldset class="auth-profile-choice"><legend>Quiero…</legend><label class="auth-choice-pill" :class="{ 'is-selected': registration.profile === 'adopter' }"><input v-model="registration.profile" type="radio" name="profile" value="adopter"><span>Adoptar</span></label><label class="auth-choice-pill" :class="{ 'is-selected': registration.profile === 'provider' }"><input v-model="registration.profile" type="radio" name="profile" value="provider"><span>Dar en adopción</span></label></fieldset>
+          <fieldset class="auth-profile-choice"><legend>Quiero…</legend><label class="auth-choice-pill" :class="{ 'is-selected': registration.profile === 'adopter' }"><input v-model="registration.profile" type="radio" name="profile" value="adopter"><span>Adoptar</span></label><label class="auth-choice-pill" :class="{ 'is-selected': registration.profile === 'shelter' }"><input v-model="registration.profile" type="radio" name="profile" value="shelter"><span>Dar en adopción</span></label></fieldset>
           <label for="register-full-name">Nombre completo</label><div class="auth-input-wrap"><Icon name="user-round" /><input id="register-full-name" v-model="registration.fullName" name="fullName" autocomplete="name" maxlength="160" placeholder="Tu nombre" required></div>
           <label for="register-phone">Teléfono <span class="auth-optional">(opcional)</span></label><div class="auth-input-wrap"><Icon name="contact-round" /><input id="register-phone" v-model="registration.phone" name="phone" type="tel" autocomplete="tel" placeholder="Número de contacto" pattern="^[+()0-9 .-]{7,32}$"></div>
           <label for="register-email">Correo electrónico</label><div class="auth-input-wrap"><Icon name="message-circle" /><input id="register-email" v-model="registration.email" name="email" type="email" autocomplete="email" placeholder="nombre@correo.com" required></div>

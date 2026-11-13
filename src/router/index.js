@@ -18,7 +18,7 @@ const routes = [
   { path: '/perfil.html', name: 'perfil', meta: { title: 'Mi perfil | PetHop' }, component: () => import('../views/AdopterProfileView.vue') },
   { path: '/salud.html', name: 'salud', meta: { title: 'Expediente sanitario | PetHop' }, component: () => import('../views/HealthRecordsView.vue') },
   { path: '/aliados.html', name: 'aliados', meta: { title: 'Aliados PetHop | PetHop' }, component: () => import('../views/AffiliatesView.vue') },
-  { path: '/proveedor.html', name: 'proveedor', meta: { title: 'Dar en adopción | PetHop' }, component: () => import('../views/ProviderView.vue') },
+  { path: '/refugio.html', name: 'refugio', meta: { title: 'Dar en adopción | PetHop' }, component: () => import('../views/ShelterView.vue') },
   { path: '/admin.html', name: 'admin', meta: { title: 'Moderación | PetHop' }, component: () => import('../views/AdminView.vue') },
   { path: '/:pathMatch(.*)*', redirect: '/acceso.html' }
 ];

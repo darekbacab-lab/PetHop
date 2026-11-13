@@ -45,7 +45,7 @@ const view = computed(() => routeLoadingName.value);
         </div>
       </template>
 
-      <template v-else-if="view === 'solicitud' || view === 'proveedor'">
+      <template v-else-if="view === 'solicitud' || view === 'refugio'">
         <span class="skeleton-shape eyebrow-shape"></span>
         <span class="skeleton-shape title-shape"></span>
         <span class="skeleton-shape line-shape medium-shape"></span>
@@ -124,7 +124,7 @@ const view = computed(() => routeLoadingName.value);
 .access-panel .title-shape { width:72%; }
 .home-skeleton-hero { align-items:center; gap:56px; }
 .action-skeleton-grid { margin-top:70px; }
-.page-loading-proveedor .skeleton-form-grid { grid-template-columns:1fr; max-width:900px; }
+.page-loading-refugio .skeleton-form-grid { grid-template-columns:1fr; max-width:900px; }
 @keyframes loading-shimmer { to { transform:translateX(100%); } }
 @media (max-width:760px) {
   .page-loading-header { height:70px; gap:14px; padding:0 18px; }

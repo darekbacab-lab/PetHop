@@ -5,7 +5,7 @@ import { defineConfig, loadEnv } from 'vite';
 import vue from '@vitejs/plugin-vue';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
-const pages = ['index', 'inicio', 'acceso', 'explorar', 'mascota', 'solicitud', 'seguimiento', 'mensajes', 'perfil', 'proveedor', 'admin', 'aliados', 'salud'];
+const pages = ['index', 'inicio', 'acceso', 'explorar', 'mascota', 'solicitud', 'seguimiento', 'mensajes', 'perfil', 'refugio', 'admin', 'aliados', 'salud'];
 
 async function filesIn(directory) {
   const result = [];
