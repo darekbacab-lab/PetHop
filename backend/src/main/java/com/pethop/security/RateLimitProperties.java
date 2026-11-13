@@ -12,6 +12,7 @@ public class RateLimitProperties {
     private Policy reports = new Policy(10, 3600);
     private Policy veterinaryAssistant = new Policy(20, 3600);
     private Policy passwordReset = new Policy(5, 3600);
+    private Policy emailVerificationResend = new Policy(5, 3600);
 
     public boolean isEnabled() { return enabled; }
     public void setEnabled(boolean enabled) { this.enabled = enabled; }
@@ -29,6 +30,8 @@ public class RateLimitProperties {
     public void setVeterinaryAssistant(Policy veterinaryAssistant) { this.veterinaryAssistant = veterinaryAssistant; }
     public Policy getPasswordReset() { return passwordReset; }
     public void setPasswordReset(Policy passwordReset) { this.passwordReset = passwordReset; }
+    public Policy getEmailVerificationResend() { return emailVerificationResend; }
+    public void setEmailVerificationResend(Policy emailVerificationResend) { this.emailVerificationResend = emailVerificationResend; }
 
     public static class Policy {
         private int maxRequests;

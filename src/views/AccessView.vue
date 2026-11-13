@@ -2,7 +2,7 @@
 import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import Icon from '../components/Icon.vue';
-import { login as loginApi, register, requestPasswordReset, confirmPasswordReset, confirmEmailVerification } from '../services/auth.js';
+import { login as loginApi, register, requestPasswordReset, confirmPasswordReset, confirmEmailVerification, resendEmailVerification } from '../services/auth.js';
 
 const router = useRouter();
 const route = useRoute();
@@ -10,26 +10,27 @@ const mode = ref(route.query.mode === 'register' ? 'register' : route.query.mode
 const loginForm = ref({ email: '', password: '' });
 const registration = ref({ profile: route.query.role === 'shelter' ? 'shelter' : '', fullName: '', phone: '', email: '', password: '', confirm: '' });
 const resetForm = ref({ email: '', newPassword: '', confirm: '' });
+const resendForm = ref({ email: '' });
 const resetToken = computed(() => String(route.query.token || ''));
 const showLoginPassword = ref(false);
 const showRegisterPassword = ref(false);
 const showRegisterConfirm = ref(false);
 const loading = ref(false);
-const feedback = ref({ login: '', register: '', registerError: false });
+const feedback = ref({ login: '', register: '', registerError: false, resend: '' });
 const isRegistering = computed(() => mode.value === 'register');
 
 watch(mode, registering => {
   document.title = `${registering === 'register' ? 'Crear cuenta' : registering === 'reset' ? 'Recuperar contraseña' : registering === 'verify' ? 'Confirmar correo' : 'Ingresar'} | PetHop`;
-  feedback.value = { login: '', register: '', registerError: false };
+  feedback.value = { login: '', register: '', registerError: false, resend: '' };
 }, { immediate: true });
 
 function switchMode(nextMode) {
   mode.value = nextMode;
-  feedback.value = { login: '', register: '', registerError: false };
+  feedback.value = { login: '', register: '', registerError: false, resend: '' };
 }
 
 async function submitPasswordResetRequest(event) {
-  feedback.value = { login: '', register: '', registerError: false };
+  feedback.value = { login: '', register: '', registerError: false, resend: '' };
   if (!event.currentTarget.reportValidity()) return;
   loading.value = true;
   try { await requestPasswordReset(resetForm.value.email.trim()); feedback.value.login = 'Si existe una cuenta con ese correo, recibirás instrucciones para continuar.'; }
@@ -38,7 +39,7 @@ async function submitPasswordResetRequest(event) {
 }
 
 async function submitPasswordResetConfirm(event) {
-  feedback.value = { login: '', register: '', registerError: false };
+  feedback.value = { login: '', register: '', registerError: false, resend: '' };
   if (!resetToken.value || resetForm.value.newPassword !== resetForm.value.confirm || !event.currentTarget.reportValidity()) {
     feedback.value.login = !resetToken.value ? 'El enlace de recuperación no es válido.' : resetForm.value.newPassword !== resetForm.value.confirm ? 'Las contraseñas no coinciden.' : '';
     return;
@@ -49,9 +50,18 @@ async function submitPasswordResetConfirm(event) {
   finally { loading.value = false; }
 }
 async function submitEmailVerification() {
-  feedback.value = { login: '', register: '', registerError: false }; loading.value = true;
+  feedback.value = { login: '', register: '', registerError: false, resend: '' }; loading.value = true;
   try { await confirmEmailVerification(String(route.query.token || '')); feedback.value.login = 'Correo confirmado. Ya puedes iniciar sesión.'; mode.value = 'login'; }
   catch (error) { feedback.value.login = error.message || 'No se pudo confirmar el correo.'; }
+  finally { loading.value = false; }
+}
+
+async function submitEmailVerificationResend(event) {
+  feedback.value = { login: '', register: '', registerError: false, resend: '' };
+  if (!event.currentTarget.reportValidity()) return;
+  loading.value = true;
+  try { await resendEmailVerification(resendForm.value.email.trim()); feedback.value.resend = 'Si existe una cuenta con ese correo, recibirás un nuevo enlace de verificación.'; }
+  catch (error) { feedback.value.resend = error.message || 'No se pudo reenviar el correo.'; }
   finally { loading.value = false; }
 }
 
@@ -106,6 +116,13 @@ async function submitRegistration(event) {
           <button class="auth-submit" type="submit" :disabled="loading">{{ loading ? 'Confirmando…' : 'Confirmar correo' }}</button>
           <p class="auth-feedback" :class="{ 'is-error': feedback.login && !feedback.login.includes('confirmado') }" role="alert" aria-live="polite">{{ feedback.login }}</p>
           <p class="auth-switch-copy"><button type="button" class="auth-text-button" @click="mode = 'login'">Volver a iniciar sesión</button></p>
+        </form>
+        <form v-if="mode === 'verify'" class="auth-form" novalidate @submit.prevent="submitEmailVerificationResend">
+          <h2 class="auth-form-subtitle">¿No te llegó el correo?</h2>
+          <label for="resend-email">Correo electrónico</label>
+          <div class="auth-input-wrap"><Icon name="message-circle" /><input id="resend-email" v-model="resendForm.email" type="email" autocomplete="email" placeholder="nombre@correo.com" required></div>
+          <button class="auth-submit" type="submit" :disabled="loading">{{ loading ? 'Enviando…' : 'Reenviar correo de verificación' }}</button>
+          <p class="auth-feedback" :class="{ 'is-error': feedback.resend && !feedback.resend.includes('nuevo enlace') }" role="alert" aria-live="polite">{{ feedback.resend }}</p>
         </form>
         <form v-else-if="mode === 'reset' && !resetToken" class="auth-form" novalidate @submit.prevent="submitPasswordResetRequest">
           <label for="reset-email">Correo electrónico</label>

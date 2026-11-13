@@ -64,6 +64,18 @@ class RateLimitFilterTest {
         assertThat(blocked.getStatus()).isEqualTo(429);
     }
 
+    @Test
+    void limitsEmailVerificationResendRequests() throws Exception {
+        RateLimitProperties properties = properties(5, 3600);
+        properties.setEmailVerificationResend(new RateLimitProperties.Policy(1, 60));
+        RateLimitFilter filter = new RateLimitFilter(new InMemoryRateLimiter(Clock.fixed(Instant.EPOCH, ZoneOffset.UTC)), properties);
+        FilterChain chain = mock(FilterChain.class);
+        filter.doFilter(request("/api/v1/auth/email-verification/resend", "POST"), new MockHttpServletResponse(), chain);
+        MockHttpServletResponse blocked = new MockHttpServletResponse();
+        filter.doFilter(request("/api/v1/auth/email-verification/resend", "POST"), blocked, chain);
+        assertThat(blocked.getStatus()).isEqualTo(429);
+    }
+
     private RateLimitProperties properties(int maxRequests, long windowSeconds) {
         RateLimitProperties properties = new RateLimitProperties();
         properties.setLogin(new RateLimitProperties.Policy(maxRequests, windowSeconds));

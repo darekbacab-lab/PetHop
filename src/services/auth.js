@@ -47,6 +47,10 @@ export async function confirmEmailVerification(token) {
   return api('/auth/email-verification/confirm', { method: 'POST', body: { token } });
 }
 
+export async function resendEmailVerification(email) {
+  return api('/auth/email-verification/resend', { method: 'POST', body: { email } });
+}
+
 
 export async function logout() {
   try { await api('/auth/logout', { method: 'POST' }); }

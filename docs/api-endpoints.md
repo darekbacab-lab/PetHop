@@ -6,6 +6,9 @@ Base: `/api/v1`. DTOs de solicitud y respuesta separados de las entidades. Las r
 
 - `GET /auth/csrf` obtiene token CSRF.
 - `POST /auth/register`, `POST /auth/login`, `POST /auth/logout`, `GET /auth/me`.
+- `POST /auth/password-reset/request`, `POST /auth/password-reset/confirm`.
+- `POST /auth/email-verification/confirm`, `POST /auth/email-verification/resend` (público, con límite de 5/hora por IP; responde 202 exista o no la cuenta).
+- Los correos transaccionales (verificación y recuperación) se envían por la API HTTP de Brevo, no por SMTP: Railway bloquea SMTP saliente en planes gratuitos. Variables: `BREVO_API_KEY` y `BREVO_FROM_EMAIL`.
 - `GET/PATCH /users/me`, `PATCH /users/me/password`.
 
 ## Refugio y mascotas

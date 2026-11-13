@@ -8,6 +8,7 @@ import com.pethop.security.RateLimitFilter;
 import com.pethop.security.RateLimitProperties;
 import com.pethop.security.PasswordResetProperties;
 import com.pethop.security.EmailVerificationProperties;
+import com.pethop.security.BrevoProperties;
 import com.pethop.veterinary.VeterinaryAiProperties;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.ObjectProvider;
@@ -41,7 +42,7 @@ import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@EnableConfigurationProperties({RateLimitProperties.class, VeterinaryAiProperties.class, PasswordResetProperties.class, EmailVerificationProperties.class})
+@EnableConfigurationProperties({RateLimitProperties.class, VeterinaryAiProperties.class, PasswordResetProperties.class, EmailVerificationProperties.class, BrevoProperties.class})
 public class SecurityConfig {
     @Bean
     PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(12); }
@@ -91,7 +92,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/actuator/health", "/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                     .requestMatchers("/api/v1/auth/csrf", "/api/v1/auth/register", "/api/v1/auth/login",
-                            "/api/v1/auth/password-reset/request", "/api/v1/auth/password-reset/confirm", "/api/v1/auth/email-verification/confirm").permitAll()
+                            "/api/v1/auth/password-reset/request", "/api/v1/auth/password-reset/confirm", "/api/v1/auth/email-verification/confirm",
+                            "/api/v1/auth/email-verification/resend").permitAll()
                     .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                     .requestMatchers("/api/v1/veterinary-assistant/**").authenticated()
                     .requestMatchers("/api/v1/pets/*/veterinary-assistant/**").authenticated()

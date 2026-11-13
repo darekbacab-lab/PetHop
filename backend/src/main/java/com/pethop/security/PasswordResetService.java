@@ -11,10 +11,6 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.HexFormat;
 import java.util.Locale;
-import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,11 +21,11 @@ public class PasswordResetService {
     private final PasswordResetTokenRepository tokens;
     private final PasswordEncoder passwords;
     private final PasswordResetProperties properties;
-    private final ObjectProvider<JavaMailSender> mailers;
+    private final TransactionalEmailSender emailSender;
 
     public PasswordResetService(UserRepository users, PasswordResetTokenRepository tokens, PasswordEncoder passwords,
-            PasswordResetProperties properties, ObjectProvider<JavaMailSender> mailers) {
-        this.users = users; this.tokens = tokens; this.passwords = passwords; this.properties = properties; this.mailers = mailers;
+            PasswordResetProperties properties, TransactionalEmailSender emailSender) {
+        this.users = users; this.tokens = tokens; this.passwords = passwords; this.properties = properties; this.emailSender = emailSender;
     }
 
     @Transactional
@@ -39,8 +35,7 @@ public class PasswordResetService {
         }
         User user = users.findByEmail(normalize(email)).orElse(null);
         if (user == null) return;
-        JavaMailSender mailer = mailers.getIfAvailable();
-        if (mailer == null) throw ApiException.serviceUnavailable("El servicio de recuperación no está disponible.");
+        if (!emailSender.isConfigured()) throw ApiException.serviceUnavailable("El servicio de recuperación no está disponible.");
         Instant now = Instant.now();
         tokens.invalidateForUser(user.getId(), now);
         String rawToken = randomToken();
@@ -48,7 +43,7 @@ public class PasswordResetService {
         token.setUser(user); token.setTokenHash(hash(rawToken));
         token.setExpiresAt(now.plusSeconds(Math.max(10, properties.getTokenTtlMinutes()) * 60));
         tokens.save(token);
-        send(mailer, user.getEmail(), rawToken);
+        send(user.getEmail(), rawToken);
     }
 
     @Transactional
@@ -65,15 +60,13 @@ public class PasswordResetService {
         tokens.save(token); users.save(user);
     }
 
-    private void send(JavaMailSender mailer, String email, String token) {
+    private void send(String email, String token) {
         String base = properties.getFrontendUrl().replaceAll("/+$", "");
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(properties.getFrom()); message.setTo(email); message.setSubject("Restablece tu contraseña de PetHop");
-        message.setText("Recibimos una solicitud para cambiar tu contraseña de PetHop.\n\n"
+        String text = "Recibimos una solicitud para cambiar tu contraseña de PetHop.\n\n"
                 + "Abre este enlace dentro de " + properties.getTokenTtlMinutes() + " minutos:\n"
                 + base + "/acceso.html?mode=reset&token=" + token + "\n\n"
-                + "Si no solicitaste este cambio, puedes ignorar este correo.");
-        try { mailer.send(message); }
+                + "Si no solicitaste este cambio, puedes ignorar este correo.";
+        try { emailSender.send(email, "Restablece tu contraseña de PetHop", text); }
         catch (RuntimeException ex) { throw ApiException.serviceUnavailable("No fue posible enviar el correo de recuperación."); }
     }
 

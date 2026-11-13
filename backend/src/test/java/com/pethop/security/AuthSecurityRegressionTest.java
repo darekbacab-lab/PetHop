@@ -1,6 +1,8 @@
 package com.pethop.security;
 
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.pethop.config.SecurityConfig;
@@ -10,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -43,5 +46,15 @@ class AuthSecurityRegressionTest {
 
         mvc.perform(get("/api/v1/auth/me").with(SecurityMockMvcRequestPostProcessors.user(new SecurityUser(user))))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void emailVerificationResendIsPublicAndAccepted() throws Exception {
+        mvc.perform(post("/api/v1/auth/email-verification/resend")
+                        .with(SecurityMockMvcRequestPostProcessors.csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"adoptante@example.test\"}"))
+                .andExpect(status().isAccepted());
+        verify(emailVerificationService).resend("adoptante@example.test");
     }
 }

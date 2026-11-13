@@ -61,9 +61,20 @@ VETERINARY_AI_MODEL=openai/gpt-oss-20b
 VETERINARY_AI_API_KEY=<clave configurada como secreto Railway>
 ```
 
-La recuperación de contraseña está deshabilitada temporalmente. Mantén `PASSWORD_RESET_ENABLED=false` y `PASSWORD_RESET_MAIL_ENABLED=false`; no configures proveedor ni credenciales de correo hasta que se decida una opción gratuita.
+La verificación de correo y la recuperación de contraseña se envían por la API HTTP de Brevo (plan gratuito, 300 correos/día, sin dominio propio: basta verificar un correo remitente). Railway bloquea SMTP saliente en los planes Free, Trial y Hobby, así que el backend ya no usa SMTP; consulta su [política de red saliente](https://docs.railway.com/networking/outbound-networking).
 
-Railway bloquea SMTP saliente en los planes Free, Trial y Hobby; consulta su [política de red saliente](https://docs.railway.com/networking/outbound-networking).
+Para activarlas en el backend, añade estas variables en Railway:
+
+```text
+BREVO_API_KEY=<clave de API de Brevo>
+BREVO_FROM_EMAIL=pethop13@gmail.com
+EMAIL_VERIFICATION_ENABLED=true
+EMAIL_VERIFICATION_MAIL_ENABLED=true
+PASSWORD_RESET_ENABLED=true
+PASSWORD_RESET_MAIL_ENABLED=true
+```
+
+Orden seguro: primero prueba con una cuenta nueva sin exigir la verificación; cuando el correo llegue bien, activa `EMAIL_VERIFICATION_REQUIRED=true`. Sin el botón de reenvío las cuentas existentes sin verificar quedarían bloqueadas, por eso el reenvío (`POST /auth/email-verification/resend`) existe antes de exigirla.
 
 La clave no debe aparecer en `VITE_*`, commits, logs ni documentación. Si se deja `VETERINARY_AI_ENABLED=false`, el resto de la aplicación funciona y el asistente informa que está no disponible.
 

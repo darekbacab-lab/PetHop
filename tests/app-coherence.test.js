@@ -281,6 +281,24 @@ test('password recovery uses expiring one-time tokens and does not store raw tok
     assert.match(typeFixMigration, /ALTER COLUMN token_hash TYPE VARCHAR\(64\)/);
 });
 
+test('email delivery uses the Brevo HTTP API and verification can be resent', () => {
+    const sender = fs.readFileSync(path.join(projectRoot, 'backend/src/main/java/com/pethop/security/BrevoEmailSender.java'), 'utf8');
+    const brevoProperties = fs.readFileSync(path.join(projectRoot, 'backend/src/main/java/com/pethop/security/BrevoProperties.java'), 'utf8');
+    const service = fs.readFileSync(path.join(projectRoot, 'backend/src/main/java/com/pethop/security/EmailVerificationService.java'), 'utf8');
+    const auth = fs.readFileSync(path.join(projectRoot, 'backend/src/main/java/com/pethop/security/AuthController.java'), 'utf8');
+    const filter = fs.readFileSync(path.join(projectRoot, 'backend/src/main/java/com/pethop/security/RateLimitFilter.java'), 'utf8');
+    const client = fs.readFileSync(path.join(projectRoot, 'src/services/auth.js'), 'utf8');
+    const access = fs.readFileSync(path.join(projectRoot, 'src/views/AccessView.vue'), 'utf8');
+    assert.match(sender, /api-key/);
+    assert.match(brevoProperties, /api\.brevo\.com\/v3\/smtp\/email/);
+    assert.doesNotMatch(sender, /JavaMailSender|SimpleMailMessage/);
+    assert.match(service, /void resend\(String email\)/);
+    assert.match(auth, /email-verification\/resend/);
+    assert.match(filter, /email-verification-resend/);
+    assert.match(client, /email-verification\/resend/);
+    assert.match(access, /Reenviar correo de verificación/);
+});
+
 test('follow-up dashboard uses real applications, history, adoptions, reports and media endpoints', () => {
     const source = fs.readFileSync(path.join(projectRoot, 'src/views/FollowUpView.vue'), 'utf8');
     assert.match(source, /api\('\/adoption-applications\/mine\?page=0&size=50'\)/);

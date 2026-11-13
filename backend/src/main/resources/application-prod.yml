@@ -70,15 +70,17 @@ pethop:
     enabled: ${PASSWORD_RESET_ENABLED:false}
     mail-enabled: ${PASSWORD_RESET_MAIL_ENABLED:false}
     frontend-url: ${PASSWORD_RESET_FRONTEND_URL:https://localhost}
-    from: ${PASSWORD_RESET_MAIL_FROM:no-reply@pethop.local}
     token-ttl-minutes: ${PASSWORD_RESET_TOKEN_TTL_MINUTES:30}
   email-verification:
     enabled: ${EMAIL_VERIFICATION_ENABLED:false}
     required: ${EMAIL_VERIFICATION_REQUIRED:false}
     mail-enabled: ${EMAIL_VERIFICATION_MAIL_ENABLED:false}
     frontend-url: ${EMAIL_VERIFICATION_FRONTEND_URL:https://localhost}
-    from: ${EMAIL_VERIFICATION_MAIL_FROM:no-reply@pethop.local}
     token-ttl-minutes: ${EMAIL_VERIFICATION_TOKEN_TTL_MINUTES:60}
+  brevo:
+    api-key: ${BREVO_API_KEY:}
+    from: ${BREVO_FROM_EMAIL:no-reply@pethop.local}
+    api-url: ${BREVO_API_URL:https://api.brevo.com/v3/smtp/email}
   veterinary-ai:
     enabled: ${VETERINARY_AI_ENABLED:false}
     api-key: ${VETERINARY_AI_API_KEY:}

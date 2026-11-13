@@ -95,6 +95,12 @@ public class AuthController {
     @PostMapping("/email-verification/confirm")
     ResponseEntity<Void> confirmEmail(@RequestBody java.util.Map<String, String> request) { emailVerification.confirm(request.get("token")); return ResponseEntity.noContent().build(); }
 
+    @PostMapping("/email-verification/resend")
+    ResponseEntity<Void> resendEmailVerification(@Valid @RequestBody PasswordResetRequest request) {
+        emailVerification.resend(request.email());
+        return ResponseEntity.accepted().build();
+    }
+
     @GetMapping("/me")
     UserResponse me(@AuthenticationPrincipal SecurityUser principal) { return UserResponse.from(principal.user()); }
 }
