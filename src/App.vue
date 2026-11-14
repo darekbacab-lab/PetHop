@@ -30,4 +30,19 @@ onUnmounted(() => { window.removeEventListener('scroll', updateProgress); window
 watch(() => route.fullPath, async () => { await nextTick(); updateProgress(); });
 </script>
 
-<template><div class="scroll-progress" :style="{ width: `${progress}%` }" aria-hidden="true"></div><div @focusout.capture="validateField" @input.capture="validateField"><PageLoadingSkeleton v-if="routeLoading" /><RouterView v-else /></div><AssistantChat v-if="!routeLoading" /></template>
+<template><div class="scroll-progress" :style="{ width: `${progress}%` }" aria-hidden="true"></div><div @focusout.capture="validateField" @input.capture="validateField"><Transition name="page" mode="out-in"><PageLoadingSkeleton v-if="routeLoading" /><RouterView v-else /></Transition></div><AssistantChat v-if="!routeLoading" /></template>
+
+<style>
+.page-enter-active,
+.page-leave-active {
+  transition: opacity .18s ease, transform .18s ease;
+}
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+</style>
