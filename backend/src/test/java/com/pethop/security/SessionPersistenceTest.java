@@ -63,6 +63,13 @@ class SessionPersistenceTest {
         Cookie sessionCookie = login.getResponse().getCookie("PETHOPSESSION");
         assertThat(sessionCookie).isNotNull();
         assertThat(sessionCookie.getValue()).isNotBlank();
+        System.out.println("DEBUG cookie value=" + sessionCookie.getValue());
+        jdbc.queryForList("select session_id, principal_name from spring_session")
+                .forEach(r -> System.out.println("DEBUG row session_id=" + r.get("session_id")
+                        + " principal=" + r.get("principal_name")));
+        jdbc.queryForList("select primary_id, attribute_name from spring_session_attributes")
+                .forEach(a -> System.out.println("DEBUG attr primary_id=" + a.get("primary_id")
+                        + " name=" + a.get("attribute_name")));
 
         Integer sessions = jdbc.queryForObject(
                 "select count(*) from spring_session where session_id = ?", Integer.class, sessionCookie.getValue());
