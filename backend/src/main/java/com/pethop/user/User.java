@@ -13,10 +13,13 @@ import java.util.UUID;
 import org.hibernate.annotations.UuidGenerator;
 import jakarta.persistence.Convert;
 import com.pethop.security.SensitiveDataConverter;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class User implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     @Id @UuidGenerator
     private UUID id;
     @Column(name = "full_name", nullable = false, length = 160)
