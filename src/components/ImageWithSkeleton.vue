@@ -1,5 +1,6 @@
 <script setup>
 import { nextTick, onMounted, ref, watch } from 'vue';
+import Icon from './Icon.vue';
 
 const props = defineProps({
   src: { type: String, default: '' },
@@ -13,13 +14,20 @@ const props = defineProps({
 
 const image = ref(null);
 const settled = ref(!props.src);
+const failed = ref(false);
 
 function settleImage() {
   settled.value = true;
 }
 
+function onImageError() {
+  failed.value = true;
+  settleImage();
+}
+
 watch(() => props.src, () => {
   settled.value = !props.src;
+  failed.value = false;
   if (!props.src) return;
   nextTick(() => {
     if (image.value?.complete) settleImage();
@@ -42,7 +50,7 @@ onMounted(() => {
   >
     <div v-if="!settled" class="image-loading-skeleton" aria-hidden="true"></div>
     <img
-      v-if="src"
+      v-if="src && !failed"
       ref="image"
       class="image-loading-content"
       :class="imageClass"
@@ -50,8 +58,9 @@ onMounted(() => {
       :src="src"
       :alt="role === 'img' ? '' : alt"
       @load="settleImage"
-      @error="settleImage"
+      @error="onImageError"
     >
+    <span v-if="failed" class="image-loading-fallback" aria-hidden="true"><Icon name="paw-print" /></span>
     <slot />
   </div>
 </template>

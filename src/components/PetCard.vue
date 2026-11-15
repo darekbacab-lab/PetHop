@@ -6,6 +6,7 @@ import ImageWithSkeleton from './ImageWithSkeleton.vue';
 const props = defineProps({ pet: { type: Object, required: true }, favorite: Boolean });
 const emit = defineEmits(['favorite']);
 const photo = computed(() => props.pet.photos?.[0] || props.pet.image || '');
+const speciesKey = computed(() => String(props.pet.species || '').toLocaleLowerCase('es-MX'));
 const availableStatus = computed(() => props.pet.status && props.pet.status !== 'Publicada' ? props.pet.status : 'Disponible');
 
 </script>
@@ -37,10 +38,10 @@ const availableStatus = computed(() => props.pet.status && props.pet.status !== 
       <div class="catalog-card-top">
         <div>
           <span class="pet-species">
-            <Icon v-if="pet.species.toLocaleLowerCase('es-MX') === 'gato'" name="cat" class="pet-species-icon" />
-            <Icon v-else-if="pet.species.toLocaleLowerCase('es-MX') === 'perro'" name="dog" class="pet-species-icon" />
+            <Icon v-if="speciesKey === 'gato'" name="cat" class="pet-species-icon" />
+            <Icon v-else-if="speciesKey === 'perro'" name="dog" class="pet-species-icon" />
             <Icon v-else name="paw-print" class="pet-species-icon" />
-            {{ pet.species.toLocaleUpperCase('es-MX') }}
+            {{ pet.species ? String(pet.species).toLocaleUpperCase('es-MX') : 'Mascota' }}
           </span>
           <h3>{{ pet.name }}</h3>
         </div>

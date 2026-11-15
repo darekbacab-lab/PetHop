@@ -38,14 +38,6 @@ function closeChat() {
   isOpen.value = false;
 }
 
-function addMessage(value) {
-  const text = value.trim();
-  if (!text) return;
-  messages.value.push({ id: `${Date.now()}-${messages.value.length}`, text });
-  draft.value = '';
-  scrollToLatest();
-}
-
 function generalAnswer(text) {
   return generalAnswers.find(answer => answer.match.test(text))?.text
     || 'Puedo ayudarte con el proceso de adopción, el cuidado responsable y dudas veterinarias generales. Cuéntame qué necesitas saber.';

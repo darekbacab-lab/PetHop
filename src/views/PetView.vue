@@ -133,7 +133,7 @@ async function askShelter() {
                   </div>
                 </div>
               </div>
-              <div class="pet-information">
+              <div v-if="healthInformation.length" class="pet-information">
                 <h2>Salud y cuidados</h2>
                 <div class="information-grid pet-health-grid"><div v-for="[label,value] in healthInformation" :key="label" class="information-item" :class="{ 'is-long': label==='Observaciones' && value.length>70 }"><strong>{{ label }}</strong><span>{{ value }}</span></div></div>
               </div>

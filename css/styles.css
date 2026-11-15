@@ -299,7 +299,7 @@ ol {
     position: fixed;
     inset: 0;
     z-index: 999;
-    background: rgba(18, 45, 49, .42);
+    background: rgba(18, 45, 49, .58);
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -2485,7 +2485,7 @@ ol {
 }
 
 .organization-section {
-    padding: 95px 0;
+    padding: 70px 0;
     background: var(--white);
 }
 
@@ -2518,6 +2518,7 @@ ol {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    justify-self: start;
     padding: 0 18px;
     border: 1px solid var(--primary);
     border-radius: 10px;
@@ -4832,6 +4833,25 @@ textarea {
     position: relative;
     overflow: hidden;
 }
+
+.image-loading-fallback {
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: var(--primary-soft);
+    color: var(--text-soft);
+}
+
+.image-loading-fallback svg { width: 42px; height: 42px; opacity: .62; }
+
+.catalog-loading { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.catalog-loading-card { position: relative; min-height: 260px; overflow: hidden; border: 1px solid #e5e5e5; border-radius: 18px; background: #f2f2f2; }
+.catalog-loading-card::after { position: absolute; inset: 0; content: ""; transform: translateX(-100%); background: linear-gradient(105deg, transparent 25%, rgba(255, 255, 255, .82) 48%, transparent 70%); animation: catalog-loading-shimmer 1.45s ease-in-out infinite; }
+@keyframes catalog-loading-shimmer { to { transform: translateX(100%); } }
+@media (max-width: 900px) { .catalog-loading { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .catalog-loading { grid-template-columns: 1fr; } }
 
 .image-loading-frame.hero-image-placeholder {
     position: absolute;

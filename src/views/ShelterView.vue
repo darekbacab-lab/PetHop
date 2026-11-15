@@ -131,7 +131,12 @@ function persist(message = '') {
   const workspaceKey = shelterWorkspaceKey(currentShelterId.value);
   if (!workspaceKey) return true;
   const { photos, photoNames, photoKeys, ...draft } = state.draft || {};
-  if (!storageService.write(workspaceKey, { ...state, draft })) { notice.value = 'No se pudieron guardar las preferencias locales.'; return false; }
+  // Solo se guarda lo local (borrador y preferencias de vista). Las mascotas,
+  // solicitudes, mensajes y perfil viven en el backend y se recargan en cada
+  // visita; guardarlos aquí solo inflaba el dato y podía romper el guardado
+  // por cuota de localStorage.
+  const localOnly = { draft, section: state.section, step: state.step, filter: state.filter, petFilter: state.petFilter, notify: state.notify };
+  if (!storageService.write(workspaceKey, localOnly)) { notice.value = 'No se pudieron guardar las preferencias locales.'; return false; }
   if (message) toast(message);
   return true;
 }
@@ -564,12 +569,6 @@ watch(() => state.step, () => persist());
 </template>
 
 <style scoped>
-.shelter-review-banner { display:flex; align-items:center; gap:14px; margin:0 0 20px; padding:17px 19px; border:1px solid #b8ded4; border-radius:16px; background:#effaf5; box-shadow:0 5px 16px rgba(18,63,75,.05); }
-.shelter-review-banner-icon { display:grid; width:42px; height:42px; flex:0 0 42px; place-items:center; border-radius:13px; background:#d9f1e8; color:var(--primary-strong); }
-.shelter-review-banner > div { min-width:0; flex:1; }
-.shelter-review-banner strong { color:var(--text); font:700 .88rem/1.4 "Poppins",sans-serif; }
-.shelter-review-banner p { margin:3px 0 0; color:var(--text-soft); font-size:.75rem; line-height:1.5; }
-.shelter-review-banner-status { flex:0 0 auto; padding:7px 10px; border:1px solid #c6e5d8; border-radius:999px; background:#fff; color:#37695b; font-size:.68rem; font-weight:800; }
 .shelter-pet-details-modal { width:min(820px,100%); padding:34px; border:1px solid #dcebed; border-radius:24px; }
 .shelter-pet-edit-backdrop { display:flex; align-items:flex-start; justify-content:center; overflow-y:auto; padding:20px; }
 .shelter-pet-edit-backdrop .shelter-pet-details-modal { flex:0 0 auto; max-height:calc(100dvh - 40px); margin:0 auto; }

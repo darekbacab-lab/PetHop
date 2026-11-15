@@ -190,8 +190,9 @@ test('the sidebar stays above its backdrop and can close through Vue controls', 
     const source = fs.readFileSync(path.join(projectRoot, 'src/components/SiteHeader.vue'), 'utf8');
     assert.match(source, /:class="\{ open \}"/);
     assert.match(source, /:inert="!open"/);
-    assert.match(source, /function closeMenu\(\)/);
+    assert.match(source, /function closeMenu\(returnFocus = false\)/);
     assert.match(source, /menuToggle\.value\?\.focus\(\)/);
+    assert.match(source, /closeMenu\(true\)/);
     assert.doesNotMatch(source, /:aria-hidden="!open"/);
     assert.match(source, /@click="open = !open"/);
     for (const label of ['Inicio', 'Explorar', 'Dar en adopción', 'Seguimiento', 'Favoritos']) assert.ok(source.includes(label));

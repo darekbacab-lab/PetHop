@@ -25,3 +25,12 @@ test('shelter view does not read or write the old global workspace key', () => {
   assert.match(shelterView, /storageService\.read\(shelterWorkspaceKey\(user\.id\)/);
   assert.match(shelterView, /storageService\.write\(workspaceKey/);
 });
+
+test('shelter workspace persists only local draft and view preferences, not backend data', () => {
+  const shelterView = fs.readFileSync(path.join(projectRoot, 'src/views/ShelterView.vue'), 'utf8');
+  // El borrador y las preferencias de vista son lo único local; mascotas,
+  // solicitudes, mensajes y perfil viven en el backend y se recargan.
+  assert.match(shelterView, /const localOnly = \{ draft, section: state\.section, step: state\.step, filter: state\.filter, petFilter: state\.petFilter, notify: state\.notify \}/);
+  assert.match(shelterView, /storageService\.write\(workspaceKey, localOnly\)/);
+  assert.doesNotMatch(shelterView, /storageService\.write\(workspaceKey, \{ \.\.\.state, draft \}\)/);
+});

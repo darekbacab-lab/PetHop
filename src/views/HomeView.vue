@@ -19,16 +19,6 @@ const petCarouselFocused = ref(false);
 const pendingPetMoves = [];
 let petAutoplayTimer;
 let petMotionPreference;
-const publishedDateFields = ['publishedAt', 'publicationDate', 'createdAt', 'created_at', 'dateCreated', 'fechaPublicacion', 'fechaCreacion'];
-function publicationTime(pet) {
-  for (const field of publishedDateFields) {
-    const value = pet?.[field];
-    if (value === undefined || value === null || value === '') continue;
-    const time = value instanceof Date ? value.getTime() : typeof value === 'number' ? value : Date.parse(value);
-    if (Number.isFinite(time)) return time;
-  }
-  return null;
-}
 const petLoadError = ref('');
 async function refreshPets() {
   try {
@@ -128,9 +118,13 @@ const processCarouselSlides = computed(() => {
 });
 const processPositionLabel = computed(() => {
   const count = processSteps.length;
+  const { first, last } = processVisibleRange.value;
+  const pad = value => String(value).padStart(2, '0');
+  if (first && last && first !== last) return `${pad(first)}–${pad(last)} / ${pad(count)}`;
   const current = processPosition.value === 0 ? count : processPosition.value === count + 1 ? 1 : processPosition.value;
-  return `${String(current).padStart(2, '0')} / ${String(count).padStart(2, '0')}`;
+  return `${pad(current)} / ${pad(count)}`;
 });
+const processVisibleRange = ref({ first: 1, last: 3 });
 let processAutoTimer;
 let processScrollTimer;
 let processScrollFrame;
@@ -161,12 +155,25 @@ function updateProcessPosition() {
   const center = track.getBoundingClientRect().left + track.clientWidth / 2;
   let closestPosition = processPosition.value;
   let closestDistance = Infinity;
+  const count = processSteps.length;
+  const trackRect = track.getBoundingClientRect();
+  let firstVisible = null;
+  let visibleCount = 0;
   [...track.children].forEach((slide, index) => {
     const rect = slide.getBoundingClientRect();
     const distance = Math.abs(rect.left + rect.width / 2 - center);
     if (distance < closestDistance) { closestDistance = distance; closestPosition = index; }
+    if (rect.right > trackRect.left + 4 && rect.left < trackRect.right - 4) {
+      const real = index === 0 ? count : index === count + 1 ? 1 : index;
+      if (firstVisible === null) firstVisible = real;
+      visibleCount++;
+    }
   });
   processPosition.value = closestPosition;
+  if (firstVisible !== null && visibleCount > 0) {
+    const last = ((firstVisible - 1 + visibleCount - 1) % count) + 1;
+    processVisibleRange.value = { first: firstVisible, last };
+  }
 }
 function recenterProcessSlide(position) {
   processIsRecentering.value = true;
@@ -244,9 +251,10 @@ onMounted(async () => {
   ]);
   updateVisiblePetCount();
   startPetAutoplay();
-  requestAnimationFrame(() => centerProcessSlide(1, 'auto'));
+  requestAnimationFrame(() => { centerProcessSlide(1, 'auto'); updateProcessPosition(); });
   processAutoTimer = window.setInterval(processAutoplayTick, 5500);
   window.addEventListener('resize', updateVisiblePetCount, { passive: true });
+  window.addEventListener('resize', updateProcessPosition, { passive: true });
 });
 onUnmounted(() => {
   stopPetAutoplay();
@@ -255,6 +263,7 @@ onUnmounted(() => {
   if (processScrollFrame) cancelAnimationFrame(processScrollFrame);
   petMotionPreference?.removeEventListener('change', handleMotionPreference);
   window.removeEventListener('resize', updateVisiblePetCount);
+  window.removeEventListener('resize', updateProcessPosition);
 });
 function submitSearch() { router.push({ path: '/explorar.html', query: { search: search.value.trim() } }); }
 async function favorite(id) {
