@@ -774,18 +774,20 @@ async function favorite(id) {
 }
 
 /* "Cómo funciona": la imagen ocupa los bordes superiores y el texto conserva una base sólida. */
-.process-steps .process-step { grid-template-rows:minmax(0,1fr) auto; grid-template-areas:"art" "copy"; padding:0; background:var(--button-primary-bg); border-color:transparent; }
-.process-steps .process-step .process-step-art { position:relative; inset:auto; z-index:0; display:block; width:100%; height:auto; min-height:0; max-height:none; aspect-ratio:1.35; align-self:stretch; justify-self:stretch; overflow:hidden; border-radius:28px 28px 0 0; }
+.process-steps .process-step { grid-template-rows:64% 36%; grid-template-areas:"art" "copy"; padding:0; background:var(--button-primary-bg); border-color:transparent; }
+.process-steps .process-step .process-step-art { position:relative; inset:auto; z-index:0; display:block; width:100%; height:auto; min-height:0; max-height:none; aspect-ratio:auto; align-self:stretch; justify-self:stretch; overflow:hidden; border-radius:28px 28px 0 0; }
 .process-steps .process-step .process-step-art img { width:100%; height:100%; object-fit:cover; }
-.process-steps .process-step::after { position:absolute; top:0; right:0; left:0; z-index:1; width:auto; height:58%; border:0; border-radius:0; aspect-ratio:auto; background:linear-gradient(180deg, rgba(20,84,92,0) 45%, rgba(13,58,64,.42) 100%); content:""; pointer-events:none; }
+.process-steps .process-step::after { display:none; }
 .process-steps .process-step-number { position:absolute; top:16px; left:16px; z-index:3; justify-self:start; padding:7px 12px; border-radius:999px; background:rgba(20,84,92,.55); color:#fff; border:1px solid rgba(255,255,255,.35); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); }
 .process-steps .process-step-copy { z-index:2; align-self:stretch; padding:20px clamp(18px, 2vw, 24px) clamp(20px, 2.4vw, 28px); background:var(--button-primary-bg); }
 .process-steps .process-step h3 { color:#fff; }
 .process-steps .process-step p { color:rgba(232,247,246,.92); }
 @media (max-width:700px) {
+  .process-steps .process-step { grid-template-rows:60% 40%; }
   .process-steps .process-step .process-step-art { border-radius:21px 21px 0 0; }
 }
 @media (max-width:380px) {
+  .process-steps .process-step { grid-template-rows:58% 42%; }
   .process-steps .process-step .process-step-art { border-radius:19px 19px 0 0; }
   .process-carousel-controls > span { min-width:180px; font-size:.65rem; }
 }
