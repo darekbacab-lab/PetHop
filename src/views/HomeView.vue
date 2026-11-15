@@ -120,9 +120,9 @@ const processPositionLabel = computed(() => {
   const count = processSteps.length;
   const { first, last } = processVisibleRange.value;
   const pad = value => String(value).padStart(2, '0');
-  if (first && last && first !== last) return `${pad(first)}–${pad(last)} / ${pad(count)}`;
+  if (first && last && first !== last) return `Mostrando pasos ${pad(first)}–${pad(last)} de ${pad(count)}`;
   const current = processPosition.value === 0 ? count : processPosition.value === count + 1 ? 1 : processPosition.value;
-  return `${pad(current)} / ${pad(count)}`;
+  return `Mostrando paso ${pad(current)} de ${pad(count)}`;
 });
 const processVisibleRange = ref({ first: 1, last: 3 });
 let processAutoTimer;
@@ -537,7 +537,7 @@ async function favorite(id) {
 .process-carousel-controls button:hover { border-color:#3a9fa5; background:#e4f4f2; transform:translateY(-1px); }
 .process-carousel-controls button:focus-visible { outline:3px solid #3eb2ba; outline-offset:3px; }
 .process-carousel-controls button svg { width:18px; height:18px; }
-.process-carousel-controls > span { min-width:70px; color:#14545c; font-size:.76rem; font-weight:800; letter-spacing:.08em; text-align:center; }
+.process-carousel-controls > span { min-width:230px; color:#14545c; font-size:.72rem; font-weight:800; letter-spacing:.04em; text-align:center; }
 
 @media (max-width: 900px) {
   .quick-actions .action-card {
@@ -773,13 +773,20 @@ async function favorite(id) {
   .home-pets-slide-auto-leave-active { transition-duration: 0.01ms; }
 }
 
-/* "Cómo funciona": foto a sangre con foto real (reemplaza las ilustraciones IA onboarding-*.png).
-   Fotos reales gratuitas (Vecteezy y bancos gratuitos). */
-.process-steps .process-step { background:#14545c; border-color:transparent; }
-.process-steps .process-step .process-step-art { position:absolute; inset:0; z-index:0; display:block; width:100%; height:100%; min-height:0; max-height:none; overflow:hidden; }
-.process-steps .process-step .process-step-art img { object-fit:cover; }
-.process-steps .process-step::after { position:absolute; inset:0; z-index:1; width:auto; height:auto; border:0; border-radius:0; aspect-ratio:auto; background:linear-gradient(180deg, rgba(20,84,92,0) 42%, rgba(20,84,92,.28) 62%, rgba(13,58,64,.92) 100%); content:""; pointer-events:none; }
-.process-steps .process-step-number { position:relative; z-index:2; justify-self:start; padding:7px 12px; border-radius:999px; background:rgba(20,84,92,.55); color:#fff; border:1px solid rgba(255,255,255,.35); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); }
+/* "Cómo funciona": la imagen ocupa los bordes superiores y el texto conserva una base sólida. */
+.process-steps .process-step { grid-template-rows:minmax(0,1fr) auto; grid-template-areas:"art" "copy"; padding:0; background:var(--button-primary-bg); border-color:transparent; }
+.process-steps .process-step .process-step-art { position:relative; inset:auto; z-index:0; display:block; width:100%; height:auto; min-height:0; max-height:none; aspect-ratio:1.35; align-self:stretch; justify-self:stretch; overflow:hidden; border-radius:28px 28px 0 0; }
+.process-steps .process-step .process-step-art img { width:100%; height:100%; object-fit:cover; }
+.process-steps .process-step::after { position:absolute; top:0; right:0; left:0; z-index:1; width:auto; height:58%; border:0; border-radius:0; aspect-ratio:auto; background:linear-gradient(180deg, rgba(20,84,92,0) 45%, rgba(13,58,64,.42) 100%); content:""; pointer-events:none; }
+.process-steps .process-step-number { position:absolute; top:16px; left:16px; z-index:3; justify-self:start; padding:7px 12px; border-radius:999px; background:rgba(20,84,92,.55); color:#fff; border:1px solid rgba(255,255,255,.35); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); }
+.process-steps .process-step-copy { z-index:2; align-self:stretch; padding:20px clamp(18px, 2vw, 24px) clamp(20px, 2.4vw, 28px); background:var(--button-primary-bg); }
 .process-steps .process-step h3 { color:#fff; }
 .process-steps .process-step p { color:rgba(232,247,246,.92); }
+@media (max-width:700px) {
+  .process-steps .process-step .process-step-art { border-radius:21px 21px 0 0; }
+}
+@media (max-width:380px) {
+  .process-steps .process-step .process-step-art { border-radius:19px 19px 0 0; }
+  .process-carousel-controls > span { min-width:180px; font-size:.65rem; }
+}
 </style>
