@@ -68,12 +68,17 @@ function hasHistory(status) { return history.value.some(item => item.newStatus =
 function historyDate(status) { const item = history.value.find(entry => entry.newStatus === status); return item?.changedAt; }
 
 const stages = computed(() => {
-  const app = currentApplication.value; const adoption = currentAdoption.value || app?.adoptionStatus === 'ADOPTED' || currentPet.value?.adoptionStatus === 'ADOPTED'; const rejected = app?.status === 'REJECTED'; const withdrawn = app?.status === 'WITHDRAWN';
+  const app = currentApplication.value;
+  const adoption = currentAdoption.value || app?.adoptionStatus === 'ADOPTED' || currentPet.value?.adoptionStatus === 'ADOPTED';
+  const rejected = app?.status === 'REJECTED'; const withdrawn = app?.status === 'WITHDRAWN';
+  const status = app?.status;
+  const hasReachedReception = ['SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'REJECTED', 'WITHDRAWN'].includes(status) || Boolean(adoption);
+  const hasReachedReview = ['APPROVED', 'REJECTED', 'WITHDRAWN'].includes(status) || Boolean(adoption);
   return [
     { key: 'SUBMITTED', title: 'Solicitud enviada', copy: 'Tu información fue enviada al refugio.', done: Boolean(app?.submittedAt) || hasHistory('SUBMITTED'), date: app?.submittedAt || historyDate('SUBMITTED') },
-    { key: 'RECEIVED', title: 'Recepción', copy: 'La organización recibió tu solicitud.', done: false, unsupported: true },
-    { key: 'UNDER_REVIEW', title: 'En revisión', copy: 'La organización evalúa tu solicitud.', done: hasHistory('UNDER_REVIEW'), date: historyDate('UNDER_REVIEW') },
-    { key: 'RESOLUTION', title: rejected ? 'No aprobada' : withdrawn ? 'Retirada' : adoption ? 'Adoptada' : 'Resolución', copy: rejected ? 'El refugio no aprobó esta solicitud.' : withdrawn ? 'Retiraste esta solicitud.' : adoption ? 'La adopción quedó registrada oficialmente.' : 'La organización tomó una decisión.', done: adoption || ['APPROVED', 'REJECTED', 'WITHDRAWN'].some(hasHistory), date: historyDate('APPROVED') || historyDate('REJECTED') || historyDate('WITHDRAWN'), tone: rejected ? 'negative' : withdrawn ? 'neutral' : 'positive' },
+    { key: 'RECEIVED', title: 'Recepción', copy: 'La organización recibió tu solicitud.', done: hasReachedReception, date: hasReachedReception ? (historyDate('SUBMITTED') || app?.submittedAt) : undefined },
+    { key: 'UNDER_REVIEW', title: 'En revisión', copy: 'La organización evalúa tu solicitud.', done: hasReachedReview, date: historyDate('UNDER_REVIEW') },
+    { key: 'RESOLUTION', title: rejected ? 'No aprobada' : withdrawn ? 'Retirada' : adoption ? 'Adoptada' : 'Resolución', copy: rejected ? 'El refugio no aprobó esta solicitud.' : withdrawn ? 'Retiraste esta solicitud.' : adoption ? 'La adopción quedó registrada oficialmente.' : 'La organización tomó una decisión.', done: Boolean(adoption) || ['APPROVED', 'REJECTED', 'WITHDRAWN'].includes(status) || ['APPROVED', 'REJECTED', 'WITHDRAWN'].some(hasHistory), date: historyDate('APPROVED') || historyDate('REJECTED') || historyDate('WITHDRAWN'), tone: rejected ? 'negative' : withdrawn ? 'neutral' : 'positive' },
     { key: 'FORMALIZED', title: 'Adopción formalizada', copy: adoption ? 'La mascota forma parte de tu hogar.' : 'Se habilita cuando la adopción sea formalizada.', done: Boolean(adoption), date: currentAdoption.value?.adoptionDate },
     { key: 'ADAPTING', title: 'Adaptación', copy: adoption ? 'Comienza la adaptación en el nuevo hogar.' : 'Disponible después de formalizar la adopción.', done: false, future: !adoption },
     { key: 'FOLLOW_UP', title: 'Seguimiento', copy: reports.value.length ? 'Ya existen actualizaciones de bienestar.' : adoption ? 'Registra el primer reporte de bienestar.' : 'Disponible después de formalizar la adopción.', done: reports.value.length > 0, future: !adoption }
