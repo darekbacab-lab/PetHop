@@ -108,11 +108,11 @@ const favorites = ref([]);
 const search = ref('');
 const petImage = pet => pet.photos?.[0] || '';
 const processSteps = [
-  { title: 'Explora', text: 'Consulta mascotas disponibles y utiliza filtros para encontrar opciones que se adapten a tus preferencias.', mobileText: 'Encuentra mascotas que buscan un hogar.', art: '/img/onboarding-explora.png' },
-  { title: 'Conoce', text: 'Revisa información de la mascota, características, ubicación y datos sanitarios disponibles.', mobileText: 'Descubre su historia, salud y personalidad.', art: '/img/onboarding-conoce.png' },
-  { title: 'Solicita', text: 'Completa un formulario estructurado para iniciar el proceso de adopción.', mobileText: 'Inicia una adopción responsable, paso a paso.', art: '/img/onboarding-solicita.png' },
-  { title: 'Acompaña', text: 'Continúa registrando información y seguimiento después de la adopción.', mobileText: 'Sigue de cerca su adaptación en familia.', art: '/img/onboarding-acompana.png' },
-  { title: 'Cambia vidas', text: 'Con una adopción responsable, ayudas a una mascota a encontrar un hogar y construyes una nueva historia juntos.', mobileText: 'Cada adopción abre una nueva historia.', art: '/img/onboarding-cambia-vidas.png' }
+  { title: 'Explora', text: 'Consulta mascotas disponibles y utiliza filtros para encontrar opciones que se adapten a tus preferencias.', mobileText: 'Encuentra mascotas que buscan un hogar.', art: '/img/como-funciona-explora.jpg', position: 'center 12%' },
+  { title: 'Conoce', text: 'Revisa información de la mascota, características, ubicación y datos sanitarios disponibles.', mobileText: 'Descubre su historia, salud y personalidad.', art: '/img/como-funciona-conoce.jpg', position: '38% 12%' },
+  { title: 'Solicita', text: 'Completa un formulario estructurado para iniciar el proceso de adopción.', mobileText: 'Inicia una adopción responsable, paso a paso.', art: '/img/como-funciona-solicita.jpg', position: 'center 18%' },
+  { title: 'Acompaña', text: 'Continúa registrando información y seguimiento después de la adopción.', mobileText: 'Sigue de cerca su adaptación en familia.', art: '/img/como-funciona-acompana.jpg', position: '40% 30%' },
+  { title: 'Cambia vidas', text: 'Con una adopción responsable, ayudas a una mascota a encontrar un hogar y construyes una nueva historia juntos.', mobileText: 'Cada adopción abre una nueva historia.', art: '/img/como-funciona-cambia-vidas.jpg', position: 'center 18%' }
 ];
 const processTrack = ref(null);
 const processPosition = ref(1);
@@ -323,7 +323,7 @@ async function favorite(id) {
                     <h3>{{ slide.title }}</h3>
                     <p><span class="process-step-copy-full">{{ slide.text }}</span><span class="process-step-copy-mobile">{{ slide.mobileText }}</span></p>
                   </div>
-                  <span class="process-step-art" aria-hidden="true"><img :src="slide.art" alt="" loading="lazy" decoding="async" draggable="false"></span>
+                  <span class="process-step-art" aria-hidden="true"><img :src="slide.art" :style="{ objectPosition: slide.position }" alt="" loading="lazy" decoding="async" draggable="false"></span>
                 </article>
               </div>
             </div>
@@ -763,4 +763,14 @@ async function favorite(id) {
   .home-pets-slide-auto-enter-active,
   .home-pets-slide-auto-leave-active { transition-duration: 0.01ms; }
 }
+
+/* "Cómo funciona": foto a sangre con foto real (reemplaza las ilustraciones IA onboarding-*.png).
+   Fotos reales gratuitas (Vecteezy y bancos gratuitos). */
+.process-steps .process-step { background:#14545c; border-color:transparent; }
+.process-steps .process-step .process-step-art { position:absolute; inset:0; z-index:0; display:block; width:100%; height:100%; min-height:0; max-height:none; overflow:hidden; }
+.process-steps .process-step .process-step-art img { object-fit:cover; }
+.process-steps .process-step::after { position:absolute; inset:0; z-index:1; width:auto; height:auto; border:0; border-radius:0; aspect-ratio:auto; background:linear-gradient(180deg, rgba(20,84,92,0) 42%, rgba(20,84,92,.28) 62%, rgba(13,58,64,.92) 100%); content:""; pointer-events:none; }
+.process-steps .process-step-number { position:relative; z-index:2; justify-self:start; padding:7px 12px; border-radius:999px; background:rgba(20,84,92,.55); color:#fff; border:1px solid rgba(255,255,255,.35); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); }
+.process-steps .process-step h3 { color:#fff; }
+.process-steps .process-step p { color:rgba(232,247,246,.92); }
 </style>
