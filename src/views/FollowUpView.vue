@@ -12,7 +12,7 @@ const route = useRoute();
 const router = useRouter();
 const applications = ref([]); const adoptions = ref([]); const selectedId = ref('');
 const petSnapshots = ref({}); const history = ref([]); const reports = ref([]); const visits = ref([]); const reportMediaSources = ref({});
-const loading = ref(true); const selectionLoading = ref(false); const error = ref(''); const selectionError = ref(''); const saveError = ref(''); const savedNotice = ref('');
+const loading = ref(true); const selectionLoading = ref(false); const error = ref(''); const selectionError = ref(''); const saveError = ref(''); const savedNotice = ref(''); const notice = ref('');
 const selectedRequest = ref(null); const uploadFiles = ref([]); const loadSequence = ref(0);
 let loadingWatchdog;
 const form = reactive({ status: '', date: new Date().toISOString().slice(0, 10), notes: '' });
@@ -125,6 +125,7 @@ async function loadReportMedia(items) {
 async function selectApplication(id, updateUrl = true) { selectedId.value = id; selectedRequest.value = applications.value.find(item => item.id === id) || null; if (updateUrl) router.replace({ path: '/seguimiento.html', query: { application: id } }); await loadSelected(id); }
 async function loadTracking() {
   loading.value = true; error.value = '';
+  try { notice.value = sessionStorage.getItem('pethop:application-warning') || ''; sessionStorage.removeItem('pethop:application-warning'); } catch { notice.value = ''; }
   clearTimeout(loadingWatchdog);
   loadingWatchdog = setTimeout(() => {
     if (loading.value) {
@@ -181,6 +182,7 @@ onBeforeUnmount(() => Object.values(reportMediaSources.value).forEach(url => URL
         <div v-else-if="error" class="follow-up-state is-error"><Icon name="circle-help" /><p>{{ error }}</p><button class="button button-primary" type="button" @click="loadTracking">Reintentar</button></div>
         <div v-else-if="!applications.length" class="follow-up-state"><Icon name="paw-print" /><h2>Aún no tienes solicitudes</h2><p>Explora las mascotas disponibles y encuentra una historia que pueda comenzar contigo.</p><RouterLink class="button button-primary" to="/explorar.html">Explorar mascotas</RouterLink></div>
         <template v-else>
+          <p v-if="notice" class="follow-up-notice" role="status"><span>{{ notice }}</span><button type="button" @click="notice = ''">Entendido</button></p>
           <section class="follow-up-summary-grid" aria-label="Resumen de adopciones"><article><span class="summary-icon"><Icon name="clipboard-list" /></span><div><strong>{{ summary.sent }}</strong><span>Solicitudes enviadas</span></div></article><article><span class="summary-icon is-amber"><Icon name="refresh-cw" /></span><div><strong>{{ summary.review }}</strong><span>En revisión</span></div></article><article><span class="summary-icon is-green"><Icon name="check-circle-2" /></span><div><strong>{{ summary.approved }}</strong><span>Aprobadas</span></div></article><article><span class="summary-icon is-blue"><Icon name="heart" /></span><div><strong>{{ summary.formalized }}</strong><span>Adopciones formalizadas</span></div></article><article><span class="summary-icon is-purple"><Icon name="route" /></span><div><strong>{{ summary.reports }}</strong><span>Reportes en selección</span></div></article></section>
           <div class="follow-up-content-grid">
             <section class="follow-up-primary">

@@ -19,7 +19,7 @@ const launcher = ref(null);
 const quickQuestions = [
   '¿Cómo puedo adoptar una mascota?',
   '¿Qué debo considerar antes de adoptar?',
-  '¿Cómo puedo conocer el estado de salud de una mascota?'
+  '¿Cuánto tiempo tarda el proceso de adopción?'
 ];
 const currentPetId = computed(() => route.path === '/mascota.html' && route.query.pet ? String(route.query.pet) : null);
 const isAuthRoute = computed(() => route.path === '/acceso.html');
@@ -75,7 +75,7 @@ async function submitMessage(value, { recordUser = true } = {}) {
     });
     messages.value.push({ id: `${Date.now()}-${messages.value.length}`, role: 'assistant', response });
   } catch (requestError) {
-    error.value = requestError.message || 'No se pudo obtener orientación veterinaria.';
+    error.value = requestError.status === 401 ? 'Inicia sesión para recibir orientación veterinaria sobre tu mascota.' : requestError.message || 'No se pudo obtener orientación veterinaria.';
   } finally {
     isSending.value = false;
     scrollToLatest();
@@ -175,7 +175,7 @@ onBeforeUnmount(() => { document.body.style.overflow = previousOverflow; });
           <article v-for="message in messages" :key="message.id" :class="message.role === 'assistant' && message.response ? 'assistant-ai-message' : message.role === 'assistant' ? 'assistant-general-message' : 'assistant-user-message'">
             <p v-if="message.role === 'user' || !message.response">{{ message.text }}</p>
             <template v-else>
-              <div :class="['assistant-urgency', `urgency-${message.response.urgency.toLowerCase()}`]"><strong>{{ urgencyLabel(message.response.urgency) }}</strong><span>{{ message.response.urgency }}</span></div>
+              <div :class="['assistant-urgency', `urgency-${message.response.urgency.toLowerCase()}`]"><strong>{{ urgencyLabel(message.response.urgency) }}</strong></div>
               <p class="assistant-ai-summary">{{ message.response.summary }}</p>
               <div v-if="message.response.reasons?.length"><strong>Por qué</strong><ul><li v-for="item in message.response.reasons" :key="item">{{ item }}</li></ul></div>
               <div v-if="message.response.warningSigns?.length"><strong>Señales de alarma</strong><ul><li v-for="item in message.response.warningSigns" :key="item">{{ item }}</li></ul></div>

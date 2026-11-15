@@ -54,7 +54,7 @@ const messagesRevision = ref(0);
 const steps = ['Información básica','Salud','Personalidad','Historia','Requisitos','Fotografías','Revisión'];
 const trackingSteps = ['Solicitud recibida','Solicitud en revisión','Contacto realizado','Adopción en preparación','Entrega / encuentro','Seguimiento inicial','Adopción completada'];
 const stepFields = [
-  [['name','Nombre','text','Nombre de la mascota'],['species','Especie','select','Perro|Gato|Otro'],['lifeStage','Etapa de vida','select','Cachorro|Joven|Adulto|Senior'],['gender','Sexo','select','Hembra|Macho|No especificado'],['size','Tamaño','select','Pequeño|Mediano|Grande'],['breed','Raza','text','Raza o mezcla, si se conoce'],['weight','Peso (kg)','number','Ej. 8.5'],['location','Ubicación','select','Playa del Carmen|Cancún|Cozumel']],
+  [['name','Nombre','text','Nombre de la mascota'],['species','Especie','select','Perro|Gato|Otro'],['lifeStage','Etapa de vida','select','Cachorro|Joven|Adulto|Senior'],['gender','Sexo','select','Hembra|Macho|No especificado'],['size','Tamaño','select','Pequeño|Mediano|Grande'],['breed','Raza','text','Raza o mezcla, si se conoce'],['weight','Peso (kg)','number','Ej. 8.5'],['location','Ubicación','select','Playa del Carmen|Cancún|Cozumel|Tulum|Puerto Morelos|Bacalar|Chetumal|Mérida|Valladolid|Progreso|Umán|Kanasín|Tizimín|Izamal|Motul']],
   [['vaccination','Vacunación','select','Al día|Pendiente de confirmar|No vacunada'],['sterilization','Esterilización','select','Sí|Pendiente de confirmar|No'],['deworming','Desparasitación','select','Al día|Pendiente de confirmar|No'],['condition','Condición médica','text','Diagnóstico o condición conocida'],['healthNotes','Observaciones de salud','textarea','Tratamientos o notas relevantes']],
   [['personalityTraits','Personalidad y convivencia','checks',PERSONALITY_OPTIONS.join('|')]],
   [['description','Descripción','textarea','Describe brevemente a la mascota.'],['story','¿Cómo llegó a la adopción?','textarea','Ejemplo: fue encontrada en la calle y recibió atención temporal.'],['background','Antecedentes relevantes','textarea','Ejemplo: convivencias anteriores, cambios de hogar o información conocida.']],
@@ -65,13 +65,19 @@ const requests = computed(() => state.requests.filter(item => requestFilter.valu
 const visibleRequests = computed(() => ['En proceso','Seguimiento'].includes(section.value) ? state.requests.filter(item => ['Aceptada','En proceso'].includes(item.status)) : requests.value);
 const visiblePets = computed(() => state.pets.filter(item => petFilter.value === 'Todas' || item.status === petFilter.value));
 const petLocationOptions = computed(() => {
-  const supported = ['Playa del Carmen', 'Cancún', 'Cozumel'];
+  const supported = ['Playa del Carmen', 'Cancún', 'Cozumel', 'Tulum', 'Puerto Morelos', 'Bacalar', 'Chetumal', 'Mérida', 'Valladolid', 'Progreso', 'Umán', 'Kanasín', 'Tizimín', 'Izamal', 'Motul'];
   const currentLegacyValue = String(petEditForm.value?.location || '').trim();
   return currentLegacyValue && !supported.includes(currentLegacyValue) ? [...supported, currentLegacyValue] : supported;
 });
 const recentRequests = computed(() => state.requests.filter(item => ['Nueva', 'En revisión'].includes(item.status)).slice(0, 3));
 const recentPets = computed(() => state.pets.slice(0, 3));
 function shelterPetPhoto(pet) { return pet.photos?.[0] || pet.image || ''; }
+function daysSincePublished(pet) {
+  if (!pet?.publishedAt) return 0;
+  const published = new Date(pet.publishedAt);
+  if (Number.isNaN(published.getTime())) return 0;
+  return Math.max(0, Math.floor((Date.now() - published.getTime()) / 86400000));
+}
 function shelterPetRecord(response, previous = {}) {
   const pet = mapPet(response);
   return {
@@ -79,7 +85,7 @@ function shelterPetRecord(response, previous = {}) {
     status: ({ AVAILABLE: 'Publicada', IN_PROCESS: 'En proceso de adopción', ADOPTED: 'Adoptada', UNAVAILABLE: 'Pausada', DRAFT: 'Borrador' })[pet.adoptionStatus],
     age: pet.ageGroup,
     requests: previous.requests || 0,
-    days: previous.days || 0,
+    days: daysSincePublished(pet),
     image: pet.photos?.[0] || ''
   };
 }
@@ -178,9 +184,11 @@ async function loadShelterData() {
       verified: shelterProfile.verificationStatus === 'VERIFIED', reviewStatus: shelterProfile.verificationStatus === 'PENDING' ? 'En revisión' : '',
       metrics: { pets: petPage.totalElements ?? (petPage.content || []).length, applications: applicationPage.totalElements ?? (applicationPage.content || []).length, adoptions: adoptionPage.totalElements ?? (adoptionPage.content || []).length }
     };
+    const requestsByPet = {};
+    (applicationPage.content || []).forEach(item => { if (item.petId) requestsByPet[String(item.petId)] = (requestsByPet[String(item.petId)] || 0) + 1; });
     state.pets = (petPage.content || []).map(item => {
       const pet = mapPet(item);
-      return { ...pet, status: ({ AVAILABLE: 'Publicada', IN_PROCESS: 'En proceso de adopción', ADOPTED: 'Adoptada', UNAVAILABLE: 'Pausada', DRAFT: 'Borrador' })[item.adoptionStatus], age: pet.ageGroup, requests: 0, days: 0, image: pet.photos?.[0] || '' };
+      return { ...pet, status: ({ AVAILABLE: 'Publicada', IN_PROCESS: 'En proceso de adopción', ADOPTED: 'Adoptada', UNAVAILABLE: 'Pausada', DRAFT: 'Borrador' })[item.adoptionStatus], age: pet.ageGroup, requests: requestsByPet[String(item.id)] || 0, days: daysSincePublished(item), image: pet.photos?.[0] || '' };
     });
     state.requests = (applicationPage.content || []).map(item => ({
       id: item.id, adopter: item.applicantName, adopterEmail: item.applicantEmail, pet: item.petName, petId: item.petId,
@@ -324,7 +332,7 @@ async function advancePublish(event) {
       throw uploadError;
     }
     const response = await api('/pets/mine?page=0&pageSize=48');
-    state.pets = (response.content || []).map(item => { const pet = mapPet(item); return { ...pet, status: ({ AVAILABLE:'Publicada', IN_PROCESS:'En proceso de adopción', ADOPTED:'Adoptada', UNAVAILABLE:'Pausada', DRAFT:'Borrador' })[item.adoptionStatus], age: pet.ageGroup, requests: 0, days: 0, image: pet.photos?.[0] || '' }; });
+    state.pets = (response.content || []).map(item => { const pet = mapPet(item); return { ...pet, status: ({ AVAILABLE:'Publicada', IN_PROCESS:'En proceso de adopción', ADOPTED:'Adoptada', UNAVAILABLE:'Pausada', DRAFT:'Borrador' })[item.adoptionStatus], age: pet.ageGroup, requests: state.requests.filter(request => String(request.petId) === String(item.id)).length, days: daysSincePublished(item), image: pet.photos?.[0] || '' }; });
     state.draft = {}; state.step = 0; section.value = state.section = 'Mis mascotas'; persist('La publicación quedó guardada en PetHop.');
   } catch (error) { toast(error.message || 'No se pudo guardar la publicación.'); }
 }

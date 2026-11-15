@@ -58,8 +58,12 @@ export async function api(path, options = {}) {
   const payload = contentType.includes('json') ? await response.json() : await response.text();
   if (!response.ok) {
     if (response.status === 403 && method !== 'GET') csrfToken = '';
-    const message = typeof payload === 'object' ? (payload.detail || payload.message || payload.title) : payload;
-    throw new ApiError(message || `Error del servidor (${response.status}).`, response.status, payload);
+    const rawMessage = typeof payload === 'object' ? (payload.detail || payload.message || payload.title) : payload;
+    // El backend a veces devuelve una página de error HTML (Tomcat) o un texto
+    // larguísimo; eso nunca debe llegar tal cual a la pantalla del usuario.
+    const usableMessage = typeof rawMessage === 'string' && rawMessage.trim() && !/^\s*</.test(rawMessage) && rawMessage.trim().length <= 300 ? rawMessage.trim() : '';
+    const message = usableMessage || (response.status >= 500 ? 'El servidor tuvo un problema. Inténtalo de nuevo en unos momentos.' : `Error del servidor (${response.status}).`);
+    throw new ApiError(message, response.status, payload);
   }
   return payload;
 }
