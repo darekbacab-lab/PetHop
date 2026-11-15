@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import jakarta.servlet.http.Cookie;
+import java.util.Base64;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,16 +64,13 @@ class SessionPersistenceTest {
         Cookie sessionCookie = login.getResponse().getCookie("PETHOPSESSION");
         assertThat(sessionCookie).isNotNull();
         assertThat(sessionCookie.getValue()).isNotBlank();
-        System.out.println("DEBUG cookie value=" + sessionCookie.getValue());
-        jdbc.queryForList("select session_id, principal_name from spring_session")
-                .forEach(r -> System.out.println("DEBUG row session_id=" + r.get("session_id")
-                        + " principal=" + r.get("principal_name")));
-        jdbc.queryForList("select primary_id, attribute_name from spring_session_attributes")
-                .forEach(a -> System.out.println("DEBUG attr primary_id=" + a.get("primary_id")
-                        + " name=" + a.get("attribute_name")));
 
+        // La cookie PETHOPSESSION guarda el id de sesión codificado en Base64
+        // (DefaultCookieSerializer, useBase64Encoding=true por defecto); en la
+        // tabla spring_session el session_id es el UUID sin codificar.
+        String sessionId = new String(Base64.getDecoder().decode(sessionCookie.getValue()));
         Integer sessions = jdbc.queryForObject(
-                "select count(*) from spring_session where session_id = ?", Integer.class, sessionCookie.getValue());
+                "select count(*) from spring_session where session_id = ?", Integer.class, sessionId);
         assertThat(sessions).isEqualTo(1);
 
         mvc.perform(get("/api/v1/auth/me").cookie(sessionCookie))
