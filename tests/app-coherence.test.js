@@ -263,10 +263,15 @@ test('how-it-works carousel shows exactly three cards with dots instead of a tex
     assert.match(home, /function goToProcessSlide\(position\)/);
     assert.match(home, /@click="goToProcessSlide\(index \+ 1\)"/);
     assert.doesNotMatch(home, /processPositionLabel|processVisibleRange|Mostrando pasos/);
-    // La base turquesa es más baja (70% imagen / 30% texto), plana, con sombra flotante.
-    assert.match(home, /grid-template-rows:70% 30%; grid-template-areas:"art" "copy"/);
+    // La tarjeta sigue el diseño de Figma: proporción 426×585, base turquesa del
+    // 32% que sube en onda sobre la foto y sombra Drop shadow 0 8 11 negro 25%.
+    assert.match(home, /aspect-ratio:426 \/ 585/);
+    assert.match(home, /grid-template-rows:68% 32%; grid-template-areas:"art" "copy"/);
+    assert.doesNotMatch(home, /grid-template-rows:70% 30%/);
     assert.doesNotMatch(home, /grid-template-rows:64% 36%/);
-    assert.match(home, /box-shadow:0 18px 38px rgba\(18,63,75,\.15\)/);
+    assert.match(home, /\.process-steps \.process-step \{[^}]*border-radius:24px;/);
+    assert.match(home, /box-shadow:0 8px 11px rgba\(0,0,0,\.25\)/);
+    assert.match(home, /\.process-step-copy::before \{[^}]*data:image\/svg\+xml/);
     assert.doesNotMatch(home, /linear-gradient\(180deg, #17848c/);
     assert.match(home, /\.process-steps \.process-step-copy \{[^}]*background:var\(--button-primary-bg\);/);
 });
