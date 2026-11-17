@@ -12,6 +12,8 @@ const registration = ref({ profile: route.query.role === 'shelter' ? 'shelter' :
 const resetForm = ref({ email: '', newPassword: '', confirm: '' });
 const resendForm = ref({ email: '' });
 const resetToken = computed(() => String(route.query.token || ''));
+const resetLinkFailed = ref(false);
+const verifyLinkFailed = ref(false);
 const showLoginPassword = ref(false);
 const showRegisterPassword = ref(false);
 const showRegisterConfirm = ref(false);
@@ -39,20 +41,22 @@ async function submitPasswordResetRequest(event) {
 
 async function submitPasswordResetConfirm(event) {
   feedback.value = { login: '', loginError: false, register: '', registerError: false, resend: '', resendError: false };
+  resetLinkFailed.value = false;
   if (!resetToken.value || resetForm.value.newPassword !== resetForm.value.confirm || !event.currentTarget.reportValidity()) {
     feedback.value.login = !resetToken.value ? 'El enlace de recuperación no es válido.' : resetForm.value.newPassword !== resetForm.value.confirm ? 'Las contraseñas no coinciden.' : '';
     feedback.value.loginError = true;
+    if (!resetToken.value) resetLinkFailed.value = true;
     return;
   }
   loading.value = true;
   try { await confirmPasswordReset(resetToken.value, resetForm.value.newPassword); feedback.value.login = 'Contraseña actualizada. Ya puedes iniciar sesión.'; feedback.value.loginError = false; resetForm.value = { email: '', newPassword: '', confirm: '' }; }
-  catch (error) { feedback.value.login = error.message || 'No se pudo actualizar la contraseña.'; feedback.value.loginError = true; }
+  catch (error) { feedback.value.login = error.message || 'No se pudo actualizar la contraseña.'; feedback.value.loginError = true; resetLinkFailed.value = true; }
   finally { loading.value = false; }
 }
 async function submitEmailVerification() {
   feedback.value = { login: '', loginError: false, register: '', registerError: false, resend: '', resendError: false }; loading.value = true;
   try { await confirmEmailVerification(String(route.query.token || '')); feedback.value.login = 'Correo confirmado. Ya puedes iniciar sesión.'; feedback.value.loginError = false; mode.value = 'login'; }
-  catch (error) { feedback.value.login = error.message || 'No se pudo confirmar el correo.'; feedback.value.loginError = true; }
+  catch (error) { feedback.value.login = error.message || 'No se pudo confirmar el correo.'; feedback.value.loginError = true; verifyLinkFailed.value = true; }
   finally { loading.value = false; }
 }
 
@@ -122,8 +126,9 @@ async function submitRegistration(event) {
         <form v-if="mode === 'verify'" class="auth-form" novalidate @submit.prevent="submitEmailVerification">
           <h2 class="auth-form-subtitle">Confirma tu correo</h2>
           <p>Usa el enlace recibido por correo para activar tu cuenta.</p>
-          <button class="auth-submit" type="submit" :disabled="loading">{{ loading ? 'Confirmando…' : 'Confirmar correo' }}</button>
+          <button class="auth-submit" type="submit" :disabled="loading || verifyLinkFailed">{{ loading ? 'Confirmando…' : 'Confirmar correo' }}</button>
           <p class="auth-feedback" :class="{ 'is-error': feedback.loginError, 'is-success': feedback.login && !feedback.loginError }" :role="feedback.loginError ? 'alert' : 'status'" aria-live="polite">{{ feedback.login }}</p>
+          <p v-if="verifyLinkFailed" class="auth-feedback is-error" role="alert">Ese enlace ya no es válido. Pide uno nuevo abajo.</p>
           <p class="auth-switch-copy"><button type="button" class="auth-text-button" @click="switchMode('login')">Volver a iniciar sesión</button></p>
         </form>
         <form v-if="mode === 'verify'" class="auth-form" novalidate @submit.prevent="submitEmailVerificationResend">
@@ -149,6 +154,7 @@ async function submitRegistration(event) {
           <div class="auth-input-wrap"><Icon name="shield-check" /><input id="reset-confirm" v-model="resetForm.confirm" type="password" autocomplete="new-password" minlength="12" maxlength="72" required></div>
           <button class="auth-submit" type="submit" :disabled="loading">{{ loading ? 'Actualizando…' : 'Actualizar contraseña' }}</button>
           <p class="auth-feedback" :class="{ 'is-error': feedback.loginError, 'is-success': feedback.login && !feedback.loginError }" :role="feedback.loginError ? 'alert' : 'status'" aria-live="polite">{{ feedback.login }}</p>
+          <p v-if="resetLinkFailed" class="auth-switch-copy"><RouterLink class="auth-text-button" to="/acceso.html?mode=reset">Solicitar un nuevo enlace</RouterLink></p>
           <p class="auth-switch-copy"><button type="button" class="auth-text-button" @click="switchMode('login')">Volver a iniciar sesión</button></p>
         </form>
         <form v-else-if="mode === 'login'" class="auth-form" novalidate @submit.prevent="submitLogin">

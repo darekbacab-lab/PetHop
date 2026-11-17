@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
@@ -9,20 +9,24 @@ import { getPetById } from '../services/petApi.js';
 import { api } from '../services/api.js';
 
 const route = useRoute(); const router = useRouter();
-const pet = ref({ id: '', name: '', species: '', location: '', vaccination: 'Pendiente de confirmar', deworming: 'Pendiente de confirmar', sterilization: 'Pendiente de confirmar' });
+const pet = ref({ id: '', name: '', species: '', location: '', vaccination: '', deworming: '', sterilization: '' });
 const petLoadError = ref('');
+const petLoading = ref(false);
 const accepted = ref(false); const error = ref(''); const documentFiles = ref([]); const documentNotice = ref(''); const submitting = ref(false);
 const user = ref(null);
 const petImage = computed(() => pet.value?.photos?.[0] || '');
 const form = reactive({ fullName: '', email: '', phone: '', age: '', housing: '', outdoorSpace: '', people: '', permission: '', otherPets: '', otherPetsType: '', otherPetsDetails: '', reason: '', experience: '' });
+watch(() => form.otherPets, value => { if (value !== 'si') { form.otherPetsType = ''; form.otherPetsDetails = ''; } });
 onMounted(async () => {
   try {
     user.value = await api('/auth/me');
     form.fullName = user.value.fullName || ''; form.email = user.value.email || ''; form.phone = user.value.phone || '';
   } catch { await router.replace({ path: '/acceso.html', query: { redirect: route.fullPath } }); return; }
   if (!route.query.pet) { petLoadError.value = 'Selecciona una mascota desde el catálogo para iniciar una solicitud.'; return; }
+  petLoading.value = true;
   try { pet.value = await getPetById(route.query.pet); }
   catch (error) { petLoadError.value = error.message || 'No pudimos cargar esta mascota.'; }
+  finally { petLoading.value = false; }
 });
 async function submit(event) {
   if (!event.currentTarget.reportValidity()) return;
@@ -78,13 +82,14 @@ function onDocumentFiles(event) {
         </div></section>
         <section class="form-section"><div class="form-section-heading"><div><h2>¿Hay otros compañeros en casa?</h2><p>Esta información ayuda a evaluar la adaptación de la mascota.</p></div></div><div class="form-grid">
           <div class="form-field"><label for="otherPets">¿Tienes otras mascotas?</label><select id="otherPets" v-model="form.otherPets" name="otherPets" required><option value="">Selecciona una opción</option><option value="si">Sí</option><option value="no">No</option></select></div>
-          <div class="form-field"><label for="otherPetsType">¿Qué animales tienes?</label><input id="otherPetsType" v-model="form.otherPetsType" name="otherPetsType" placeholder="Perros, gatos, etc."></div>
-          <div class="form-field form-field-full"><label for="otherPetsDetails">Cuéntanos un poco más</label><textarea id="otherPetsDetails" v-model="form.otherPetsDetails" name="otherPetsDetails" placeholder="Describe brevemente a tus mascotas actuales."></textarea></div>
+          <div v-if="form.otherPets === 'si'" class="form-field"><label for="otherPetsType">¿Qué animales tienes?</label><input id="otherPetsType" v-model="form.otherPetsType" name="otherPetsType" placeholder="Perros, gatos, etc." :required="form.otherPets === 'si'"></div>
+          <div v-if="form.otherPets === 'si'" class="form-field form-field-full"><label for="otherPetsDetails">Cuéntanos un poco más</label><textarea id="otherPetsDetails" v-model="form.otherPetsDetails" name="otherPetsDetails" placeholder="Describe brevemente a tus mascotas actuales."></textarea></div>
         </div></section>
         <section class="form-section"><div class="form-section-heading"><div><h2>¿Por qué quieres adoptar?</h2><p>Comparte tus motivos y expectativas sobre la adopción.</p></div></div><div class="form-grid"><div class="form-field form-field-full"><label for="reason">Motivo de adopción</label><textarea id="reason" v-model="form.reason" name="reason" required :placeholder="`Cuéntanos por qué quieres adoptar a ${pet.name}.`"></textarea></div></div></section>
         <section class="form-section"><div class="form-section-heading"><div><h2>Tu experiencia</h2></div></div><div class="form-grid"><div class="form-field form-field-full"><label for="experience">Experiencia previa con mascotas</label><textarea id="experience" v-model="form.experience" name="experience" placeholder="Cuéntanos brevemente sobre tu experiencia."></textarea></div></div></section>
         <section class="form-section"><div class="form-section-heading"><div><h2>Documentos de apoyo</h2><p>Si el refugio los solicita, puedes adjuntar comprobantes o documentos de identificación.</p></div></div><div class="form-grid"><div class="form-field form-field-full"><label for="application-documents">Archivos (opcional)</label><input id="application-documents" type="file" accept="application/pdf,image/jpeg,image/png,image/webp" multiple @change="onDocumentFiles"><small>Hasta 5 archivos de máximo 10 MB cada uno. Se almacenan de forma privada.</small><p v-if="documentNotice" class="form-field-notice" role="status">{{ documentNotice }}</p></div></div></section>
-        <article class="application-pet-card"><ImageWithSkeleton frame-class="application-pet-image" :src="petImage" :alt="`Imagen de ${pet.name}`" role="img" /><div class="application-pet-content"><span class="pet-species">{{ pet.species.toLocaleUpperCase('es-MX') }}</span><h2>{{ pet.name }}</h2><p>{{ pet.location }}</p><div class="application-health"><div>Vacunación: <span>{{ pet.vaccination || 'Pendiente de confirmar' }}</span></div><div>Desparasitación: <span>{{ pet.deworming || 'Pendiente de confirmar' }}</span></div><div>Esterilización: <span>{{ pet.sterilization || 'Pendiente de confirmar' }}</span></div></div></div></article>
+        <article v-if="petLoading" class="application-pet-card" role="status" aria-label="Cargando mascota"><div class="catalog-loading-card" aria-hidden="true"></div></article>
+        <article v-else class="application-pet-card"><ImageWithSkeleton frame-class="application-pet-image" :src="petImage" :alt="`Imagen de ${pet.name}`" role="img" /><div class="application-pet-content"><span class="pet-species">{{ pet.species.toLocaleUpperCase('es-MX') }}</span><h2>{{ pet.name }}</h2><p>{{ pet.location }}</p><div class="application-health"><div>Vacunación: <span>{{ pet.vaccination || 'Pendiente de confirmar' }}</span></div><div>Desparasitación: <span>{{ pet.deworming || 'Pendiente de confirmar' }}</span></div><div>Esterilización: <span>{{ pet.sterilization || 'Pendiente de confirmar' }}</span></div></div></div></article>
         <section class="form-section form-section-confirm"><div class="form-section-heading"><div><h2>Antes de enviar</h2></div></div><label class="checkbox-field"><input v-model="accepted" type="checkbox" name="responsibleAdoption" required><span>Confirmo que la información proporcionada es verdadera y que comprendo que la adopción implica un compromiso de cuidado responsable.</span></label><p v-if="error" class="auth-feedback is-error" role="alert">{{ error }}</p><p v-if="!accepted && !submitting" class="application-submit-hint">Marca la casilla de arriba para poder enviar la solicitud.</p><button type="submit" class="application-submit login-button" :disabled="!accepted || submitting">{{ submitting ? 'Enviando…' : 'Enviar solicitud' }}</button></section>
       </form>
     </div><aside class="application-sidebar"><div class="application-process"><div class="application-process-heading"><span class="eyebrow">PROCESO</span><h2>¿Qué sucede después?</h2></div><div v-for="step in [{title:'Revisamos tu solicitud',text:'La información será evaluada por la organización responsable.'},{title:'Contacto',text:'La organización podrá comunicarse contigo para continuar el proceso.'},{title:'Seguimiento',text:'Podrás consultar el estado de tu solicitud desde PetHop.'}]" :key="step.title" class="application-process-step"><span><Icon name="check" /></span><div><strong>{{ step.title }}</strong><p>{{ step.text }}</p></div></div></div></aside></div></section>

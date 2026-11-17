@@ -887,3 +887,32 @@ test('audit batch M5: admin labels, reason dialog, queue pagination and filters,
     assert.match(health, /errorIsLogin/);
     assert.match(health, /health-login-link/);
 });
+
+test('audit batch B1: gallery counter, hidden empty facts, favorites title, unified search, reset and verify link failures, other pets fields, application skeleton', () => {
+    const pet = fs.readFileSync(path.join(projectRoot, 'src/views/PetView.vue'), 'utf8');
+    const explore = fs.readFileSync(path.join(projectRoot, 'src/views/ExploreView.vue'), 'utf8');
+    const home = fs.readFileSync(path.join(projectRoot, 'src/views/HomeView.vue'), 'utf8');
+    const access = fs.readFileSync(path.join(projectRoot, 'src/views/AccessView.vue'), 'utf8');
+    const adoption = fs.readFileSync(path.join(projectRoot, 'src/views/AdoptionView.vue'), 'utf8');
+    const styles = fs.readFileSync(path.join(projectRoot, 'css/styles.css'), 'utf8');
+    assert.match(pet, /gallery-counter/);
+    assert.match(pet, /\{\{ carouselSlides\[centerTrackIndex\]\?\.sourceIndex \+ 1 \}\} de \{\{ photos\.length \}\}/);
+    assert.match(styles, /\.gallery-counter/);
+    assert.match(pet, /generalInformation = computed\(\(\) => \[[\s\S]*?\.filter\(\(\[, value\]\) => value\)\);/);
+    assert.doesNotMatch(pet, /No proporcionado/);
+    assert.match(explore, /\{\{ favoritesOnly \? 'Tus favoritos' : 'Mascotas disponibles' \}\}/);
+    assert.match(home, /placeholder="Buscar por nombre, especie o ubicación"/);
+    assert.match(explore, /placeholder="Buscar por nombre, especie o ubicación"/);
+    assert.match(access, /resetLinkFailed/);
+    assert.match(access, /Solicitar un nuevo enlace/);
+    assert.match(access, /to="\/acceso\.html\?mode=reset">Solicitar un nuevo enlace<\/RouterLink>/);
+    assert.match(access, /verifyLinkFailed/);
+    assert.match(access, /Ese enlace ya no es válido\. Pide uno nuevo abajo\./);
+    assert.match(access, /:disabled="loading \|\| verifyLinkFailed"/);
+    assert.match(adoption, /v-if="form\.otherPets === 'si'"/);
+    assert.match(adoption, /:required="form\.otherPets === 'si'"/);
+    assert.match(adoption, /watch\(\(\) => form\.otherPets/);
+    assert.match(adoption, /petLoading/);
+    assert.match(adoption, /v-if="petLoading" class="application-pet-card" role="status" aria-label="Cargando mascota"/);
+    assert.doesNotMatch(adoption, /vaccination: 'Pendiente de confirmar'/);
+});

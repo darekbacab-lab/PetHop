@@ -21,7 +21,7 @@ const generalInformation = computed(() => [
   ['Especie', pet.value.species], ['Raza', pet.value.breed], ['Sexo', pet.value.gender],
   ['Etapa de vida', pet.value.age], ['Tamaño', pet.value.size],
   ['Peso', pet.value.weight == null ? '' : `${pet.value.weight} kg`], ['Ubicación', pet.value.location]
-]);
+].filter(([, value]) => value));
 const healthInformation = computed(() => [
   ['Condición de salud', pet.value.healthCondition], ['Observaciones', pet.value.healthSummary],
   ['Esterilización', pet.value.sterilization], ['Vacunación', pet.value.vaccination], ['Desparasitación', pet.value.deworming]
@@ -122,6 +122,7 @@ async function askShelter() {
                 <div v-else class="gallery-no-photo" role="img" :aria-label="`${pet.name} aún no tiene fotografías`"><Icon name="paw-print" /><span>El refugio aún no ha agregado fotografías.</span></div>
                 <button v-if="photos.length > 1" class="gallery-arrow gallery-prev" type="button" aria-label="Ver imagen anterior" @click="nextPhoto(-1)"><Icon name="chevron-right" class="gallery-arrow-icon-left" :stroke-width="2.2" /></button>
                 <button v-if="photos.length > 1" class="gallery-arrow gallery-next" type="button" aria-label="Ver imagen siguiente" @click="nextPhoto(1)"><Icon name="chevron-right" :stroke-width="2.2" /></button>
+                <p v-if="photos.length > 1" class="gallery-counter" aria-live="polite">{{ carouselSlides[centerTrackIndex]?.sourceIndex + 1 }} de {{ photos.length }}</p>
                 <button class="gallery-favorite" :class="{ active:favorites.includes(pet.id) }" type="button" :aria-pressed="favorites.includes(pet.id)" :aria-label="favorites.includes(pet.id) ? `Quitar ${pet.name} de favoritos` : `Agregar ${pet.name} a favoritos`" @click="favorite"><Icon name="heart" :filled="favorites.includes(pet.id)" /></button>
                 <p v-if="favoriteNotice" class="pet-profile-favorite-notice" role="status">{{ favoriteNotice }}</p>
               </div>
@@ -137,7 +138,7 @@ async function askShelter() {
                 <h2>Datos de {{ pet.name }}</h2>
                 <div class="information-grid pet-general-grid">
                   <div v-for="[label,value] in generalInformation" :key="label" class="information-item">
-                    <strong>{{ label }}</strong><span>{{ value || 'No proporcionado' }}</span>
+                    <strong>{{ label }}</strong><span>{{ value }}</span>
                   </div>
                 </div>
               </div>
