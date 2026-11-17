@@ -1,3 +1,3 @@
 package com.pethop.pet;
 
-public enum ModerationAction { APPROVE, REJECT, REQUEST_CORRECTIONS }
+public enum ModerationAction { APPROVE, REJECT, REQUEST_CORRECTIONS, REOPEN }

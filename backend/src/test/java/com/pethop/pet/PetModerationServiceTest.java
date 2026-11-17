@@ -60,4 +60,19 @@ class PetModerationServiceTest {
         verify(history, never()).save(any());
         verify(notifications, never()).create(any(), anyString(), anyString(), anyString(), anyString(), any());
     }
+
+    @Test void reopenReturnsDecidedPetToPending() {
+        service.decide(pet.getId(), admin, new ModerationDecisionRequest(ModerationAction.APPROVE, null));
+        org.assertj.core.api.Assertions.assertThat(pet.getModerationStatus()).isEqualTo(ModerationStatus.APPROVED);
+        service.decide(pet.getId(), admin, new ModerationDecisionRequest(ModerationAction.REOPEN, null));
+        org.assertj.core.api.Assertions.assertThat(pet.getModerationStatus()).isEqualTo(ModerationStatus.PENDING);
+        verify(history, times(2)).save(any(PetModerationHistory.class));
+        verify(notifications).create(any(User.class), eq("PET_MODERATION"), eq("Publicación devuelta a revisión"), anyString(), eq("PET"), eq(pet.getId()));
+    }
+
+    @Test void reopenRequiresDecidedPet() {
+        assertThatThrownBy(() -> service.decide(pet.getId(), admin, new ModerationDecisionRequest(ModerationAction.REOPEN, null)))
+                .isInstanceOf(ApiException.class).hasMessage("Solo se puede devolver a revisión una publicación ya decidida.");
+        verify(history, never()).save(any());
+    }
 }

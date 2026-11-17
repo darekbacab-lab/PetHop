@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import SiteHeader from '../components/SiteHeader.vue';
 import Icon from '../components/Icon.vue';
 import ImageWithSkeleton from '../components/ImageWithSkeleton.vue';
+import ConfirmDialog from '../components/ConfirmDialog.vue';
 import { storageService } from '../services/storage.js';
 import { API_BASE, api } from '../services/api.js';
 import { currentUser, loadCurrentUser, logout } from '../services/auth.js';
@@ -52,6 +53,7 @@ const petDialog = ref(null);
 const requestDialog = ref(null);
 useFocusTrap(petDialog, () => !!selectedPet.value, () => { selectedPet.value = null; editingPet.value = false; });
 useFocusTrap(requestDialog, () => !!selectedRequest.value, () => { selectedRequest.value = null; });
+const confirmRequest = ref(null);
 const savingPetChanges = ref(false);
 const profileEditor = ref(''); const profileDraft = ref({}); const savingProfile = ref(false);
 const passwordForm = ref({ currentPassword: '', newPassword: '', confirm: '' });
@@ -339,6 +341,7 @@ function removeHealthRecord(index) {
 async function advancePublish(event) {
   if (!event.currentTarget.reportValidity()) return;
   if (state.step < 6) { state.step += 1; persist(); return; }
+  if (state.profile.verificationStatus !== 'VERIFIED') { toast('Tu perfil debe estar verificado para publicar.'); return; }
   const reviewed = event.currentTarget.elements.reviewed;
   if (!reviewed?.checked) { reviewed?.focus(); return; }
   const draft = state.draft;
@@ -380,6 +383,13 @@ async function requestAction(action) {
     else toast('El adoptante puede iniciar la conversación desde el perfil de la mascota.');
     return;
   }
+  if (action === 'accept' || action === 'reject') {
+    confirmRequest.value = { action, request, title: action === 'accept' ? '¿Aceptar esta solicitud?' : '¿Rechazar esta solicitud?', message: action === 'accept' ? `Aceptar la solicitud de ${request.adopter} para ${request.pet} inicia la coordinación del encuentro.` : `Rechazar la solicitud de ${request.adopter} para ${request.pet}. Esta acción no se puede deshacer.`, confirmLabel: action === 'accept' ? 'Aceptar solicitud' : 'Rechazar solicitud', danger: action === 'reject' };
+    return;
+  }
+  await runRequestAction(action, request);
+}
+async function runRequestAction(action, request) {
   const status = { review: 'UNDER_REVIEW', accept: 'APPROVED', reject: 'REJECTED' }[action];
   try {
     await api('/adoption-applications/' + request.id + '/status', { method: 'PATCH', body: { status } });
@@ -389,7 +399,16 @@ async function requestAction(action) {
     selectedRequest.value = null; toast('La solicitud se actualizó en PetHop.');
   } catch (error) { toast(error.message || 'No se pudo actualizar la solicitud.'); }
 }
+async function confirmRequestAction() {
+  const pending = confirmRequest.value; if (!pending) return;
+  confirmRequest.value = null;
+  if (pending.action === 'formalize') { await runFormalizeAdoption(pending.request); return; }
+  await runRequestAction(pending.action, pending.request);
+}
 async function formalizeAdoption(request) {
+  confirmRequest.value = { action: 'formalize', request, title: '¿Formalizar esta adopción?', message: `Formalizar la adopción de ${request.pet} con ${request.adopter} la registra como completada.`, confirmLabel: 'Formalizar adopción', danger: false };
+}
+async function runFormalizeAdoption(request) {
   try {
     await api('/adoptions', { method: 'POST', body: { applicationId: request.id, adoptionDate: new Date().toISOString().slice(0, 10), agreementNotes: '' } });
     request.status = 'Adoptada';
@@ -518,6 +537,7 @@ watch(() => state.step, () => persist());
       <template v-else-if="section === 'Publicar mascota'">
         <div class="shelter-section-header"><div><span class="eyebrow">NUEVA PUBLICACIÓN</span><h1>Publicar mascota</h1><p>Completa la información paso a paso para presentar su perfil de forma clara.</p></div></div>
         <section class="shelter-panel shelter-publish-panel">
+          <p v-if="state.profile.verificationStatus !== 'VERIFIED'" class="shelter-verify-notice" role="alert">{{ state.profile.verificationStatus === 'REJECTED' ? 'Tu verificación fue rechazada. Corrige los datos de tu perfil para volver a solicitarla.' : 'Tu perfil está pendiente de verificación: podrás publicar cuando te verifiquen. Puedes completar el borrador mientras tanto.' }}</p>
           <div class="shelter-steps"><button v-for="(label,index) in steps" :key="label" type="button" class="shelter-step" :class="{ 'is-current':state.step===index,'is-done':index<state.step }" :disabled="index>state.step" @click="state.step=index"><span><Icon v-if="index<state.step" name="check" /><template v-else>{{ String(index+1).padStart(2,'0') }}</template></span><small>{{ label }}</small></button></div>
           <div class="shelter-progress"><span :style="{ width: `${completion}%` }"></span></div>
           <form class="shelter-form-grid" @submit.prevent="advancePublish">
@@ -552,7 +572,7 @@ watch(() => state.step, () => persist());
               </section>
             </template>
             <label v-if="state.step===6" class="shelter-ack"><input name="reviewed" type="checkbox" required> Confirmo que la información es correcta y puedo responder las solicitudes de adopción.</label>
-            <div class="shelter-form-actions"><button v-if="state.step>0" type="button" class="button button-outline" @click="state.step--;persist()"><Icon name="arrow-left" /> Anterior</button><span v-else></span><button type="submit" class="button button-primary"><template v-if="state.step<6">Continuar <Icon name="arrow-right" /></template><template v-else>Publicar mascota</template></button></div>
+            <div class="shelter-form-actions"><button v-if="state.step>0" type="button" class="button button-outline" @click="state.step--;persist()"><Icon name="arrow-left" /> Anterior</button><span v-else></span><button type="submit" class="button button-primary" :disabled="state.step === 6 && state.profile.verificationStatus !== 'VERIFIED'"><template v-if="state.step<6">Continuar <Icon name="arrow-right" /></template><template v-else>Publicar mascota</template></button></div>
           </form>
         </section>
       </template>
@@ -612,6 +632,7 @@ watch(() => state.step, () => persist());
      </template>
    </section></div>
    <div v-if="selectedRequest" class="shelter-modal-backdrop" @click.self="selectedRequest=null"><section ref="requestDialog" class="shelter-request-modal" role="dialog" aria-modal="true" aria-labelledby="request-title"><button class="shelter-modal-close" aria-label="Cerrar" @click="selectedRequest=null"><Icon name="x" /></button><span class="eyebrow">SOLICITUD DE ADOPCIÓN</span><h2 id="request-title">{{ selectedRequest.adopter }} <span class="shelter-status">{{ selectedRequest.status }}</span></h2><p class="shelter-request-lead">Solicitud para <strong>{{ selectedRequest.pet }}</strong> · {{ new Date(selectedRequest.date).toLocaleDateString('es-MX') }}</p><div class="shelter-applicant-grid"><article v-for="[label,value] in [['Tipo de vivienda',selectedRequest.home],['Experiencia con mascotas',selectedRequest.experience],['Personas en el hogar',selectedRequest.household],['Motivo de adopción',selectedRequest.reason],['Condiciones del hogar',selectedRequest.conditions],['Información relevante',selectedRequest.notes]]" :key="label"><small>{{ label }}</small><p>{{ value || 'No proporcionado' }}</p></article></div><div class="shelter-modal-actions"><RouterLink class="button button-outline" :to="{ path: '/salud.html', query: { pet: selectedRequest.petId } }" @click="selectedRequest=null"><Icon name="clipboard-list" /> Expediente sanitario</RouterLink><button class="button button-outline" @click="requestAction('contact')">Contactar</button><button class="button button-outline" @click="requestAction('review')">Continuar revisión</button><button class="button button-primary" @click="requestAction('accept')">Aceptar solicitud</button><button v-if="selectedRequest.status === 'Aceptada'" class="button button-primary" @click="formalizeAdoption(selectedRequest)">Formalizar adopción</button><button class="button button-danger" @click="requestAction('reject')">Rechazar</button></div><p class="shelter-modal-note">Aceptar inicia la coordinación; la adopción se completa después del encuentro y seguimiento.</p></section></div>
+  <ConfirmDialog :open="!!confirmRequest" :title="confirmRequest?.title || ''" :message="confirmRequest?.message || ''" :confirm-label="confirmRequest?.confirmLabel || 'Confirmar'" :danger="confirmRequest?.danger || false" @confirm="confirmRequestAction" @cancel="confirmRequest = null" />
    <div v-if="notice" class="shelter-toast is-visible" role="status">{{ notice }}</div>
  </div>
 </template>

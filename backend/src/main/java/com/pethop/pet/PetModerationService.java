@@ -44,7 +44,10 @@ public class PetModerationService {
     @Transactional
     public PetResponse decide(UUID id, SecurityUser admin, ModerationDecisionRequest request) {
         Pet pet = pets.findByIdForUpdate(id).orElseThrow(() -> ApiException.notFound("Mascota no encontrada."));
-        if (pet.getModerationStatus() != ModerationStatus.PENDING && pet.getModerationStatus() != ModerationStatus.CHANGES_REQUESTED)
+        if (request.action() == ModerationAction.REOPEN) {
+            if (pet.getModerationStatus() != ModerationStatus.APPROVED && pet.getModerationStatus() != ModerationStatus.REJECTED && pet.getModerationStatus() != ModerationStatus.CHANGES_REQUESTED)
+                throw ApiException.conflict("Solo se puede devolver a revisión una publicación ya decidida.");
+        } else if (pet.getModerationStatus() != ModerationStatus.PENDING && pet.getModerationStatus() != ModerationStatus.CHANGES_REQUESTED)
             throw ApiException.conflict("La publicación ya no está pendiente de moderación.");
         if ((request.action() == ModerationAction.REJECT || request.action() == ModerationAction.REQUEST_CORRECTIONS)
                 && (request.reason() == null || request.reason().isBlank()))
@@ -54,6 +57,7 @@ public class PetModerationService {
             case APPROVE -> ModerationStatus.APPROVED;
             case REJECT -> ModerationStatus.REJECTED;
             case REQUEST_CORRECTIONS -> ModerationStatus.CHANGES_REQUESTED;
+            case REOPEN -> ModerationStatus.PENDING;
         };
         pet.setModerationStatus(next); pet.setModerationReason(trim(request.reason())); pet.setModeratedAt(Instant.now());
         pets.save(pet);
@@ -61,7 +65,7 @@ public class PetModerationService {
         item.setAction(request.action()); item.setPreviousStatus(previous); item.setNewStatus(next); item.setReason(trim(request.reason()));
         history.save(item);
         audit.record(admin.user(), "PET_MODERATION_" + request.action().name(), "PET", pet.getId(), previous.name(), next.name(), trim(request.reason()));
-        String title = switch (request.action()) { case APPROVE -> "Publicación aprobada"; case REJECT -> "Publicación rechazada"; default -> "Correcciones solicitadas"; };
+        String title = switch (request.action()) { case APPROVE -> "Publicación aprobada"; case REJECT -> "Publicación rechazada"; case REOPEN -> "Publicación devuelta a revisión"; default -> "Correcciones solicitadas"; };
         String message = request.reason() == null || request.reason().isBlank() ? title + "." : title + ": " + request.reason().trim();
         notifications.create(pet.getShelter().getUser(), "PET_MODERATION", title, message, "PET", pet.getId());
         return response(pet);

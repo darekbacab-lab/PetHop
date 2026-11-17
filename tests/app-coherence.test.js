@@ -540,3 +540,43 @@ test('audit batch 2: filters live in the URL, pages have unique titles, skip lin
         assert.ok(html.includes(`<title>${title}</title>`), `${file} titles ${title}`);
     }
 });
+
+test('audit batch 3: verification gate, confirmations, visible visit errors and linked form errors', () => {
+    const shelter = fs.readFileSync(path.join(projectRoot, 'src/views/ShelterView.vue'), 'utf8');
+    const admin = fs.readFileSync(path.join(projectRoot, 'src/views/AdminView.vue'), 'utf8');
+    const follow = fs.readFileSync(path.join(projectRoot, 'src/views/FollowUpView.vue'), 'utf8');
+    const access = fs.readFileSync(path.join(projectRoot, 'src/views/AccessView.vue'), 'utf8');
+    const confirm = fs.readFileSync(path.join(projectRoot, 'src/components/ConfirmDialog.vue'), 'utf8');
+    const moderation = fs.readFileSync(path.join(projectRoot, 'backend/src/main/java/com/pethop/pet/PetModerationService.java'), 'utf8');
+    const action = fs.readFileSync(path.join(projectRoot, 'backend/src/main/java/com/pethop/pet/ModerationAction.java'), 'utf8');
+    assert.match(confirm, /useFocusTrap\(dialog, \(\) => props\.open/);
+    assert.match(confirm, /@click="emit\('confirm'\)"/);
+    assert.match(confirm, /@click="emit\('cancel'\)"/);
+    assert.match(shelter, /shelter-verify-notice/);
+    assert.match(shelter, /Tu perfil está pendiente de verificación/);
+    assert.match(shelter, /:disabled="state\.step === 6 && state\.profile\.verificationStatus !== 'VERIFIED'"/);
+    assert.match(shelter, /if \(state\.profile\.verificationStatus !== 'VERIFIED'\) \{ toast\('Tu perfil debe estar verificado para publicar\.'\); return; \}/);
+    assert.match(shelter, /confirmRequest\.value = \{ action, request, title:/);
+    assert.match(shelter, /async function runRequestAction\(action, request\)/);
+    assert.match(shelter, /async function runFormalizeAdoption\(request\)/);
+    assert.match(shelter, /<ConfirmDialog :open="!!confirmRequest"/);
+    assert.match(admin, /function requestDecide\(action\)/);
+    assert.match(admin, /@click="requestDecide\('APPROVE'\)"/);
+    assert.match(admin, /<ConfirmDialog :open="confirmApprove"/);
+    assert.match(admin, /@click="decide\('REOPEN'\)">Volver a poner en revisión/);
+    assert.match(action, /REOPEN/);
+    assert.match(moderation, /case REOPEN -> ModerationStatus\.PENDING;/);
+    assert.match(moderation, /Solo se puede devolver a revisión una publicación ya decidida/);
+    assert.match(follow, /const visitError = ref\(''\); const visitNotice = ref\(''\); const visitFieldError = ref\(false\)/);
+    assert.match(follow, /<p v-if="visitError" id="visit-error" class="inline-error" role="alert">/);
+    assert.match(follow, /@click="saveVisit">Reintentar<\/button>/);
+    assert.match(follow, /:aria-invalid="visitFieldError && !visitForm\.date"/);
+    assert.match(follow, /:aria-describedby="visitFieldError \? 'visit-error' : undefined"/);
+    assert.match(follow, /id="report-error"/);
+    assert.match(follow, /:aria-invalid="reportFieldError && !form\.status"/);
+    assert.match(access, /id="login-feedback"/);
+    assert.match(access, /id="register-feedback"/);
+    assert.match(access, /:aria-invalid="feedback\.loginError"/);
+    assert.match(access, /:aria-describedby="feedback\.loginError \? 'login-feedback' : undefined"/);
+    assert.match(access, /:aria-invalid="feedback\.registerError && feedback\.register === 'Las contraseñas no coinciden\.'"/);
+});
