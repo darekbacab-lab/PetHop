@@ -49,19 +49,16 @@ public class PetService {
 
     @Transactional(readOnly=true)
     public PageResponse<PetResponse> list(PetSpecies species, PetSex sex, PetSize size, String location,
-            String search, String sort, int page, int sizeLimit, SecurityUser principal) {
+            String search, String sort, int page, int sizeLimit) {
         Pageable pageable = PageRequest.of(page, sizeLimit, sortOrder(sort));
-        UUID shelterId = null;
-        AdoptionStatus status = AdoptionStatus.AVAILABLE;
-        if (principal != null && (principal.user().getRole() == UserRole.ADMIN || principal.user().getRole() == UserRole.SHELTER)) {
-            if (principal.user().getRole() == UserRole.SHELTER) {
-                ShelterProfile shelter = shelters.findByUserId(principal.id()).orElse(null);
-                if (shelter != null) shelterId = shelter.getId();
-                else status = AdoptionStatus.AVAILABLE;
-            } else status = null;
-        }
-        Specification<Pet> spec = PetSpecifications.filters(species, sex, size, location, search, status, shelterId,
-                status == AdoptionStatus.AVAILABLE ? ModerationStatus.APPROVED : null);
+        // La lista pública es la misma para todos, esté quien esté logueado:
+        // solo mascotas disponibles y con moderación aprobada. Las rechazadas o
+        // pendientes solo se ven en la cola de moderación del admin (/admin/pets)
+        // y en /pets/mine para el refugio dueño. Antes el filtro se relajaba
+        // según el rol del que pedía, así que un admin navegando el inicio veía
+        // las rechazadas duplicadas en el carrusel público.
+        Specification<Pet> spec = PetSpecifications.filters(species, sex, size, location, search,
+                AdoptionStatus.AVAILABLE, null, ModerationStatus.APPROVED);
         return PageResponse.from(pets.findAll(spec, pageable), this::response);
     }
 

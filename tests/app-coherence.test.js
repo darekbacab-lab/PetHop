@@ -276,14 +276,15 @@ test('how-it-works carousel shows exactly three cards with dots instead of a tex
     assert.match(home, /\.process-steps \.process-step-copy \{[^}]*background:var\(--button-primary-bg\);/);
 });
 
-test('home pet carousel has no arrows and its card shadows are not clipped', () => {
+test('home pet carousel keeps its arrows without shadow and its card shadows are not clipped', () => {
     const home = fs.readFileSync(path.join(projectRoot, 'src/views/HomeView.vue'), 'utf8');
-    // Sin flechas: el carrusel avanza solo con el autoplay y el botón de explorar.
-    assert.doesNotMatch(home, /home-pets-arrow/);
-    assert.match(home, /movePetPage\(1, 'auto'\)/);
+    // Las flechas vuelven: se quita solo su sombra, no las flechas.
+    assert.match(home, /home-pets-arrow home-pets-arrow-previous/);
+    assert.match(home, /home-pets-arrow home-pets-arrow-next/);
+    assert.doesNotMatch(home, /\.home-pets-arrow \{[^}]*box-shadow:/);
+    assert.match(home, /\.home-pets-carousel \{[^}]*margin-inline: 42px;/);
     // El viewport deja hueco para que la sombra de las tarjetas no se corte.
     assert.match(home, /\.home-pets-viewport \{[^}]*padding: 14px 14px 22px;/);
-    assert.doesNotMatch(home, /\.home-pets-carousel \{[^}]*margin-inline: 42px;/);
     const css = fs.readFileSync(path.join(projectRoot, 'css/styles.css'), 'utf8');
     // Sombra de las tarjetas de mascota más ligera que la de los botones.
     assert.match(css, /\.pet-card \{[^}]*box-shadow: 0 8px 14px rgba\(0, 0, 0, 0\.12\);/);

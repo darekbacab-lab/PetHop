@@ -3,6 +3,7 @@ package com.pethop.pet;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -18,15 +19,24 @@ import com.pethop.shelter.ShelterProfile;
 import com.pethop.shelter.ShelterRepository;
 import com.pethop.user.User;
 import com.pethop.user.UserRole;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 @ExtendWith(MockitoExtension.class)
 class PetServiceLifecycleTest {
@@ -117,6 +127,34 @@ class PetServiceLifecycleTest {
                 .hasMessage("La mascota ya tiene una adopción registrada.");
 
         verify(pets, never()).save(any(Pet.class));
+    }
+
+    @Test
+    void publicListShowsOnlyApprovedAvailablePetsEvenForAdmins() {
+        ArgumentCaptor<Specification<Pet>> specCaptor = ArgumentCaptor.forClass(Specification.class);
+        when(pets.findAll(specCaptor.capture(), any(Pageable.class))).thenReturn(new PageImpl<>(List.of()));
+
+        service.list(null, null, null, null, null, "newest", 0, 48);
+
+        Specification<Pet> spec = specCaptor.getValue();
+        Root<Pet> root = mock(Root.class);
+        CriteriaQuery<?> query = mock(CriteriaQuery.class);
+        CriteriaBuilder cb = mock(CriteriaBuilder.class);
+        Path<Object> moderationPath = mock(Path.class);
+        Path<Object> statusPath = mock(Path.class);
+        Path<Object> deletedPath = mock(Path.class);
+        when(root.get("moderationStatus")).thenReturn(moderationPath);
+        when(root.get("adoptionStatus")).thenReturn(statusPath);
+        when(root.get("deletedAt")).thenReturn(deletedPath);
+        when(cb.equal(moderationPath, ModerationStatus.APPROVED)).thenReturn(mock(Predicate.class));
+        when(cb.equal(statusPath, AdoptionStatus.AVAILABLE)).thenReturn(mock(Predicate.class));
+        when(cb.isNull(deletedPath)).thenReturn(mock(Predicate.class));
+        when(cb.and(any(Predicate[].class))).thenReturn(mock(Predicate.class));
+
+        spec.toPredicate(root, query, cb);
+
+        verify(cb).equal(moderationPath, ModerationStatus.APPROVED);
+        verify(cb).equal(statusPath, AdoptionStatus.AVAILABLE);
     }
 
     @Test

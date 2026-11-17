@@ -42,9 +42,8 @@ public class PetController {
             @RequestParam(required=false) String location, @RequestParam(required=false) String search,
             @RequestParam(defaultValue="recommended") String sort,
             @RequestParam(defaultValue="0") @Min(0) int page,
-            @RequestParam(defaultValue="12") @Min(1) @Max(48) int pageSize,
-            @AuthenticationPrincipal SecurityUser principal) {
-        return service.list(species, sex, petSize, location, search, sort, page, pageSize, principal);
+            @RequestParam(defaultValue="12") @Min(1) @Max(48) int pageSize) {
+        return service.list(species, sex, petSize, location, search, sort, page, pageSize);
     }
 
     @GetMapping("/mine")
