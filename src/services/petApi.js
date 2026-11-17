@@ -4,7 +4,7 @@ import { normalizePersonality } from './petForm.js';
 const speciesLabel = { DOG: 'Perro', CAT: 'Gato', OTHER: 'Otro' };
 const sexLabel = { MALE: 'Macho', FEMALE: 'Hembra', UNKNOWN: 'Sin especificar' };
 const sizeLabel = { SMALL: 'Pequeño', MEDIUM: 'Mediano', LARGE: 'Grande' };
-const lifeStageLabel = { PUPPY: 'Cachorro', YOUNG: 'Joven', ADULT: 'Adulto', SENIOR: 'Senior' };
+const lifeStageLabel = { PUPPY: 'Cachorro', YOUNG: 'Joven', ADULT: 'Adulto', SENIOR: 'Mayor' };
 const healthLabel = value => value === true ? 'Sí' : value === false ? 'No' : 'Pendiente de confirmar';
 
 export function mapPet(pet) {

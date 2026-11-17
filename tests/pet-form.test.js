@@ -24,7 +24,7 @@ test('selecciones sucesivas de fotos se agregan, quitan duplicados y respetan el
 
 test('payload conserva ubicación, etapa y todos los apartados sin inventar edad exacta', () => {
   const payload = petPayload({
-    name: 'Nube', species: 'Gato', lifeStage: 'Senior', gender: 'Hembra', location: 'Cozumel',
+    name: 'Nube', species: 'Gato', lifeStage: 'Mayor', gender: 'Hembra', location: 'Cozumel',
     personalityTraits: ['Tranquila', 'Convive con gatos'], description: 'Descripción real',
     story: 'Llegó por rescate', background: 'Antecedente real', homeType: 'Casa',
     conditions: 'Patio seguro', experience: 'Con experiencia', requirements: 'Ventanas protegidas',

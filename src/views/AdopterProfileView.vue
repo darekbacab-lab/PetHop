@@ -175,8 +175,8 @@ onMounted(async () => {
         <section class="adopter-personal panel" aria-labelledby="personal-title">
           <div class="adopter-section-heading"><div><span class="eyebrow">TU CUENTA</span><h2 id="personal-title">Información personal</h2></div></div>
           <form v-if="editing" class="adopter-personal-form" @submit.prevent="saveProfile">
-            <label>Nombre completo<input v-model="form.fullName" required minlength="2" maxlength="160" autocomplete="name"></label>
-            <label>Teléfono<input v-model="form.phone" type="tel" maxlength="32" autocomplete="tel"></label>
+            <label>Nombre completo <span class="adopter-required">* Obligatorio</span><input v-model="form.fullName" required minlength="2" maxlength="160" autocomplete="name"></label>
+            <label>Teléfono<input v-model="form.phone" type="tel" maxlength="32" autocomplete="tel"><small>Formato válido: números y los caracteres + ( ) - . ; entre 7 y 32 caracteres.</small></label>
             <label>Correo electrónico<input :value="user.email" type="email" readonly disabled><small>El correo es un dato de cuenta y no se puede cambiar desde el perfil.</small></label>
             <div class="adopter-form-actions"><button class="button button-outline" type="button" @click="cancelEditing">Cancelar</button><button class="button button-primary" type="submit" :disabled="saving">{{ saving ? 'Guardando…' : 'Guardar cambios' }}</button></div>
           </form>
@@ -186,9 +186,9 @@ onMounted(async () => {
           <button v-if="!passwordOpen" type="button" class="button button-outline adopter-password-toggle" @click="passwordOpen = true">Cambiar contraseña</button>
           <form v-else class="adopter-password-form" @submit.prevent="changePassword">
             <h3>Cambiar contraseña</h3>
-            <label>Contraseña actual<input v-model="passwordForm.currentPassword" type="password" autocomplete="current-password" required></label>
-            <label>Nueva contraseña<input v-model="passwordForm.newPassword" type="password" autocomplete="new-password" minlength="12" maxlength="72" required></label>
-            <label>Confirmar contraseña<input v-model="passwordForm.confirm" type="password" autocomplete="new-password" minlength="12" maxlength="72" required></label>
+            <label>Contraseña actual <span class="adopter-required">* Obligatorio</span><input v-model="passwordForm.currentPassword" type="password" autocomplete="current-password" required></label>
+            <label>Nueva contraseña <span class="adopter-required">* Obligatorio</span><input v-model="passwordForm.newPassword" type="password" autocomplete="new-password" minlength="12" maxlength="72" required><small>Tu contraseña debe tener entre 12 y 72 caracteres.</small></label>
+            <label>Confirmar contraseña <span class="adopter-required">* Obligatorio</span><input v-model="passwordForm.confirm" type="password" autocomplete="new-password" minlength="12" maxlength="72" required></label>
             <div class="adopter-password-actions"><button class="button button-outline" type="button" :disabled="passwordSaving" @click="passwordOpen = false">Cancelar</button><button class="button button-outline" type="submit" :disabled="passwordSaving">{{ passwordSaving ? 'Actualizando…' : 'Actualizar contraseña' }}</button></div>
             <p v-if="passwordFeedback" class="adopter-feedback" role="status">{{ passwordFeedback }}</p>
           </form>
@@ -248,6 +248,7 @@ onMounted(async () => {
 .adopter-role-control a { color:var(--primary-strong); font-weight:750; }
 .adopter-personal-form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px 18px; }
 .adopter-personal-form label { display:grid; gap:6px; color:var(--text); font-size:.76rem; font-weight:750; }
+.adopter-required { color:var(--danger); font-weight:800; }
 .adopter-personal-form input { width:100%; min-height:44px; padding:10px 12px; border:1px solid var(--border); border-radius:10px; background:var(--background); color:var(--text); font:500 .85rem "Montserrat",sans-serif; }
 .adopter-personal-form input:disabled { opacity:.7; }
 .adopter-password-form { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px 16px; margin-top:24px; padding-top:20px; border-top:1px solid var(--border); }

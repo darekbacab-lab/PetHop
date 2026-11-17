@@ -3,7 +3,7 @@ export const PERSONALITY_OPTIONS = [
   'Convive con perros', 'Convive con gatos', 'Convive con niños'
 ];
 
-const lifeStageValues = { Cachorro: 'PUPPY', Joven: 'YOUNG', Adulto: 'ADULT', Senior: 'SENIOR' };
+const lifeStageValues = { Cachorro: 'PUPPY', Joven: 'YOUNG', Adulto: 'ADULT', Mayor: 'SENIOR' };
 const sexValues = { Hembra: 'FEMALE', Macho: 'MALE', 'No especificado': 'UNKNOWN' };
 const sizeValues = { Pequeño: 'SMALL', Mediano: 'MEDIUM', Grande: 'LARGE' };
 

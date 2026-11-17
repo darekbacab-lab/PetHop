@@ -16,6 +16,12 @@ const petTransitionName = ref('home-pets-slide-next');
 const petTransitioning = ref(false);
 const petCarouselHovered = ref(false);
 const petCarouselFocused = ref(false);
+const petAutoplayPaused = ref(false);
+function togglePetAutoplay() {
+  petAutoplayPaused.value = !petAutoplayPaused.value;
+  if (petAutoplayPaused.value) stopPetAutoplay();
+  else startPetAutoplay();
+}
 const pendingPetMoves = [];
 let petAutoplayTimer;
 let petMotionPreference;
@@ -72,9 +78,9 @@ function stopPetAutoplay() {
   }
 }
 function startPetAutoplay() {
-  if (petAutoplayTimer || petMotionPreference?.matches || !canPagePets.value) return;
+  if (petAutoplayTimer || petMotionPreference?.matches || petAutoplayPaused.value || !canPagePets.value) return;
   petAutoplayTimer = window.setInterval(() => {
-    if (document.hidden || petCarouselHovered.value || petCarouselFocused.value || petTransitioning.value) return;
+    if (document.hidden || petCarouselHovered.value || petCarouselFocused.value || petAutoplayPaused.value || petTransitioning.value) return;
     movePetPage(1, 'auto');
   }, 3000);
 }
@@ -281,6 +287,7 @@ async function favorite(id) {
             </Transition>
           </div>
           <button v-if="canPagePets" class="home-pets-arrow home-pets-arrow-next" type="button" aria-label="Ver más mascotas" @click="movePetPage(1)"><Icon name="arrow-right" /></button>
+          <button v-if="canPagePets" class="home-pets-pause" type="button" :aria-pressed="petAutoplayPaused" :aria-label="petAutoplayPaused ? 'Reanudar el carrusel de mascotas' : 'Pausar el carrusel de mascotas'" @click="togglePetAutoplay">{{ petAutoplayPaused ? 'Reanudar carrusel' : 'Pausar carrusel' }}</button>
         </div>
         <RouterLink to="/explorar.html" class="load-more ui-button">Explorar todas las mascotas</RouterLink></div></section>
       <section class="process-section" id="como-funciona">
@@ -292,9 +299,11 @@ async function favorite(id) {
           <div class="process-carousel" role="region" aria-roledescription="carrusel" aria-label="Etapas del proceso de adopción">
             <ol
               ref="processTrack"
+              id="process-carousel-panel"
               class="process-steps process-carousel-track"
               :class="{ 'is-dragging': processIsDragging, 'is-recentering': processIsRecentering }"
               tabindex="0"
+              role="tabpanel"
               aria-label="Tarjetas de las etapas. Usa las flechas izquierda y derecha para navegar."
               @scroll="onProcessScroll"
               @wheel="noteProcessActivity"
@@ -328,7 +337,7 @@ async function favorite(id) {
             <div class="process-carousel-controls">
               <button type="button" aria-label="Ver etapa anterior" @click="moveProcessCarousel(-1)"><Icon name="arrow-left" /></button>
               <div class="process-carousel-dots" role="tablist" aria-label="Etapas del proceso de adopción">
-                <button v-for="(step, index) in processSteps" :key="step.title" type="button" role="tab" :aria-selected="processActiveStep === index + 1" :aria-label="`Ir a la etapa ${index + 1}: ${step.title}`" :class="{ 'is-active': processActiveStep === index + 1 }" @click="goToProcessSlide(index + 1)" />
+                <button v-for="(step, index) in processSteps" :key="step.title" type="button" role="tab" :id="`process-dot-${index + 1}`" :aria-controls="'process-carousel-panel'" :aria-selected="processActiveStep === index + 1" :aria-label="`Ir a la etapa ${index + 1}: ${step.title}`" :class="{ 'is-active': processActiveStep === index + 1 }" @click="goToProcessSlide(index + 1)" />
               </div>
               <button type="button" aria-label="Ver etapa siguiente" @click="moveProcessCarousel(1)"><Icon name="arrow-right" /></button>
             </div>
@@ -406,6 +415,9 @@ async function favorite(id) {
 .home-pets-arrow :deep(svg) { width: 19px; height: 19px; }
 .home-pets-arrow-previous { left: -42px; }
 .home-pets-arrow-next { right: -42px; }
+.home-pets-pause { display:block; margin:12px auto 0; min-height:34px; padding:0 16px; border:1px solid var(--border); border-radius:999px; background:var(--white); color:var(--primary-dark); font-weight:800; font-size:.72rem; cursor:pointer; }
+.home-pets-pause:hover { background:var(--primary-soft); }
+.home-pets-pause:focus-visible { outline:3px solid var(--primary); outline-offset:3px; }
 
 .hero-actions {
   display: grid;

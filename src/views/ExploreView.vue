@@ -26,7 +26,7 @@ const visiblePets = computed(() => {
     return (!search || text.includes(search)) && (!appliedFilters.age || normalize(pet.ageGroup).includes(normalize(appliedFilters.age))) && (!favoritesOnly.value || favorites.value.includes(String(pet.id).toLowerCase()));
   });
   if (filters.sort === 'name') result.sort((a, b) => a.name.localeCompare(b.name, 'es'));
-  if (filters.sort === 'age') { const rank = { cachorro: 0, joven: 1, adulto: 2, senior: 3 }; result.sort((a, b) => (rank[normalize(a.age)] ?? 99) - (rank[normalize(b.age)] ?? 99)); }
+  if (filters.sort === 'age') { const rank = { cachorro: 0, joven: 1, adulto: 2, mayor: 3 }; result.sort((a, b) => (rank[normalize(a.age)] ?? 99) - (rank[normalize(b.age)] ?? 99)); }
   return result;
 });
 function filterQuery() {
@@ -55,7 +55,7 @@ async function loadPets() {
   try {
     const result = await listPets({ ...filters, search: query.value, sort: filters.sort === 'age' ? '' : filters.sort });
     pets.value = result.content;
-    if (filters.sort === 'age') { const rank = { cachorro: 0, joven: 1, adulto: 2, senior: 3 }; pets.value.sort((a,b) => (rank[normalize(a.ageGroup)] ?? 99) - (rank[normalize(b.ageGroup)] ?? 99)); }
+    if (filters.sort === 'age') { const rank = { cachorro: 0, joven: 1, adulto: 2, mayor: 3 }; pets.value.sort((a,b) => (rank[normalize(a.ageGroup)] ?? 99) - (rank[normalize(b.ageGroup)] ?? 99)); }
   } catch (error) { pets.value = []; loadError.value = error.message || 'No fue posible cargar las mascotas. Inténtalo de nuevo.'; }
   finally { loading.value = false; }
 }
@@ -86,7 +86,7 @@ onMounted(refresh);
           <section class="filter-panel catalog-filterbar" aria-label="Filtros de búsqueda">
             <div class="catalog-filter-controls">
               <div class="catalog-filter-group"><label for="speciesFilter">Especie</label><select id="speciesFilter" v-model="filters.species"><option value="">Todas</option><option>Perro</option><option>Gato</option><option>Otro</option></select></div>
-              <div class="catalog-filter-group"><label for="ageFilter">Edad</label><select id="ageFilter" v-model="filters.age"><option value="">Todas</option><option>Cachorro</option><option>Joven</option><option>Adulto</option><option>Senior</option></select></div>
+              <div class="catalog-filter-group"><label for="ageFilter">Edad</label><select id="ageFilter" v-model="filters.age"><option value="">Todas</option><option value="Cachorro">Cachorro (hasta 1 año)</option><option value="Joven">Joven (1 a 3 años)</option><option value="Adulto">Adulto (3 a 8 años)</option><option value="Mayor">Mayor (más de 8 años)</option></select></div>
               <div class="catalog-filter-group"><label for="genderFilter">Sexo</label><select id="genderFilter" v-model="filters.gender"><option value="">Todos</option><option>Macho</option><option>Hembra</option></select></div>
               <div class="catalog-filter-group"><label for="sizeFilter">Tamaño</label><select id="sizeFilter" v-model="filters.size"><option value="">Todos</option><option>Pequeño</option><option>Mediano</option><option>Grande</option></select></div>
               <div class="catalog-filter-group"><label for="locationFilter">Ubicación</label><select id="locationFilter" v-model="filters.location"><option value="">Todas</option><option v-for="location in locations" :key="location">{{ location }}</option></select></div>
