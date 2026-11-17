@@ -199,7 +199,7 @@ onUnmounted(() => document.removeEventListener('click', closeConversationMenuOnO
 .adopter-inbox-heading p { margin-top:2px; color:var(--text-soft); font-size:.74rem; }
 .adopter-inbox-icon { display:grid; width:37px; height:37px; place-items:center; border-radius:12px; background:var(--primary-soft); color:var(--primary-strong); }
 .adopter-search { display:flex; height:40px; align-items:center; gap:9px; margin:0 14px 12px; padding:0 11px; border:1px solid var(--border); border-radius:11px; background:#f8fcfc; color:var(--text-soft); }
-.adopter-search input { width:100%; min-width:0; border:0; outline:0; background:transparent; color:var(--text); font:500 .78rem "Montserrat",sans-serif; }
+.adopter-search input { width:100%; min-width:0; border:0;  background:transparent; color:var(--text); font:500 .78rem "Montserrat",sans-serif; }
 .adopter-search input::placeholder { color:#7e8b8c; }
 .adopter-conversation-list { overflow-y:auto; }
 .adopter-action-error { margin:0; padding:8px 15px; color:#a12f29; font-size:.74rem; }
@@ -247,7 +247,7 @@ onUnmounted(() => document.removeEventListener('click', closeConversationMenuOnO
 .adopter-chat-bubble.is-outgoing time { color:rgba(255,255,255,.78); }
 .adopter-chat-first-message { align-self:center; margin:auto; padding:10px 13px; border-radius:20px; background:rgba(255,255,255,.8); color:var(--text-soft); font-size:.76rem; text-align:center; }
 .adopter-chat-composer { display:flex; align-items:flex-end; gap:10px; padding:12px 15px; background:#f7fbfa; }
-.adopter-chat-composer textarea { min-height:43px; max-height:110px; flex:1; resize:vertical; padding:11px 14px; border:1px solid #d7e8e7; border-radius:16px; outline:0; background:#fff; color:var(--text); font:500 .82rem/1.4 "Montserrat",sans-serif; }
+.adopter-chat-composer textarea { min-height:43px; max-height:110px; flex:1; resize:vertical; padding:11px 14px; border:1px solid #d7e8e7; border-radius:16px;  background:#fff; color:var(--text); font:500 .82rem/1.4 "Montserrat",sans-serif; }
 .adopter-chat-composer textarea:focus { border-color:var(--primary-strong); box-shadow:0 0 0 3px rgba(22,127,135,.1); }
 .adopter-chat-composer button { display:grid; width:43px; height:43px; flex:0 0 43px; place-items:center; border:0; border-radius:50%; background:var(--primary-strong); color:#fff; cursor:pointer; transition:background .18s ease,transform .18s ease; }
 .adopter-chat-composer button:hover:not(:disabled) { transform:translateY(-1px); background:var(--primary-dark); }

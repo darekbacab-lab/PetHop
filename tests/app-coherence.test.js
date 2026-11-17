@@ -471,3 +471,27 @@ test('shelter dashboard restores the original overview composition and accessibl
     assert.match(css, /white-space:\s*nowrap/);
     assert.doesNotMatch(css, /shelter-dashboard-active \.shelter-sidebar nav\s*\{\s*display:\s*flex/);
 });
+
+test('audit batch 1: failed images keep their name, focus is solid, links are underlined and admin fields are labelled', () => {
+    const skeleton = fs.readFileSync(path.join(projectRoot, 'src/components/ImageWithSkeleton.vue'), 'utf8');
+    const css = fs.readFileSync(path.join(projectRoot, 'css/styles.css'), 'utf8');
+    const home = fs.readFileSync(path.join(projectRoot, 'src/views/HomeView.vue'), 'utf8');
+    const footer = fs.readFileSync(path.join(projectRoot, 'src/components/SiteFooter.vue'), 'utf8');
+    const admin = fs.readFileSync(path.join(projectRoot, 'src/views/AdminView.vue'), 'utf8');
+    assert.match(skeleton, /:role="role \|\| \(failed \? 'img' : undefined\)"/);
+    assert.match(skeleton, /:aria-label="role === 'img' \|\| failed \? alt : undefined"/);
+    assert.match(css, /outline: 3px solid #167F87;/);
+    assert.match(css, /\[tabindex\]:focus-visible/);
+    assert.doesNotMatch(css, /outline: ?0;/);
+    assert.match(css, /p a,[\s\S]*?\.footer-column a \{[\s\S]*?text-decoration: underline;/);
+    assert.match(home, /<strong>Registrar refugio<\/strong>/);
+    assert.doesNotMatch(home, /Conocer más/);
+    assert.match(home, /<ol[\s\S]*?ref="processTrack"/);
+    assert.match(home, /<li[\s\S]*?v-for="\(slide, slidePosition\) in processCarouselSlides"/);
+    assert.match(footer, /Escríbenos: pethop13@gmail\.com/);
+    assert.doesNotMatch(footer, />Contacto</);
+    assert.match(admin, /<label class="admin-search-label">Buscar usuario/);
+    for (const label of ['Nombre del comercio \\*', 'Categoría \\*', 'Ubicación', 'Sitio web', 'Beneficio', 'Código', 'Descripción']) {
+        assert.match(admin, new RegExp(`<label[^>]*>${label}<`));
+    }
+});

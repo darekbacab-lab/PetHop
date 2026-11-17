@@ -44,8 +44,8 @@ onMounted(() => {
     class="image-loading-frame"
     :class="frameClass"
     :style="frameStyle"
-    :role="role"
-    :aria-label="role === 'img' ? alt : undefined"
+    :role="role || (failed ? 'img' : undefined)"
+    :aria-label="role === 'img' || failed ? alt : undefined"
     :aria-busy="!settled"
   >
     <div v-if="!settled" class="image-loading-skeleton" aria-hidden="true"></div>
