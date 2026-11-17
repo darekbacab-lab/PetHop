@@ -13,6 +13,8 @@ const pets = ref([]);
 const favorites = ref([]);
 const loading = ref(false);
 const loadError = ref('');
+const favoriteNotice = ref('');
+const retrying = ref(false);
 const query = ref(String(route.query.search || ''));
 const favoritesOnly = ref(route.query.favorites === '1');
 const filters = reactive({ species: String(route.query.species || ''), age: String(route.query.age || ''), gender: String(route.query.gender || ''), size: String(route.query.size || ''), location: String(route.query.location || ''), sort: String(route.query.sort || '') });
@@ -60,13 +62,14 @@ async function loadPets() {
   finally { loading.value = false; }
 }
 async function loadFavorites() { try { favorites.value = (await listFavorites()).map(pet => String(pet.id).toLowerCase()); } catch { favorites.value = []; } }
-async function refresh() { await Promise.all([loadPets(), loadFavorites()]); }
+async function refresh() { retrying.value = true; try { await Promise.all([loadPets(), loadFavorites()]); } finally { retrying.value = false; } }
 async function favorite(id) {
+  favoriteNotice.value = '';
   try {
     const key = String(id).toLowerCase();
     if (favorites.value.includes(key)) { await removeFavorite(id); favorites.value = favorites.value.filter(item => item !== key); }
     else { await addFavorite(id); favorites.value = [...favorites.value, key]; }
-  } catch (error) { loadError.value = error.status === 401 ? 'Inicia sesión para guardar mascotas en favoritos.' : error.message; }
+  } catch (error) { if (error.status === 401) favoriteNotice.value = 'Inicia sesión para guardar mascotas en favoritos.'; else loadError.value = error.message; }
 }
 function applyFilters() { Object.assign(appliedFilters, filters); router.replace({ query: filterQuery() }); loadPets(); }
 function clearFilters() { Object.keys(filters).forEach(key => { filters[key] = ''; appliedFilters[key] = ''; }); query.value = ''; favoritesOnly.value = false; router.replace({ path: route.path }); loadPets(); }
@@ -85,17 +88,18 @@ onMounted(refresh);
         <div class="catalog-layout">
           <section class="filter-panel catalog-filterbar" aria-label="Filtros de búsqueda">
             <div class="catalog-filter-controls">
-              <div class="catalog-filter-group"><label for="speciesFilter">Especie</label><select id="speciesFilter" v-model="filters.species"><option value="">Todas</option><option>Perro</option><option>Gato</option><option>Otro</option></select></div>
-              <div class="catalog-filter-group"><label for="ageFilter">Edad</label><select id="ageFilter" v-model="filters.age"><option value="">Todas</option><option value="Cachorro">Cachorro (hasta 1 año)</option><option value="Joven">Joven (1 a 3 años)</option><option value="Adulto">Adulto (3 a 8 años)</option><option value="Mayor">Mayor (más de 8 años)</option></select></div>
-              <div class="catalog-filter-group"><label for="genderFilter">Sexo</label><select id="genderFilter" v-model="filters.gender"><option value="">Todos</option><option>Macho</option><option>Hembra</option></select></div>
-              <div class="catalog-filter-group"><label for="sizeFilter">Tamaño</label><select id="sizeFilter" v-model="filters.size"><option value="">Todos</option><option>Pequeño</option><option>Mediano</option><option>Grande</option></select></div>
-              <div class="catalog-filter-group"><label for="locationFilter">Ubicación</label><select id="locationFilter" v-model="filters.location"><option value="">Todas</option><option v-for="location in locations" :key="location">{{ location }}</option></select></div>
-              <div class="catalog-filter-group"><label for="sortPets">Ordenar</label><select v-model="filters.sort" id="sortPets"><option value="">Recomendadas</option><option value="name">Nombre</option><option value="age">Edad</option></select></div>
-              <div class="filter-actions"><button class="btn btn-primary catalog-apply" type="button" @click="applyFilters">Aplicar filtros</button><button class="clear-filters" type="button" @click="clearFilters">Limpiar filtros</button></div>
+              <div class="catalog-filter-group"><label for="speciesFilter">Especie</label><select id="speciesFilter" v-model="filters.species" @change="applyFilters"><option value="">Todas</option><option>Perro</option><option>Gato</option><option>Otro</option></select></div>
+              <div class="catalog-filter-group"><label for="ageFilter">Edad</label><select id="ageFilter" v-model="filters.age" @change="applyFilters"><option value="">Todas</option><option value="Cachorro">Cachorro (hasta 1 año)</option><option value="Joven">Joven (1 a 3 años)</option><option value="Adulto">Adulto (3 a 8 años)</option><option value="Mayor">Mayor (más de 8 años)</option></select></div>
+              <div class="catalog-filter-group"><label for="genderFilter">Sexo</label><select id="genderFilter" v-model="filters.gender" @change="applyFilters"><option value="">Todos</option><option>Macho</option><option>Hembra</option></select></div>
+              <div class="catalog-filter-group"><label for="sizeFilter">Tamaño</label><select id="sizeFilter" v-model="filters.size" @change="applyFilters"><option value="">Todos</option><option>Pequeño</option><option>Mediano</option><option>Grande</option></select></div>
+              <div class="catalog-filter-group"><label for="locationFilter">Ubicación</label><select id="locationFilter" v-model="filters.location" @change="applyFilters"><option value="">Todas</option><option v-for="location in locations" :key="location">{{ location }}</option></select></div>
+              <div class="catalog-filter-group"><label for="sortPets">Ordenar</label><select v-model="filters.sort" id="sortPets" @change="applyFilters"><option value="">Más recientes</option><option value="name">Nombre</option><option value="age">Edad</option></select></div>
+              <div class="filter-actions"><button class="clear-filters" type="button" @click="clearFilters">Limpiar filtros</button></div>
             </div>
           </section>
         <div class="catalog-results"><div class="results-header"><div><h2>Mascotas disponibles</h2><p class="results-count" aria-live="polite"><template v-if="loading"><strong>…</strong> Consultando disponibilidad</template><template v-else-if="loadError"><strong>—</strong> No se pudo consultar la disponibilidad</template><template v-else><strong>{{ visiblePets.length }}</strong>{{ visiblePets.length === 1 ? ' mascota disponible' : ' mascotas disponibles' }}</template></p></div><button v-if="favoritesOnly" class="clear-filters" type="button" @click="favoritesOnly = false; router.replace({ query: filterQuery() })">Ver todas</button></div>
-            <div v-if="loadError" class="catalog-empty" role="alert"><h2>No se pudieron consultar las mascotas.</h2><p>{{ loadError }}</p><button class="primary-button" type="button" @click="refresh">Reintentar</button></div>
+            <p v-if="favoriteNotice" class="catalog-favorite-notice" role="status">{{ favoriteNotice }}</p>
+            <div v-if="loadError" class="catalog-empty" role="alert"><h2>No se pudieron consultar las mascotas.</h2><p>{{ loadError }}</p><button class="primary-button" type="button" :disabled="retrying" @click="refresh">{{ retrying ? 'Reintentando…' : 'Reintentar' }}</button></div>
             <div v-else-if="loading" class="catalog-loading" role="status" aria-label="Cargando mascotas"><div v-for="item in 3" :key="item" class="catalog-loading-card" aria-hidden="true"></div></div>
             <div v-else class="catalog-grid pets-grid"><PetCard v-for="pet in visiblePets" :key="pet.id" :pet="pet" :favorite="favorites.includes(String(pet.id).toLowerCase())" @favorite="favorite" /></div>
             <div v-if="!loading && !loadError && !visiblePets.length" class="catalog-empty"><h2>No encontramos mascotas con esos criterios.</h2><p>Prueba ajustar tu búsqueda o limpiar los filtros.</p><button class="primary-button" type="button" @click="clearFilters">Limpiar filtros</button></div>

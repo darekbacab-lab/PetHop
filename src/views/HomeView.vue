@@ -104,6 +104,9 @@ watch(canPagePets, canPage => {
   else stopPetAutoplay();
 });
 const favorites = ref([]);
+const favoriteNotice = ref('');
+const petsRetrying = ref(false);
+async function retryPets() { petsRetrying.value = true; try { await refreshPets(); } finally { petsRetrying.value = false; } }
 const search = ref('');
 const petImage = pet => pet.photos?.[0] || '';
 const processSteps = [
@@ -265,11 +268,12 @@ onUnmounted(() => {
 });
 function submitSearch() { router.push({ path: '/explorar.html', query: { search: search.value.trim() } }); }
 async function favorite(id) {
+  favoriteNotice.value = '';
   try {
     const key = String(id).toLowerCase();
     if (favorites.value.includes(key)) { await removeFavorite(id); favorites.value = favorites.value.filter(item => item !== key); }
     else { await addFavorite(id); favorites.value = [...favorites.value, key]; }
-  } catch (error) { if (error.status === 401) router.push({ path: '/acceso.html', query: { redirect: '/inicio.html' } }); }
+  } catch (error) { if (error.status === 401) favoriteNotice.value = 'Inicia sesión para guardar mascotas en favoritos.'; }
 }
 </script>
 
@@ -280,7 +284,8 @@ async function favorite(id) {
       <section class="quick-actions"><div class="actions-container"><RouterLink to="/explorar.html" class="action-card"><div class="action-content"><span>ADOPTANTES</span><h2>Adoptar</h2><p>Encuentra mascotas disponibles y conoce sus características antes de solicitar una adopción.</p><strong>Explorar mascotas</strong></div><span class="action-paw-trail" aria-hidden="true"><Icon name="paw-print" class="action-paw action-paw-one" /><Icon name="paw-print" class="action-paw action-paw-two" /><Icon name="paw-print" class="action-paw action-paw-four" /><Icon name="paw-print" class="action-paw action-paw-five" /><Icon name="paw-print" class="action-paw action-paw-six" /><Icon name="paw-print" class="action-paw action-paw-seven" /></span></RouterLink><RouterLink :to="{ path:'/acceso.html', query:{ mode:'register', role:'shelter' } }" class="action-card"><div class="action-content"><span>ORGANIZACIONES</span><h2>Registrar refugio</h2><p>Publica mascotas, organiza solicitudes y centraliza la información de tus procesos de adopción.</p><strong>Registrar refugio</strong></div><span class="action-paw-trail" aria-hidden="true"><Icon name="paw-print" class="action-paw action-paw-one" /><Icon name="paw-print" class="action-paw action-paw-two" /><Icon name="paw-print" class="action-paw action-paw-four" /><Icon name="paw-print" class="action-paw action-paw-five" /><Icon name="paw-print" class="action-paw action-paw-six" /><Icon name="paw-print" class="action-paw action-paw-seven" /></span></RouterLink><RouterLink to="/seguimiento.html" class="action-card"><div class="action-content"><span>SEGUIMIENTO</span><h2>Acompañar</h2><p>Mantén organizada la información posterior a la adopción y registra cómo continúa la historia.</p><strong>Ver seguimiento</strong></div><span class="action-paw-trail" aria-hidden="true"><Icon name="paw-print" class="action-paw action-paw-one" /><Icon name="paw-print" class="action-paw action-paw-two" /><Icon name="paw-print" class="action-paw action-paw-four" /><Icon name="paw-print" class="action-paw action-paw-five" /><Icon name="paw-print" class="action-paw action-paw-six" /><Icon name="paw-print" class="action-paw action-paw-seven" /></span></RouterLink></div></section>
       <section class="explore-section" id="explorar"><div class="explore-container"><div class="section-title"><div><span>CONOCE A LOS DISPONIBLES</span><h2>Tal vez tu nuevo compañero está aquí.</h2></div></div><div class="home-search"><form class="search-box" @submit.prevent="submitSearch"><div class="search-input"><span class="search-symbol" aria-hidden="true"><Icon name="search" /></span><label class="sr-only" for="homeSearch">Buscar mascota</label><input id="homeSearch" v-model="search" name="search" type="search" placeholder="Busca por nombre, especie o ubicación" autocomplete="off"></div><button type="submit" class="search-button">Buscar</button></form></div>
         <div class="home-pets-carousel" id="featuredPets" aria-label="Mascotas destacadas" @mouseenter="petCarouselHovered = true" @mouseleave="petCarouselHovered = false" @focusin="petCarouselFocused = true" @focusout="handleCarouselFocusOut">
-          <p v-if="petLoadError" class="catalog-empty" role="alert">{{ petLoadError }}</p><div v-else-if="petsLoading" class="home-pets-loading" role="status" aria-label="Cargando mascotas"><div v-for="item in 3" :key="item" class="catalog-loading-card" aria-hidden="true"></div></div><p v-else-if="!pets.length" class="catalog-empty" role="status">Aún no hay mascotas publicadas. Vuelve pronto para conocerlas.</p>
+          <div v-if="petLoadError" class="catalog-empty" role="alert"><p>{{ petLoadError }}</p><button class="primary-button" type="button" :disabled="petsRetrying" @click="retryPets">{{ petsRetrying ? 'Reintentando…' : 'Reintentar' }}</button></div><div v-else-if="petsLoading" class="home-pets-loading" role="status" aria-label="Cargando mascotas"><div v-for="item in 3" :key="item" class="catalog-loading-card" aria-hidden="true"></div></div><p v-else-if="!pets.length" class="catalog-empty" role="status">Aún no hay mascotas publicadas. Vuelve pronto para conocerlas.</p>
+          <p v-if="favoriteNotice" class="home-favorite-notice" role="status">{{ favoriteNotice }}</p>
           <button v-if="canPagePets" class="home-pets-arrow home-pets-arrow-previous" type="button" aria-label="Ver mascotas anteriores" @click="movePetPage(-1)"><Icon name="arrow-left" /></button>
           <div class="home-pets-viewport" aria-live="polite" aria-atomic="true">
             <Transition :name="petTransitionName" @after-enter="finishPetPageMove">

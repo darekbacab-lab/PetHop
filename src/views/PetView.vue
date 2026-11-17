@@ -9,12 +9,14 @@ import { getPetById, listFavorites, addFavorite, removeFavorite } from '../servi
 import { api } from '../services/api.js';
 import { listAffiliates } from '../services/affiliateApi.js';
 const route = useRoute(); const router = useRouter();
-const pet = ref({ id: '', name: 'Mascota', species: 'Mascota', description: '' });
+const pet = ref(null);
+const petLoading = ref(true);
+const favoriteNotice = ref('');
 const loadError = ref('');
 const favorites = ref([]); const activeTrackIndex = ref(1); const transitionEnabled = ref(true); const isTransitioning = ref(false);
 const affiliates = ref([]);
 const pendingDirections = [];
-const photos = computed(() => Array.isArray(pet.value.photos) ? pet.value.photos : []);
+const photos = computed(() => Array.isArray(pet.value?.photos) ? pet.value.photos : []);
 const generalInformation = computed(() => [
   ['Especie', pet.value.species], ['Raza', pet.value.breed], ['Sexo', pet.value.gender],
   ['Etapa de vida', pet.value.age], ['Tamaño', pet.value.size],
@@ -40,13 +42,15 @@ const galleryTransform = computed(() => {
   const trackIndex = photos.value.length > 1 ? activeTrackIndex.value : 0;
   return `translateX(calc(13% - ${trackIndex * 74}% - ${trackIndex * 12}px))`;
 });
-watch(() => pet.value.id, () => { activeTrackIndex.value = 1; transitionEnabled.value = true; isTransitioning.value = false; pendingDirections.length = 0; });
+watch(() => pet.value?.id, () => { activeTrackIndex.value = 1; transitionEnabled.value = true; isTransitioning.value = false; pendingDirections.length = 0; });
 const photoSrc = item => item.startsWith('data:') || item.startsWith('http') || item.startsWith('/') ? item : `/img/${item}`;
 async function loadPet() {
-  if (!route.query.pet) { document.title = 'Mascota no encontrada | PetHop'; loadError.value = 'Selecciona una mascota desde el catálogo.'; return; }
+  petLoading.value = true;
+  if (!route.query.pet) { document.title = 'Mascota no encontrada | PetHop'; loadError.value = 'Selecciona una mascota desde el catálogo.'; petLoading.value = false; return; }
   document.title = 'Cargando mascota | PetHop';
   try { pet.value = await getPetById(route.query.pet); document.title = `${pet.value.name} | PetHop`; loadError.value = ''; }
   catch (error) { document.title = 'Mascota no encontrada | PetHop'; loadError.value = error.message || 'No se pudo cargar esta mascota.'; }
+  finally { petLoading.value = false; }
 }
 onMounted(async () => {
   await loadPet();
@@ -79,10 +83,11 @@ function startSwipe(event) { touchStartX.value = event.changedTouches[0]?.client
 function endSwipe(event) { const distance = touchStartX.value - (event.changedTouches[0]?.clientX || 0); if (Math.abs(distance) >= 45) nextPhoto(distance > 0 ? 1 : -1); }
 function handleGalleryKey(event) { if (event.key === 'ArrowRight') nextPhoto(1); if (event.key === 'ArrowLeft') nextPhoto(-1); }
 async function favorite() {
+  favoriteNotice.value = '';
   try {
     if (favorites.value.includes(String(pet.value.id))) { await removeFavorite(pet.value.id); favorites.value = favorites.value.filter(id => id !== String(pet.value.id)); }
     else { await addFavorite(pet.value.id); favorites.value = [...favorites.value, String(pet.value.id)]; }
-  } catch (error) { if (error.status === 401) router.push({ path: '/acceso.html', query: { redirect: route.fullPath } }); else loadError.value = error.message; }
+  } catch (error) { if (error.status === 401) favoriteNotice.value = 'Inicia sesión para guardar mascotas en favoritos.'; else loadError.value = error.message; }
 }
 async function askShelter() {
   try {
@@ -98,8 +103,9 @@ async function askShelter() {
   <div>
     <SiteHeader />
     <main id="main-content" tabindex="-1">
-      <p v-if="loadError" class="pet-profile-error" role="alert">{{ loadError }}</p>
-      <section class="pet-profile" :data-pet-id="pet.id" :data-description="pet.description">
+      <div v-if="loadError" class="pet-profile-error-wrap"><p class="pet-profile-error" role="alert">{{ loadError }}</p><RouterLink class="button button-primary" to="/explorar.html">Volver a explorar</RouterLink></div>
+      <div v-else-if="petLoading" class="pet-profile-loading" role="status" aria-label="Cargando mascota"><div class="catalog-loading-card" aria-hidden="true"></div></div>
+      <section v-else class="pet-profile" :data-pet-id="pet.id" :data-description="pet.description">
         <div class="pet-profile-container">
           <RouterLink to="/explorar.html" class="back-link"><Icon name="arrow-left" /> Volver a explorar</RouterLink>
           <div class="pet-profile-grid">
@@ -117,6 +123,7 @@ async function askShelter() {
                 <button v-if="photos.length > 1" class="gallery-arrow gallery-prev" type="button" aria-label="Ver imagen anterior" @click="nextPhoto(-1)"><Icon name="chevron-right" class="gallery-arrow-icon-left" :stroke-width="2.2" /></button>
                 <button v-if="photos.length > 1" class="gallery-arrow gallery-next" type="button" aria-label="Ver imagen siguiente" @click="nextPhoto(1)"><Icon name="chevron-right" :stroke-width="2.2" /></button>
                 <button class="gallery-favorite" :class="{ active:favorites.includes(pet.id) }" type="button" :aria-pressed="favorites.includes(pet.id)" :aria-label="favorites.includes(pet.id) ? `Quitar ${pet.name} de favoritos` : `Agregar ${pet.name} a favoritos`" @click="favorite"><Icon name="heart" :filled="favorites.includes(pet.id)" /></button>
+                <p v-if="favoriteNotice" class="pet-profile-favorite-notice" role="status">{{ favoriteNotice }}</p>
               </div>
               <section class="pet-story pet-profile-story" :aria-label="`Descripción e historia de ${pet.name}`">
                 <h2 class="pet-story-title">Descripción e historia</h2>
