@@ -190,11 +190,11 @@ onBeforeUnmount(() => { document.body.style.overflow = previousOverflow; });
 </template>
 
 <style scoped>
-.assistant-launcher { position:fixed; z-index:1200; right:24px; bottom:80px; display:grid; width:58px; height:58px; place-items:center; border:0; border-radius:50%; background:var(--primary-strong); color:#fff; box-shadow:0 10px 28px rgba(18,63,75,.24); cursor:pointer; transition:transform .2s ease,background .2s ease,box-shadow .2s ease; }
-.assistant-launcher:hover { transform:translateY(-3px); background:var(--primary-dark); box-shadow:0 14px 32px rgba(18,63,75,.3); }
+.assistant-launcher { position:fixed; z-index:1200; right:24px; bottom:80px; display:grid; width:58px; height:58px; place-items:center; border:0; border-radius:50%; background:var(--primary-strong); color:#fff; box-shadow:0 8px 11px rgba(0,0,0,.25); cursor:pointer; transition:transform .2s ease,background .2s ease,box-shadow .2s ease; }
+.assistant-launcher:hover { transform:translateY(-3px); background:var(--primary-dark); box-shadow:0 12px 20px rgba(0,0,0,.30); }
 .assistant-launcher:focus-visible,.assistant-close:focus-visible,.assistant-composer button:focus-visible,.assistant-quick-questions button:focus-visible { outline:3px solid #75cbd0; outline-offset:3px; }
 .assistant-overlay { position:fixed; z-index:1199; inset:0; display:flex; justify-content:flex-end; background:rgba(17,45,51,.2); backdrop-filter:blur(2px); }
-.assistant-panel { display:flex; width:min(410px,100%); height:100%; min-height:0; flex-direction:column; border-left:1px solid var(--border); background:#fff; box-shadow:-18px 0 50px rgba(18,63,75,.18); }
+.assistant-panel { display:flex; width:min(410px,100%); height:100%; min-height:0; flex-direction:column; border-left:1px solid var(--border); background:#fff; box-shadow:-18px 0 50px rgba(0,0,0,.28); }
 .assistant-header { display:flex; min-height:82px; align-items:center; gap:12px; padding:15px 18px; border-bottom:1px solid var(--border); background:#fff; }
 .assistant-avatar,.assistant-welcome-icon { display:grid; width:42px; height:42px; flex:0 0 42px; place-items:center; border-radius:14px; background:#e4f5f4; color:var(--primary-strong); }
 .assistant-heading { min-width:0; flex:1; }

@@ -213,7 +213,7 @@ onUnmounted(() => document.removeEventListener('click', closeConversationMenuOnO
 .adopter-conversation-menu-trigger { display:grid; width:34px; height:34px; place-items:center; border:1px solid transparent; border-radius:9px; background:transparent; color:var(--text-soft); cursor:pointer; }
 .adopter-conversation-menu-trigger:hover,.adopter-conversation-menu-trigger[aria-expanded="true"] { border-color:var(--border); background:var(--white); color:var(--primary-strong); }
 .adopter-conversation-menu-trigger span { font-size:1.12rem; font-weight:900; letter-spacing:1px; line-height:1; }
-.adopter-conversation-menu { position:fixed; z-index:10000; display:grid; width:min(208px,calc(100vw - 16px)); padding:5px; border:1px solid var(--border); border-radius:11px; background:var(--white); box-shadow:0 12px 30px #17383a35; }
+.adopter-conversation-menu { position:fixed; z-index:10000; display:grid; width:min(208px,calc(100vw - 16px)); padding:5px; border:1px solid var(--border); border-radius:11px; background:var(--white); box-shadow:var(--shadow-md); }
 .adopter-conversation-menu button { padding:10px 11px; border:0; border-radius:7px; background:transparent; color:var(--text); cursor:pointer; font:600 .76rem "Montserrat",sans-serif; text-align:left; }
 .adopter-conversation-menu button:hover { background:var(--background); }
 .adopter-conversation-menu button.is-danger { color:#b42318; }

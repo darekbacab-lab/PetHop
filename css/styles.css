@@ -35,9 +35,9 @@
     --space-4: 24px;
     --space-5: 32px;
     --space-6: 48px;
-    --shadow-sm: 0 6px 20px rgba(23, 61, 73, 0.06);
-    --shadow-md: 0 16px 42px rgba(23, 61, 73, 0.10);
-    --shadow-lg: 0 30px 70px rgba(23, 61, 73, 0.13);
+    --shadow-sm: 0 8px 11px rgba(0, 0, 0, 0.25);
+    --shadow-md: 0 12px 20px rgba(0, 0, 0, 0.30);
+    --shadow-lg: 0 24px 48px rgba(0, 0, 0, 0.28);
     --radius-sm: 12px;
     --radius-md: 18px;
     --radius-lg: 26px;
@@ -713,7 +713,7 @@ ol {
     transform: translateY(-5px);
     background: var(--primary-hover);
     color: var(--white);
-    box-shadow: 0 18px 35px rgba(18, 63, 75, 0.16);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.30);
 }
 
 .action-number {
@@ -4795,7 +4795,7 @@ textarea {
 
 .action-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 18px 35px rgba(18, 63, 75, 0.2);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.30);
 }
 
 .action-card .action-number,

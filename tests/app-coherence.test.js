@@ -270,7 +270,7 @@ test('how-it-works carousel shows exactly three cards with dots instead of a tex
     assert.doesNotMatch(home, /grid-template-rows:70% 30%/);
     assert.doesNotMatch(home, /grid-template-rows:64% 36%/);
     assert.match(home, /\.process-steps \.process-step \{[^}]*border-radius:24px;/);
-    assert.match(home, /box-shadow:0 8px 11px rgba\(0,0,0,\.25\)/);
+    assert.match(home, /\.process-steps \.process-step \{[^}]*box-shadow:var\(--shadow-sm\);/);
     assert.match(home, /\.process-step-copy::before \{[^}]*data:image\/svg\+xml/);
     assert.doesNotMatch(home, /linear-gradient\(180deg, #17848c/);
     assert.match(home, /\.process-steps \.process-step-copy \{[^}]*background:var\(--button-primary-bg\);/);
@@ -302,11 +302,16 @@ test('reference login aesthetic is the site-wide design language', () => {
     assert.match(css, /--primary-dark: #2C5357;/);
     assert.match(css, /--hero-title-dark: #12515A;/);
     assert.doesNotMatch(css, /--background: #EDF4F6;/);
-    // Bordes casi invisibles, sombras suaves y difusas con tinte frío, nunca negras y duras.
+    // Bordes casi invisibles. La sombra es la de Figma (Drop shadow 0 8 11 negro
+    // 25%): la misma para botones, tarjetas y superficies, más fuerte al hover.
     assert.match(css, /--border: #DDE8EB;/);
-    assert.match(css, /--shadow-sm: 0 6px 20px rgba\(23, 61, 73, 0\.06\);/);
-    assert.match(css, /--shadow-md: 0 16px 42px rgba\(23, 61, 73, 0\.10\);/);
-    assert.match(css, /--shadow-lg: 0 30px 70px rgba\(23, 61, 73, 0\.13\);/);
+    assert.match(css, /--shadow-sm: 0 8px 11px rgba\(0, 0, 0, 0\.25\);/);
+    assert.match(css, /--shadow-md: 0 12px 20px rgba\(0, 0, 0, 0\.30\);/);
+    assert.match(css, /--shadow-lg: 0 24px 48px rgba\(0, 0, 0, 0\.28\);/);
+    assert.doesNotMatch(css, /--shadow-sm: 0 6px 20px rgba\(23, 61, 73/);
+    // Las tarjetas de acción usan la misma sombra al pasar el mouse.
+    assert.match(css, /\.action-card:hover \{[^}]*box-shadow: 0 12px 20px rgba\(0, 0, 0, 0\.30\);/);
+    assert.doesNotMatch(css, /box-shadow: 0 18px 35px rgba\(18, 63, 75/);
     // Radios generosos como en la referencia.
     assert.match(css, /--radius-sm: 12px;/);
     assert.match(css, /--radius-md: 18px;/);
@@ -318,6 +323,7 @@ test('reference login aesthetic is the site-wide design language', () => {
     const access = fs.readFileSync(path.join(projectRoot, 'css/acceso.css'), 'utf8');
     assert.match(access, /\.auth-card \{[^}]*border-radius:26px;/);
     assert.match(access, /\.auth-card \{[^}]*box-shadow:var\(--shadow-lg\);/);
+    assert.match(access, /\.auth-submit \{[^}]*box-shadow:0 8px 11px rgba\(0,0,0,\.25\);/);
     assert.match(access, /\.auth-input-wrap input \{[^}]*border-radius:12px;/);
     assert.doesNotMatch(access, /box-shadow:0 2px 3px rgba\(18,63,75,\.12\)/);
     // Las vistas usan los tokens, no hex sueltos, para bordes y superficies pálidas.
