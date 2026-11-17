@@ -820,3 +820,32 @@ test('audit batch M3: publish review notice, publishing state, draft note, photo
     assert.match(styles, /\.shelter-review-note/);
     assert.match(styles, /\.shelter-review-notice/);
 });
+
+test('audit batch M4: follow-up stages and reports, messages search, day separators, mobile chat and profile space', () => {
+    const followUp = fs.readFileSync(path.join(projectRoot, 'src/views/FollowUpView.vue'), 'utf8');
+    const messages = fs.readFileSync(path.join(projectRoot, 'src/views/AdopterMessagesView.vue'), 'utf8');
+    const profile = fs.readFileSync(path.join(projectRoot, 'src/views/AdopterProfileView.vue'), 'utf8');
+    assert.match(followUp, /key: 'RECEIVED', title: 'Recepción'[^}]*date: undefined/);
+    assert.match(followUp, /Reportes de esta solicitud/);
+    assert.doesNotMatch(followUp, /Reportes en selección/);
+    assert.match(followUp, /item\.shelterName \|\| 'Refugio no disponible'/);
+    assert.match(followUp, /showAllReports/);
+    assert.match(followUp, /Ver todos los reportes/);
+    assert.match(followUp, /Ver menos reportes/);
+    assert.match(messages, /groupedMessages/);
+    assert.match(messages, /dayLabel/);
+    assert.match(messages, /formatFullDate/);
+    assert.match(messages, /:title="formatFullDate\(message\.createdAt \|\| message\.date\)"/);
+    assert.match(messages, /thread\.pet\?\.shelterName/);
+    assert.match(messages, /thread\.otherParticipant/);
+    assert.match(messages, /Buscar por mascota o refugio/);
+    assert.match(messages, /wideLayout/);
+    assert.match(messages, /min-width: 761px/);
+    assert.match(messages, /wideLayout\.value \? conversations\.value\[0\] : null/);
+    assert.match(messages, /messages-login-link/);
+    assert.match(messages, /Ingresar<\/RouterLink>/);
+    assert.match(profile, /Tu espacio de refugio/);
+    assert.match(profile, /Ir a mi espacio de refugio/);
+    assert.match(profile, /Ir a Administración/);
+    assert.match(profile, /:to="isShelter \? '\/refugio\.html' : '\/administracion\.html'"/);
+});

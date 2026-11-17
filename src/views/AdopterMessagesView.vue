@@ -21,11 +21,23 @@ const conversationActionError = ref('');
 const openConversationMenuId = ref('');
 const conversationMenuPosition = ref(null);
 const openConversationMenu = computed(() => allConversations.value.find(thread => thread.id === openConversationMenuId.value) || null);
+const wideLayout = ref(true);
+function syncLayout() { wideLayout.value = window.matchMedia('(min-width: 761px)').matches; }
 const conversations = computed(() => {
   const search = searchText.value.trim().toLocaleLowerCase('es-MX');
-  return allConversations.value.filter(thread => !search || `${thread.petName} ${thread.pet?.location || ''}`.toLocaleLowerCase('es-MX').includes(search)).slice().sort((a, b) => Number(Boolean(b.pinned)) - Number(Boolean(a.pinned)));
+  return allConversations.value.filter(thread => !search || `${thread.petName} ${thread.pet?.location || ''} ${thread.pet?.shelterName || ''} ${thread.otherParticipant || ''}`.toLocaleLowerCase('es-MX').includes(search)).slice().sort((a, b) => Number(Boolean(b.pinned)) - Number(Boolean(a.pinned)));
 });
-const activeConversation = computed(() => conversations.value.find(thread => thread.id === selectedThreadId.value) || conversations.value[0] || null);
+const activeConversation = computed(() => conversations.value.find(thread => thread.id === selectedThreadId.value) || (wideLayout.value ? conversations.value[0] : null) || null);
+const groupedMessages = computed(() => {
+  const groups = [];
+  for (const message of activeConversation.value?.messages || []) {
+    const day = dayLabel(message.createdAt || message.date);
+    const last = groups.at(-1);
+    if (last && last.day === day) last.messages.push(message);
+    else groups.push({ day, messages: [message] });
+  }
+  return groups;
+});
 const threadPhoto = pet => pet?.photos?.[0] || pet?.image || '';
 const publisherName = thread => currentUser.value?.role === 'SHELTER' ? thread?.otherParticipant : (thread?.pet?.shelterName || thread?.otherParticipant);
 async function loadThreads() {
@@ -39,7 +51,7 @@ async function loadThreads() {
     }));
     const selected = allConversations.value.find(thread => thread.id === route.query.conversation)
       || allConversations.value.find(thread => String(thread.petId) === String(route.query.pet))
-      || allConversations.value[0];
+      || (wideLayout.value ? allConversations.value[0] : undefined);
     if (selected) await chooseConversation(selected);
   } catch (error) { inboxError.value = error.message || 'Inicia sesión para consultar tus conversaciones.'; }
 }
@@ -58,6 +70,20 @@ function formatTime(value) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return '';
   return date.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+}
+function formatFullDate(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' });
+}
+function dayLabel(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Sin fecha';
+  const today = new Date(); const yesterday = new Date(); yesterday.setDate(today.getDate() - 1);
+  const sameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  if (sameDay(date, today)) return 'Hoy';
+  if (sameDay(date, yesterday)) return 'Ayer';
+  return date.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 function formatConversationDate(thread) {
   const last = thread.messages.at(-1);
@@ -108,7 +134,8 @@ async function deleteConversation(thread) {
     closeConversationMenu();
     if (selectedThreadId.value === thread.id) {
       selectedThreadId.value = '';
-      if (conversations.value[0]) await chooseConversation(conversations.value[0]);
+      mobileChatOpen.value = false;
+      if (wideLayout.value && conversations.value[0]) await chooseConversation(conversations.value[0]);
     }
   } catch (error) {
     conversationActionError.value = error.status === 404
@@ -116,9 +143,9 @@ async function deleteConversation(thread) {
       : error.message || 'No se pudo eliminar la conversación.';
   }
 }
-watch(() => activeConversation.value?.id, () => scrollTranscriptToEnd());
-onMounted(() => { loadThreads(); document.addEventListener('click', closeConversationMenuOnOutsideClick); });
-onUnmounted(() => document.removeEventListener('click', closeConversationMenuOnOutsideClick));
+watch(() => activeConversation.value?.id, () => { if (!activeConversation.value) mobileChatOpen.value = false; scrollTranscriptToEnd(); });
+onMounted(() => { syncLayout(); window.addEventListener('resize', syncLayout); loadThreads(); document.addEventListener('click', closeConversationMenuOnOutsideClick); });
+onUnmounted(() => { window.removeEventListener('resize', syncLayout); document.removeEventListener('click', closeConversationMenuOnOutsideClick); });
 </script>
 
 <template>
@@ -133,6 +160,7 @@ onUnmounted(() => document.removeEventListener('click', closeConversationMenuOnO
         <span class="messages-empty-icon"><Icon name="messages-square" :size="31" /></span>
         <h2>No se pudo abrir la bandeja</h2>
         <p>{{ inboxError }}</p>
+        <RouterLink class="messages-login-link" to="/acceso.html">Ingresar</RouterLink>
       </section>
       <section v-else-if="!allConversations.length" class="messages-empty-state">
         <span class="messages-empty-icon"><Icon name="messages-square" :size="31" /></span>
@@ -143,7 +171,7 @@ onUnmounted(() => document.removeEventListener('click', closeConversationMenuOnO
       <section v-else class="adopter-message-layout" :class="{ 'mobile-chat-open': mobileChatOpen }" aria-label="Bandeja de mensajes del adoptante">
         <aside class="adopter-conversation-sidebar">
           <div class="adopter-inbox-heading"><div><h2>Conversaciones</h2><p>{{ conversations.length }} {{ conversations.length === 1 ? 'chat' : 'chats' }}</p></div><span class="adopter-inbox-icon"><Icon name="messages-square" /></span></div>
-          <label class="adopter-search"><Icon name="search" :size="18" /><span class="sr-only">Buscar conversaciones</span><input v-model="searchText" type="search" placeholder="Buscar por mascota" /></label>
+          <label class="adopter-search"><Icon name="search" :size="18" /><span class="sr-only">Buscar conversaciones</span><input v-model="searchText" type="search" placeholder="Buscar por mascota o refugio" /></label>
           <p v-if="conversationActionError" class="adopter-action-error" role="alert">{{ conversationActionError }}</p>
           <div class="adopter-conversation-list" @scroll="closeConversationMenu">
             <div v-for="thread in conversations" :key="thread.id" class="adopter-conversation-item" :class="{ 'is-selected': activeConversation?.id === thread.id, 'is-pinned': thread.pinned }">
@@ -167,9 +195,12 @@ onUnmounted(() => document.removeEventListener('click', closeConversationMenuOnO
           </header>
           <div ref="transcriptElement" class="adopter-chat-transcript" aria-live="polite" aria-label="Mensajes">
             <div class="adopter-chat-date">Conversación de adopción · PetHop</div>
-            <article v-for="(message,index) in activeConversation.messages" :key="`${message.createdAt || message.date || index}-${index}`" class="adopter-chat-bubble" :class="message.sender === 'adopter' || message.from === 'adopter' ? 'is-outgoing' : 'is-incoming'">
-              <p>{{ message.text }}</p><time>{{ formatTime(message.createdAt || message.date) }}</time>
-            </article>
+            <template v-for="group in groupedMessages" :key="group.day">
+              <div class="adopter-chat-date">{{ group.day }}</div>
+              <article v-for="(message,index) in group.messages" :key="`${message.createdAt || message.date || index}-${index}`" class="adopter-chat-bubble" :class="message.sender === 'adopter' || message.from === 'adopter' ? 'is-outgoing' : 'is-incoming'">
+                <p>{{ message.text }}</p><time :title="formatFullDate(message.createdAt || message.date)">{{ formatTime(message.createdAt || message.date) }}</time>
+              </article>
+            </template>
             <p v-if="!activeConversation.messages.length" class="adopter-chat-first-message">Escribe para iniciar tu conversación sobre {{ activeConversation.petName }}.</p>
           </div>
           <form class="adopter-chat-composer" @submit.prevent="sendMessage">
@@ -261,8 +292,10 @@ onUnmounted(() => document.removeEventListener('click', closeConversationMenuOnO
 .messages-empty-icon { display:grid; width:68px; height:68px; place-items:center; border-radius:22px; background:var(--primary-soft); color:var(--primary-strong); }
 .messages-empty-state h2 { margin-top:18px; color:var(--text); font:700 1.25rem "Poppins",sans-serif; }
 .messages-empty-state p { max-width:450px; margin:7px 0 19px; color:var(--text-soft); font-size:.85rem; }
+.messages-login-link { display:inline-flex; min-height:42px; align-items:center; padding:0 16px; border-radius:11px; background:var(--primary-strong); color:#fff; font-size:.78rem; font-weight:800; text-decoration:none; }
 @media(max-width:760px) {
   .adopter-messages-main { width:calc(100% - 30px); padding:30px 0 40px; }
+  .adopter-no-conversation { display:none; }
   .adopter-messages-heading { align-items:flex-start; flex-direction:column; gap:14px; }
   .adopter-message-layout { position:relative; display:block; height:calc(100dvh - 235px); min-height:430px; }
   .adopter-conversation-sidebar,.adopter-chat-window { position:absolute; inset:0; }
