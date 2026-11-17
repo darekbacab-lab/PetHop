@@ -309,7 +309,8 @@ test('reference login aesthetic is the site-wide design language', () => {
     assert.match(css, /--shadow-md: 0 12px 20px rgba\(0, 0, 0, 0\.30\);/);
     assert.match(css, /--shadow-lg: 0 24px 48px rgba\(0, 0, 0, 0\.28\);/);
     assert.doesNotMatch(css, /--shadow-sm: 0 6px 20px rgba\(23, 61, 73/);
-    // Las tarjetas de acción usan la misma sombra al pasar el mouse.
+    // Las tarjetas de acción flotan también en reposo, no solo al pasar el mouse.
+    assert.match(css, /\.action-card \{[^}]*box-shadow: var\(--shadow-sm\);/);
     assert.match(css, /\.action-card:hover \{[^}]*box-shadow: 0 12px 20px rgba\(0, 0, 0, 0\.30\);/);
     assert.doesNotMatch(css, /box-shadow: 0 18px 35px rgba\(18, 63, 75/);
     // Radios generosos como en la referencia.

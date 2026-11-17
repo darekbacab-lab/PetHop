@@ -673,6 +673,7 @@ ol {
     border-radius: 18px;
     background: var(--primary-dark);
     color: var(--white);
+    box-shadow: var(--shadow-sm);
     transition:
         transform 0.25s ease,
         box-shadow 0.25s ease,
