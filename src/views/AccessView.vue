@@ -113,6 +113,7 @@ async function submitRegistration(event) {
     <main id="main-content" tabindex="-1" class="auth-card" :class="{ 'is-register': isRegistering }">
       <section class="auth-panel" aria-labelledby="auth-title">
         <RouterLink class="auth-brand" to="/inicio.html" aria-label="PetHop, volver al inicio"><img src="/img/image1.png" alt="PetHop"></RouterLink>
+        <RouterLink class="auth-back-link" to="/inicio.html">← Volver al inicio</RouterLink>
         <div class="auth-panel-heading">
           <h1 id="auth-title"><template v-if="isRegistering">Crea tu <span>cuenta.</span></template><template v-else>¡Hola de <span>nuevo!</span></template></h1>
           <p>{{ isRegistering ? 'Únete a una comunidad que conecta mascotas con hogares responsables.' : 'Ingresa para continuar con tu proceso de adopción.' }}</p>
@@ -122,7 +123,7 @@ async function submitRegistration(event) {
           <h2 class="auth-form-subtitle">Confirma tu correo</h2>
           <p>Usa el enlace recibido por correo para activar tu cuenta.</p>
           <button class="auth-submit" type="submit" :disabled="loading">{{ loading ? 'Confirmando…' : 'Confirmar correo' }}</button>
-          <p class="auth-feedback" :class="{ 'is-error': feedback.loginError, 'is-success': feedback.login && !feedback.loginError }" role="alert" aria-live="polite">{{ feedback.login }}</p>
+          <p class="auth-feedback" :class="{ 'is-error': feedback.loginError, 'is-success': feedback.login && !feedback.loginError }" :role="feedback.loginError ? 'alert' : 'status'" aria-live="polite">{{ feedback.login }}</p>
           <p class="auth-switch-copy"><button type="button" class="auth-text-button" @click="switchMode('login')">Volver a iniciar sesión</button></p>
         </form>
         <form v-if="mode === 'verify'" class="auth-form" novalidate @submit.prevent="submitEmailVerificationResend">
@@ -130,13 +131,13 @@ async function submitRegistration(event) {
           <label for="resend-email">Correo electrónico <span class="auth-required">* Obligatorio</span></label>
           <div class="auth-input-wrap"><Icon name="message-circle" /><input id="resend-email" v-model="resendForm.email" type="email" autocomplete="email" placeholder="nombre@correo.com" required></div>
           <button class="auth-submit" type="submit" :disabled="loading">{{ loading ? 'Enviando…' : 'Reenviar correo de verificación' }}</button>
-          <p class="auth-feedback" :class="{ 'is-error': feedback.resendError, 'is-success': feedback.resend && !feedback.resendError }" role="alert" aria-live="polite">{{ feedback.resend }}</p>
+          <p class="auth-feedback" :class="{ 'is-error': feedback.resendError, 'is-success': feedback.resend && !feedback.resendError }" :role="feedback.resendError ? 'alert' : 'status'" aria-live="polite">{{ feedback.resend }}</p>
         </form>
         <form v-else-if="mode === 'reset' && !resetToken" class="auth-form" novalidate @submit.prevent="submitPasswordResetRequest">
           <label for="reset-email">Correo electrónico <span class="auth-required">* Obligatorio</span></label>
           <div class="auth-input-wrap"><Icon name="message-circle" /><input id="reset-email" v-model="resetForm.email" type="email" autocomplete="email" placeholder="nombre@correo.com" required></div>
           <button class="auth-submit" type="submit" :disabled="loading">{{ loading ? 'Enviando…' : 'Enviar instrucciones' }}</button>
-          <p class="auth-feedback" :class="{ 'is-error': feedback.loginError, 'is-success': feedback.login && !feedback.loginError }" role="alert" aria-live="polite">{{ feedback.login }}</p>
+          <p class="auth-feedback" :class="{ 'is-error': feedback.loginError, 'is-success': feedback.login && !feedback.loginError }" :role="feedback.loginError ? 'alert' : 'status'" aria-live="polite">{{ feedback.login }}</p>
           <p class="auth-switch-copy"><button type="button" class="auth-text-button" @click="switchMode('login')">Volver a iniciar sesión</button></p>
         </form>
         <form v-else-if="mode === 'reset'" class="auth-form" novalidate @submit.prevent="submitPasswordResetConfirm">
@@ -147,7 +148,7 @@ async function submitRegistration(event) {
           <label for="reset-confirm">Confirmar contraseña <span class="auth-required">* Obligatorio</span></label>
           <div class="auth-input-wrap"><Icon name="shield-check" /><input id="reset-confirm" v-model="resetForm.confirm" type="password" autocomplete="new-password" minlength="12" maxlength="72" required></div>
           <button class="auth-submit" type="submit" :disabled="loading">{{ loading ? 'Actualizando…' : 'Actualizar contraseña' }}</button>
-          <p class="auth-feedback" :class="{ 'is-error': feedback.loginError, 'is-success': feedback.login && !feedback.loginError }" role="alert" aria-live="polite">{{ feedback.login }}</p>
+          <p class="auth-feedback" :class="{ 'is-error': feedback.loginError, 'is-success': feedback.login && !feedback.loginError }" :role="feedback.loginError ? 'alert' : 'status'" aria-live="polite">{{ feedback.login }}</p>
           <p class="auth-switch-copy"><button type="button" class="auth-text-button" @click="switchMode('login')">Volver a iniciar sesión</button></p>
         </form>
         <form v-else-if="mode === 'login'" class="auth-form" novalidate @submit.prevent="submitLogin">
@@ -157,7 +158,7 @@ async function submitRegistration(event) {
           <div class="auth-input-wrap"><Icon name="shield-check" /><input id="login-password" v-model="loginForm.password" name="password" :type="showLoginPassword ? 'text' : 'password'" autocomplete="current-password" placeholder="Tu contraseña" maxlength="72" required :aria-invalid="feedback.loginError" :aria-describedby="feedback.loginError ? 'login-feedback' : undefined"><button class="auth-password-toggle" type="button" :aria-label="showLoginPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'" :aria-pressed="showLoginPassword" @click="showLoginPassword = !showLoginPassword"><svg class="auth-eye-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/><path v-if="showLoginPassword" d="m4 4 16 16"/></svg></button></div>
           <button class="auth-submit" type="submit" :disabled="loading"><span v-if="loading" class="auth-spinner" aria-hidden="true"></span>{{ loading ? 'Ingresando…' : 'Ingresar' }}</button>
           <button type="button" class="auth-text-button auth-recovery-link" @click="mode = 'reset'; feedback.login = ''">¿Olvidaste tu contraseña?</button>
-          <p id="login-feedback" class="auth-feedback" :class="{ 'is-error': feedback.loginError, 'is-success': feedback.login && !feedback.loginError }" role="alert" aria-live="polite">{{ feedback.login }}</p>
+          <p id="login-feedback" class="auth-feedback" :class="{ 'is-error': feedback.loginError, 'is-success': feedback.login && !feedback.loginError }" :role="feedback.loginError ? 'alert' : 'status'" aria-live="polite">{{ feedback.login }}</p>
           <p class="auth-switch-copy">¿Aún no tienes una cuenta? <button type="button" class="auth-text-button" @click="switchMode('register')">Crear cuenta</button></p>
         </form>
 
@@ -171,8 +172,8 @@ async function submitRegistration(event) {
           <label for="register-confirm">Confirmar contraseña <span class="auth-required">* Obligatorio</span></label><div class="auth-input-wrap"><Icon name="shield-check" /><input id="register-confirm" v-model="registration.confirm" name="confirm" :type="showRegisterConfirm ? 'text' : 'password'" autocomplete="new-password" placeholder="Repite tu contraseña" minlength="12" maxlength="72" required :aria-invalid="feedback.registerError && feedback.register === 'Las contraseñas no coinciden.'" :aria-describedby="feedback.registerError ? 'register-feedback' : undefined"><button class="auth-password-toggle" type="button" :aria-label="showRegisterConfirm ? 'Ocultar confirmación' : 'Mostrar confirmación'" :aria-pressed="showRegisterConfirm" @click="showRegisterConfirm = !showRegisterConfirm"><svg class="auth-eye-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/><path v-if="showRegisterConfirm" d="m4 4 16 16"/></svg></button></div>
           <p class="auth-requirement">Tu contraseña debe tener entre 12 y 72 caracteres.</p>
           <button class="auth-submit" type="submit" :disabled="loading"><span v-if="loading" class="auth-spinner" aria-hidden="true"></span>{{ loading ? 'Creando cuenta…' : 'Crear cuenta' }}</button>
-          <p id="register-feedback" class="auth-feedback" :class="{ 'is-error': feedback.registerError }" role="alert" aria-live="polite">{{ feedback.register }}</p>
-          <p class="auth-switch-copy">¿Ya tienes una cuenta? <button type="button" class="auth-text-button" @click="switchMode('login')">Iniciar sesión</button></p>
+          <p id="register-feedback" class="auth-feedback" :class="{ 'is-error': feedback.registerError }" :role="feedback.registerError ? 'alert' : 'status'" aria-live="polite">{{ feedback.register }}</p>
+          <p class="auth-switch-copy">¿Ya tienes una cuenta? <button type="button" class="auth-text-button" @click="switchMode('login')">Ingresar</button></p>
         </form>
       </section>
       <aside class="auth-visual" aria-label="Mascotas que esperan un hogar responsable">

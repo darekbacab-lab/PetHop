@@ -24,12 +24,15 @@ const editing = ref(false);
 const saving = ref(false);
 const form = ref({ fullName: '', phone: '' });
 const feedback = ref('');
+const feedbackIsError = ref(false);
 const passwordForm = ref({ currentPassword: '', newPassword: '', confirm: '' });
 const passwordFeedback = ref('');
+const passwordFeedbackIsError = ref(false);
 const passwordSaving = ref(false);
 const passwordOpen = ref(false);
 const roleSaving = ref(false);
 const roleFeedback = ref('');
+const roleFeedbackIsError = ref(false);
 const selectedActivity = ref(null);
 const detailDialog = ref(null);
 useFocusTrap(detailDialog, () => !!selectedActivity.value, () => { selectedActivity.value = null; });
@@ -92,23 +95,25 @@ async function signOut() {
 async function saveProfile() {
   saving.value = true;
   feedback.value = '';
+  feedbackIsError.value = false;
   try {
     user.value = await api('/users/me', { method: 'PATCH', body: { fullName: form.value.fullName.trim(), phone: form.value.phone.trim() || null } });
     currentUser.value = user.value;
     editing.value = false;
     feedback.value = 'Tu perfil se guardó correctamente.';
-  } catch (error) { feedback.value = error.message || 'No se pudo guardar el perfil. Tus cambios siguen disponibles para reintentar.'; }
+  } catch (error) { feedback.value = error.message || 'No se pudo guardar el perfil. Tus cambios siguen disponibles para reintentar.'; feedbackIsError.value = true; }
   finally { saving.value = false; }
 }
 async function changePassword() {
   passwordFeedback.value = '';
-  if (passwordForm.value.newPassword !== passwordForm.value.confirm) { passwordFeedback.value = 'Las contraseñas nuevas no coinciden.'; return; }
+  passwordFeedbackIsError.value = false;
+  if (passwordForm.value.newPassword !== passwordForm.value.confirm) { passwordFeedback.value = 'Las contraseñas nuevas no coinciden.'; passwordFeedbackIsError.value = true; return; }
   passwordSaving.value = true;
   try {
     await api('/users/me/password', { method: 'PATCH', body: { currentPassword: passwordForm.value.currentPassword, newPassword: passwordForm.value.newPassword } });
     passwordForm.value = { currentPassword: '', newPassword: '', confirm: '' };
     passwordFeedback.value = 'Tu contraseña se actualizó correctamente.';
-  } catch (error) { passwordFeedback.value = error.message || 'No se pudo actualizar la contraseña.'; }
+  } catch (error) { passwordFeedback.value = error.message || 'No se pudo actualizar la contraseña.'; passwordFeedbackIsError.value = true; }
   finally { passwordSaving.value = false; }
 }
 async function changeRole(event) {
@@ -120,6 +125,7 @@ async function changeRole(event) {
   if (!confirmed) { event.target.value = user.value?.role || 'ADOPTER'; return; }
   roleSaving.value = true;
   roleFeedback.value = '';
+  roleFeedbackIsError.value = false;
   try {
     user.value = await api('/users/me/role', { method: 'PATCH', body: { role } });
     currentUser.value = user.value;
@@ -129,6 +135,7 @@ async function changeRole(event) {
   } catch (error) {
     event.target.value = user.value?.role || 'ADOPTER';
     roleFeedback.value = error.message || 'No se pudo cambiar el tipo de cuenta.';
+    roleFeedbackIsError.value = true;
   } finally { roleSaving.value = false; }
 }
 
@@ -181,8 +188,8 @@ onMounted(async () => {
             <div class="adopter-form-actions"><button class="button button-outline" type="button" @click="cancelEditing">Cancelar</button><button class="button button-primary" type="submit" :disabled="saving">{{ saving ? 'Guardando…' : 'Guardar cambios' }}</button></div>
           </form>
           <dl v-else class="adopter-personal-grid"><div><dt>Nombre completo</dt><dd>{{ user.fullName }}</dd></div><div><dt>Correo electrónico</dt><dd>{{ user.email }}</dd></div><div><dt>Teléfono</dt><dd>{{ user.phone || 'No proporcionado' }}</dd></div><div><dt>Tipo de cuenta</dt><dd>{{ accountTypeLabel }}</dd></div></dl>
-          <div v-if="!isAdmin" class="adopter-role-control"><label for="account-role">Tipo de cuenta<select id="account-role" :value="user.role" :disabled="roleSaving" @change="changeRole"><option value="ADOPTER">Adoptante</option><option value="SHELTER">Refugio o rescatista</option></select></label><p>Este cambio conserva tus datos. Puedes completar o editar el perfil de organización desde <RouterLink to="/refugio.html?section=perfil">tu espacio de refugio</RouterLink>.</p><p v-if="roleFeedback" class="adopter-feedback" role="status">{{ roleFeedback }}</p></div>
-          <p v-if="feedback" class="adopter-feedback" role="status">{{ feedback }}</p>
+          <div v-if="!isAdmin" class="adopter-role-control"><label for="account-role">Tipo de cuenta<select id="account-role" :value="user.role" :disabled="roleSaving" @change="changeRole"><option value="ADOPTER">Adoptante</option><option value="SHELTER">Refugio o rescatista</option></select></label><p>Este cambio conserva tus datos. Puedes completar o editar el perfil de organización desde <RouterLink to="/refugio.html?section=perfil">tu espacio de refugio</RouterLink>.</p><p v-if="roleFeedback" class="adopter-feedback" :role="roleFeedbackIsError ? 'alert' : 'status'">{{ roleFeedback }}</p></div>
+          <p v-if="feedback" class="adopter-feedback" :role="feedbackIsError ? 'alert' : 'status'">{{ feedback }}</p>
           <button v-if="!passwordOpen" type="button" class="button button-outline adopter-password-toggle" @click="passwordOpen = true">Cambiar contraseña</button>
           <form v-else class="adopter-password-form" @submit.prevent="changePassword">
             <h3>Cambiar contraseña</h3>
@@ -190,7 +197,7 @@ onMounted(async () => {
             <label>Nueva contraseña <span class="adopter-required">* Obligatorio</span><input v-model="passwordForm.newPassword" type="password" autocomplete="new-password" minlength="12" maxlength="72" required><small>Tu contraseña debe tener entre 12 y 72 caracteres.</small></label>
             <label>Confirmar contraseña <span class="adopter-required">* Obligatorio</span><input v-model="passwordForm.confirm" type="password" autocomplete="new-password" minlength="12" maxlength="72" required></label>
             <div class="adopter-password-actions"><button class="button button-outline" type="button" :disabled="passwordSaving" @click="passwordOpen = false">Cancelar</button><button class="button button-outline" type="submit" :disabled="passwordSaving">{{ passwordSaving ? 'Actualizando…' : 'Actualizar contraseña' }}</button></div>
-            <p v-if="passwordFeedback" class="adopter-feedback" role="status">{{ passwordFeedback }}</p>
+            <p v-if="passwordFeedback" class="adopter-feedback" :role="passwordFeedbackIsError ? 'alert' : 'status'">{{ passwordFeedback }}</p>
           </form>
         </section>
 

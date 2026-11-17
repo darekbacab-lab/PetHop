@@ -150,7 +150,8 @@ function persist(message = '') {
   return true;
 }
 let toastTimer;
-function toast(message) { notice.value = message; clearTimeout(toastTimer); toastTimer = setTimeout(() => notice.value = '', 3200); }
+const noticeIsError = ref(false);
+function toast(message, isError = false) { notice.value = message; noticeIsError.value = isError; clearTimeout(toastTimer); if (!isError) toastTimer = setTimeout(() => notice.value = '', 3200); }
 function chooseRole() { router.push({ path: '/acceso.html', query: { mode: 'register', role: 'shelter' } }); }
 async function signOut() {
   try { await logout(); }
@@ -167,7 +168,7 @@ async function changePassword() {
   } catch (error) { passwordFeedback.value = error.message || 'No se pudo actualizar la contraseña.'; }
   finally { passwordSaving.value = false; }
 }
-function go(item) { if (!profileExists.value && item !== 'Perfil / Organización') { toast('Completa primero el perfil de tu organización para habilitar el panel.'); return; } section.value = state.section = item; persist(); }
+function go(item) { if (!profileExists.value && item !== 'Perfil / Organización') { toast('Completa primero el perfil de tu organización para habilitar el panel.', true); return; } section.value = state.section = item; persist(); }
 async function loadShelterData() {
   try {
     const authenticated = await loadCurrentUser();
@@ -221,7 +222,7 @@ async function loadShelterData() {
     }));
     messagesRevision.value += 1;
     section.value = state.section = routeSection(route.query.section) || state.section || 'Inicio';
-  } catch (error) { state.role = ''; if (error.status !== 401 && error.status !== 403) toast(error.message || 'No se pudieron cargar los datos del refugio.'); }
+  } catch (error) { state.role = ''; if (error.status !== 401 && error.status !== 403) toast(error.message || 'No se pudieron cargar los datos del refugio.', true); }
 }
 async function createOrganizationProfile() {
   savingProfile.value = true;
@@ -232,7 +233,7 @@ async function createOrganizationProfile() {
     await loadShelterData();
     section.value = state.section = 'Perfil / Organización';
     toast('Perfil de organización creado.');
-  } catch (error) { toast(error.message || 'No se pudo crear el perfil. Tus datos siguen disponibles para reintentar.'); }
+  } catch (error) { toast(error.message || 'No se pudo crear el perfil. Tus datos siguen disponibles para reintentar.', true); }
   finally { savingProfile.value = false; }
 }
 function openPet(pet) { selectedPet.value = pet; selectedPetStatus.value = pet.status; editingPet.value = false; }
@@ -240,7 +241,7 @@ async function updateStatus(pet, newStatus) {
   const status = ({ Publicada: 'AVAILABLE', Pausada: 'UNAVAILABLE', Borrador: 'DRAFT' })[newStatus];
   if (!status) { toast('El estado de adopción se gestiona al revisar solicitudes y formalizar la adopción.'); return; }
   try { await api('/pets/' + pet.id + '/status', { method: 'PATCH', body: { adoptionStatus: status } }); pet.status = newStatus; toast('Estado de publicación actualizado.'); selectedPet.value = null; }
-  catch (error) { toast(error.message || 'No se pudo actualizar el estado.'); }
+  catch (error) { toast(error.message || 'No se pudo actualizar el estado.', true); }
 }
 function savePetStatus() { if (!selectedPet.value) return; updateStatus(selectedPet.value, selectedPetStatus.value); }
 async function deletePet(pet) {
@@ -251,7 +252,7 @@ async function deletePet(pet) {
     selectedPet.value = null;
     editingPet.value = false;
     persist(`${pet.name} se eliminó del catálogo.`);
-  } catch (error) { toast(error.message || 'No se pudo eliminar la publicación.'); }
+  } catch (error) { toast(error.message || 'No se pudo eliminar la publicación.', true); }
 }
 function editPetInformation() {
   if (!selectedPet.value) return;
@@ -272,14 +273,14 @@ async function addEditPhotos(event) {
   const remaining = 6 - petEditForm.value.photosToKeep.length - petEditForm.value.newPhotos.length;
   if (!files.length) return;
   if (files.length > remaining || files.some(file => !file.type.startsWith('image/') || file.size > 10 * 1024 * 1024)) {
-    toast(`Puedes agregar hasta ${Math.max(0, remaining)} fotos más; cada archivo debe pesar como máximo 10 MB.`);
+    toast(`Puedes agregar hasta ${Math.max(0, remaining)} fotos más; cada archivo debe pesar como máximo 10 MB.`, true);
     event.target.value = '';
     return;
   }
   try {
     const additions = await Promise.all(files.map(async file => ({ dataUrl: await imageToJpeg(file), name: file.name })));
     petEditForm.value.newPhotos.push(...additions);
-  } catch { toast('No se pudieron procesar las fotos. Intenta con otros archivos.'); }
+  } catch { toast('No se pudieron procesar las fotos. Intenta con otros archivos.', true); }
   event.target.value = '';
 }
 function removeNewEditPhoto(index) { petEditForm.value.newPhotos.splice(index, 1); }
@@ -319,7 +320,7 @@ async function savePetInformation() {
         newPhotos: updatedPet.newPhotos.slice(uploadedPhotoCount)
       };
     } catch { /* Preserve the current form when the server cannot be queried after a partial save. */ }
-    toast(error.message || 'No se pudo actualizar la publicación. Revisa las fotografías e inténtalo de nuevo.');
+    toast(error.message || 'No se pudo actualizar la publicación. Revisa las fotografías e inténtalo de nuevo.', true);
   }
   finally { savingPetChanges.value = false; }
 }
@@ -327,8 +328,8 @@ const healthRecordForm = reactive({ recordType: 'VACCINATION', title: '', descri
 const healthRecordTypeLabels = { VACCINATION: 'Vacunación', DEWORMING: 'Desparasitación', STERILIZATION: 'Esterilización', MEDICAL_CONSULTATION: 'Consulta médica', TREATMENT: 'Tratamiento', OTHER: 'Otro' };
 function addHealthRecord() {
   const record = healthRecordPayload(healthRecordForm);
-  if (!record) { toast('Escribe el título y la fecha realizada del registro.'); return; }
-  if (record.nextDueAt && record.nextDueAt < record.performedAt) { toast('La próxima fecha no puede ser anterior a la fecha realizada.'); return; }
+  if (!record) { toast('Escribe el título y la fecha realizada del registro.', true); return; }
+  if (record.nextDueAt && record.nextDueAt < record.performedAt) { toast('La próxima fecha no puede ser anterior a la fecha realizada.', true); return; }
   if (!Array.isArray(state.draft.healthRecords)) state.draft.healthRecords = [];
   state.draft.healthRecords.push(record);
   healthRecordForm.title = ''; healthRecordForm.description = ''; healthRecordForm.nextDueAt = ''; healthRecordForm.veterinarianName = '';
@@ -342,7 +343,7 @@ function removeHealthRecord(index) {
 async function advancePublish(event) {
   if (!event.currentTarget.reportValidity()) return;
   if (state.step < 6) { state.step += 1; persist(); return; }
-  if (state.profile.verificationStatus !== 'VERIFIED') { toast('Tu perfil debe estar verificado para publicar.'); return; }
+  if (state.profile.verificationStatus !== 'VERIFIED') { toast('Tu perfil debe estar verificado para publicar.', true); return; }
   const reviewed = event.currentTarget.elements.reviewed;
   if (!reviewed?.checked) { reviewed?.focus(); return; }
   const draft = state.draft;
@@ -374,7 +375,7 @@ async function advancePublish(event) {
     state.pets = (response.content || []).map(item => { const pet = mapPet(item); return { ...pet, status: ({ AVAILABLE:'Publicada', IN_PROCESS:'En proceso de adopción', ADOPTED:'Adoptada', UNAVAILABLE:'Pausada', DRAFT:'Borrador' })[item.adoptionStatus], age: pet.ageGroup, requests: state.requests.filter(request => String(request.petId) === String(item.id)).length, days: daysSincePublished(item), image: pet.photos?.[0] || '' }; });
     state.draft = {}; state.step = 0; section.value = state.section = 'Mis mascotas';
     persist(failedRecords.length ? `La publicación quedó guardada, pero ${failedRecords.length} ${failedRecords.length === 1 ? 'registro sanitario no se pudo guardar' : 'registros sanitarios no se pudieron guardar'}. Agrégalos desde el expediente sanitario de la mascota.` : savedRecords ? `La publicación quedó guardada en PetHop con ${savedRecords} ${savedRecords === 1 ? 'registro' : 'registros'} en su expediente sanitario.` : 'La publicación quedó guardada en PetHop.');
-  } catch (error) { toast(error.message || 'No se pudo guardar la publicación.'); }
+  } catch (error) { toast(error.message || 'No se pudo guardar la publicación.', true); }
 }
 async function requestAction(action) {
   const request = selectedRequest.value; if (!request) return;
@@ -398,7 +399,7 @@ async function runRequestAction(action, request) {
     if (action === 'accept') { const pet = state.pets.find(item => item.id === request.petId); if (pet) pet.status = 'En proceso de adopción'; section.value = state.section = 'En proceso'; }
     if (action === 'review' || action === 'reject') section.value = state.section = 'Solicitudes';
     selectedRequest.value = null; toast('La solicitud se actualizó en PetHop.');
-  } catch (error) { toast(error.message || 'No se pudo actualizar la solicitud.'); }
+  } catch (error) { toast(error.message || 'No se pudo actualizar la solicitud.', true); }
 }
 async function confirmRequestAction() {
   const pending = confirmRequest.value; if (!pending) return;
@@ -415,14 +416,14 @@ async function runFormalizeAdoption(request) {
     request.status = 'Adoptada';
     const pet = state.pets.find(item => item.id === request.petId); if (pet) pet.status = 'Adoptada';
     selectedRequest.value = null; section.value = state.section = 'Completadas'; toast('Adopción formalizada y registrada en PetHop.');
-  } catch (error) { toast(error.message || 'No se pudo formalizar la adopción.'); }
+  } catch (error) { toast(error.message || 'No se pudo formalizar la adopción.', true); }
 }
 async function processPhotos(event) {
   const files = [...event.target.files];
   event.target.value = '';
-  if (files.some(file => !file.type.startsWith('image/') || file.size > 10 * 1024 * 1024)) { toast('Cada foto debe ser una imagen de máximo 10 MB.'); return; }
+  if (files.some(file => !file.type.startsWith('image/') || file.size > 10 * 1024 * 1024)) { toast('Cada foto debe ser una imagen de máximo 10 MB.', true); return; }
   const selection = mergePhotoSelection(state.draft.photoKeys, files);
-  if (selection.exceeded) { toast('Puedes seleccionar hasta 6 fotografías en total.'); return; }
+  if (selection.exceeded) { toast('Puedes seleccionar hasta 6 fotografías en total.', true); return; }
   if (!selection.additions.length) { if (selection.duplicates) toast('Esas fotografías ya están seleccionadas.'); return; }
   try {
     const converted = await Promise.all(selection.additions.map(async ({ file, key }) => ({ dataUrl: await imageToJpeg(file), name: file.name, key })));
@@ -430,7 +431,7 @@ async function processPhotos(event) {
     state.draft.photoNames.push(...converted.map(item => item.name));
     state.draft.photoKeys.push(...converted.map(item => item.key));
     persist();
-  } catch { toast('No se pudieron procesar las fotos. Intenta con otras imágenes.'); }
+  } catch { toast('No se pudieron procesar las fotos. Intenta con otras imágenes.', true); }
 }
 function removeDraftPhoto(index) {
   state.draft.photos.splice(index, 1);
@@ -445,7 +446,7 @@ async function saveMessage(event) {
     const result = await api('/conversations/' + conversation.id + '/messages', { method: 'POST', body: { content: text } });
     conversation.messages.push({ from: 'shelter', text: result.content, date: result.createdAt });
     event.currentTarget.reset(); messagesRevision.value += 1;
-  } catch (error) { toast(error.message || 'No se pudo enviar el mensaje.'); }
+  } catch (error) { toast(error.message || 'No se pudo enviar el mensaje.', true); }
 }
 function editProfileGroup(group) {
   profileEditor.value = group;
@@ -485,7 +486,7 @@ async function saveProfile(group) {
     }
     cancelProfileEdit();
     toast('Cambios guardados en tu perfil.');
-  } catch (error) { toast(error.message || 'No se pudo guardar esta sección. Tus cambios siguen disponibles para reintentar.'); }
+  } catch (error) { toast(error.message || 'No se pudo guardar esta sección. Tus cambios siguen disponibles para reintentar.', true); }
   finally { savingProfile.value = false; }
 }
 watch(section, value => { document.body.classList.toggle('shelter-dashboard-active', Boolean(state.role)); document.title = `${value} | PetHop`; }, { immediate: true });
@@ -632,9 +633,9 @@ watch(() => state.step, () => persist());
        <div class="shelter-applicant-grid"><article><small>Estado de publicación</small><p>{{ selectedPet.status }}</p></article><article><small>Actividad</small><p>{{ selectedPet.requests || 0 }} solicitudes</p></article></div><label class="shelter-field">Actualizar estado<select v-model="selectedPetStatus"><option v-for="status in ['Publicada','Borrador','Pausada']" :key="status">{{ status }}</option></select></label><p class="shelter-modal-note">El proceso y el cierre de adopción se actualizan al revisar la solicitud y formalizar el acuerdo.</p><div class="shelter-modal-actions shelter-pet-details-actions"><RouterLink class="button button-outline" :to="{ path: '/salud.html', query: { pet: selectedPet.id } }" @click="selectedPet=null"><Icon name="clipboard-list" /> Expediente sanitario</RouterLink><button type="button" class="button button-danger-outline" @click="deletePet(selectedPet)"><Icon name="x" /> Eliminar mascota</button><button type="button" class="button button-outline" @click="selectedPet=null">Cerrar</button><button type="button" class="button button-outline" @click="editPetInformation">Editar información</button><button type="button" class="button button-primary" @click="savePetStatus">Guardar estado</button></div>
      </template>
    </section></div>
-   <div v-if="selectedRequest" class="shelter-modal-backdrop" @click.self="selectedRequest=null"><section ref="requestDialog" class="shelter-request-modal" role="dialog" aria-modal="true" aria-labelledby="request-title"><button class="shelter-modal-close" aria-label="Cerrar" @click="selectedRequest=null"><Icon name="x" /></button><span class="eyebrow">SOLICITUD DE ADOPCIÓN</span><h2 id="request-title">{{ selectedRequest.adopter }} <span class="shelter-status">{{ selectedRequest.status }}</span></h2><p class="shelter-request-lead">Solicitud para <strong>{{ selectedRequest.pet }}</strong> · {{ new Date(selectedRequest.date).toLocaleDateString('es-MX') }}</p><div class="shelter-applicant-grid"><article v-for="[label,value] in [['Tipo de vivienda',selectedRequest.home],['Experiencia con mascotas',selectedRequest.experience],['Personas en el hogar',selectedRequest.household],['Motivo de adopción',selectedRequest.reason],['Condiciones del hogar',selectedRequest.conditions],['Información relevante',selectedRequest.notes]]" :key="label"><small>{{ label }}</small><p>{{ value || 'No proporcionado' }}</p></article></div><div class="shelter-modal-actions"><RouterLink class="button button-outline" :to="{ path: '/salud.html', query: { pet: selectedRequest.petId } }" @click="selectedRequest=null"><Icon name="clipboard-list" /> Expediente sanitario</RouterLink><button class="button button-outline" @click="requestAction('contact')">Contactar</button><button class="button button-outline" @click="requestAction('review')">Continuar revisión</button><button class="button button-primary" @click="requestAction('accept')">Aceptar solicitud</button><button v-if="selectedRequest.status === 'Aceptada'" class="button button-primary" @click="formalizeAdoption(selectedRequest)">Formalizar adopción</button><button class="button button-danger" @click="requestAction('reject')">Rechazar</button></div><p class="shelter-modal-note">Aceptar inicia la coordinación; la adopción se completa después del encuentro y seguimiento.</p></section></div>
+   <div v-if="selectedRequest" class="shelter-modal-backdrop" @click.self="selectedRequest=null"><section ref="requestDialog" class="shelter-request-modal" role="dialog" aria-modal="true" aria-labelledby="request-title"><button class="shelter-modal-close" aria-label="Cerrar" @click="selectedRequest=null"><Icon name="x" /></button><span class="eyebrow">SOLICITUD DE ADOPCIÓN</span><h2 id="request-title">{{ selectedRequest.adopter }} <span class="shelter-status">{{ selectedRequest.status }}</span></h2><p class="shelter-request-lead">Solicitud para <strong>{{ selectedRequest.pet }}</strong> · {{ new Date(selectedRequest.date).toLocaleDateString('es-MX') }}</p><div class="shelter-applicant-grid"><article v-for="[label,value] in [['Tipo de vivienda',selectedRequest.home],['Experiencia con mascotas',selectedRequest.experience],['Personas en el hogar',selectedRequest.household],['Motivo de adopción',selectedRequest.reason],['Condiciones del hogar',selectedRequest.conditions],['Información relevante',selectedRequest.notes]]" :key="label"><small>{{ label }}</small><p>{{ value || 'No proporcionado' }}</p></article></div><div class="shelter-modal-actions"><RouterLink class="button button-outline" :to="{ path: '/salud.html', query: { pet: selectedRequest.petId } }" @click="selectedRequest=null"><Icon name="clipboard-list" /> Expediente sanitario</RouterLink><button class="button button-outline" @click="requestAction('contact')">Contactar</button><button class="button button-outline" @click="requestAction('review')">Marcar en revisión</button><button class="button button-primary" @click="requestAction('accept')">Aceptar solicitud</button><button v-if="selectedRequest.status === 'Aceptada'" class="button button-primary" @click="formalizeAdoption(selectedRequest)">Formalizar adopción</button><button class="button button-danger" @click="requestAction('reject')">Rechazar</button></div><p class="shelter-modal-note">Aceptar inicia la coordinación; la adopción se completa después del encuentro y seguimiento.</p></section></div>
   <ConfirmDialog :open="!!confirmRequest" :title="confirmRequest?.title || ''" :message="confirmRequest?.message || ''" :confirm-label="confirmRequest?.confirmLabel || 'Confirmar'" :danger="confirmRequest?.danger || false" @confirm="confirmRequestAction" @cancel="confirmRequest = null" />
-   <div v-if="notice" class="shelter-toast is-visible" role="status">{{ notice }}</div>
+   <div v-if="notice" class="shelter-toast is-visible" :role="noticeIsError ? 'alert' : 'status'"><span>{{ notice }}</span><button v-if="noticeIsError" type="button" class="shelter-toast-close" aria-label="Cerrar aviso" @click="notice = ''">×</button></div>
  </div>
 </template>
 
@@ -647,7 +648,7 @@ watch(() => state.step, () => persist());
 .shelter-pet-modal-title .shelter-status { flex:0 0 auto; }
 .shelter-pet-details-modal .shelter-request-lead { margin-top:5px; }
 .shelter-pet-details-modal .shelter-applicant-grid { margin:20px 0; }
-.shelter-unread-badge { flex:0 0 auto; min-width:20px; height:20px; padding:0 6px; display:inline-grid; place-items:center; border-radius:999px; background:var(--primary-strong); color:#fff; font-size:.68rem; font-weight:800; }
+.shelter-unread-badge { flex:0 0 auto; min-width:20px; height:20px; padding:0 6px; display:inline-grid; place-items:center; border-radius:999px; background:var(--primary-strong); color:#fff; font-size:.75rem; font-weight:800; }
 .shelter-pet-details-modal .shelter-applicant-grid article { padding:15px; border-color:var(--border); background:#f7fcfc; }
 .shelter-pet-details-modal .shelter-field { gap:7px; }
 .shelter-pet-details-modal .shelter-field :deep(input),.shelter-pet-details-modal .shelter-field :deep(select),.shelter-pet-details-modal .shelter-field :deep(textarea) { min-height:44px; border-color:#c5e1e4; background:#fbfefe; color:var(--text); font:500 .88rem "Montserrat",Arial,sans-serif; }
@@ -665,7 +666,7 @@ watch(() => state.step, () => persist());
 .shelter-edit-photo-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:10px; }
 .shelter-edit-photo { position:relative;overflow:hidden;aspect-ratio:1;border:1px solid var(--border);border-radius:12px;background:#eaf5f4; }
 .shelter-edit-photo img { width:100%;height:100%;object-fit:cover; }
-.shelter-edit-photo button { position:absolute;right:5px;bottom:5px;display:flex;align-items:center;gap:4px;padding:5px 8px;border:0;border-radius:20px;background:rgba(24,55,61,.9);color:white;font-size:.68rem;font-weight:700;cursor:pointer; }
+.shelter-edit-photo button { position:absolute;right:5px;bottom:5px;display:flex;align-items:center;gap:4px;padding:5px 8px;border:0;border-radius:20px;background:rgba(24,55,61,.9);color:white;font-size:.75rem;font-weight:700;cursor:pointer; }
 .shelter-edit-photo button :deep(svg) { width:13px;height:13px; }
 .shelter-edit-photo-input { margin-top:3px; }
 .shelter-edit-photo-input :deep(input[type="file"]) { width:100%;min-height:48px;padding:6px;border:1px solid var(--border);border-radius:11px;background:#f7fbfb;color:var(--text-soft);font:500 .8rem "Montserrat",Arial,sans-serif; }
@@ -686,26 +687,26 @@ watch(() => state.step, () => persist());
 .shelter-org-avatar { display:grid; width:58px; height:58px; flex:0 0 58px; place-items:center; border-radius:16px; background:var(--primary-strong); color:#fff; }
 .shelter-org-avatar :deep(svg) { width:27px; height:27px; }
 .shelter-org-identity > div { min-width:0; flex:1; }
-.shelter-org-identity .eyebrow { margin:0 0 3px; color:var(--primary-strong); font-size:.62rem; }
+.shelter-org-identity .eyebrow { margin:0 0 3px; color:var(--primary-strong); font-size:.75rem; }
 .shelter-org-identity h2 { overflow-wrap:anywhere; margin:0; color:var(--text); font:750 1.22rem "Poppins",sans-serif; }
 .shelter-org-identity p { margin:4px 0 0; color:var(--text-soft); font-size:.76rem; }
 .shelter-profile-logout { flex:0 0 auto; }
-.shelter-org-verification { display:inline-flex; flex:0 0 auto; align-items:center; gap:6px; padding:7px 10px; border:1px solid #e7d5a4; border-radius:999px; background:#fff8e5; color:#705719; font-size:.67rem; font-weight:800; }
+.shelter-org-verification { display:inline-flex; flex:0 0 auto; align-items:center; gap:6px; padding:7px 10px; border:1px solid #e7d5a4; border-radius:999px; background:#fff8e5; color:#705719; font-size:.75rem; font-weight:800; }
 .shelter-org-verification.is-verified { border-color:#b9ddc8; background:#eaf7ef; color:#287451; }
 .shelter-org-verification :deep(svg) { width:15px; height:15px; }
 .shelter-profile-group { padding:19px 22px; border-bottom:1px solid var(--border); }
 .shelter-profile-group:last-child { border-bottom:0; }
 .shelter-profile-group-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:13px; }
 .shelter-profile-group-heading h3 { margin:0; color:var(--text); font:700 .96rem "Poppins",sans-serif; }
-.shelter-profile-group-heading p { margin:3px 0 0; color:var(--text-soft); font-size:.7rem; }
+.shelter-profile-group-heading p { margin:3px 0 0; color:var(--text-soft); font-size:.75rem; }
 .shelter-profile-edit { display:grid; width:35px; height:35px; flex:0 0 35px; place-items:center; border:1px solid var(--border); border-radius:10px; background:var(--white); color:var(--primary-strong); cursor:pointer; }
 .shelter-profile-edit:hover { background:var(--background); }
 .shelter-profile-edit :deep(svg) { width:16px; height:16px; }
 .shelter-profile-data { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px 20px; margin:0; }
 .shelter-profile-data div { min-width:0; }
-.shelter-profile-data dt { margin-bottom:3px; color:var(--text-soft); font-size:.67rem; font-weight:700; }
+.shelter-profile-data dt { margin-bottom:3px; color:var(--text-soft); font-size:.75rem; font-weight:700; }
 .shelter-profile-data dd { overflow-wrap:anywhere; margin:0; color:var(--text); font-size:.8rem; }
-.shelter-profile-data dd small { display:block; margin-top:3px; color:var(--text-soft); font-size:.63rem; }
+.shelter-profile-data dd small { display:block; margin-top:3px; color:var(--text-soft); font-size:.75rem; }
 .shelter-profile-data-wide { grid-column:1/-1; }
 .shelter-profile-edit-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
 .shelter-profile-edit-grid .shelter-form-actions { grid-column:1/-1; justify-content:flex-end; margin-top:3px; }
@@ -713,10 +714,10 @@ watch(() => state.step, () => persist());
 .shelter-profile-aside-column .shelter-profile-aside { position:static; }
 .shelter-profile-aside-column .shelter-profile-aside > p:last-child { margin-bottom:0; }
 .shelter-org-activity { display:grid; gap:0; padding:18px; }
-.shelter-org-activity > .eyebrow { margin:0 0 8px; color:var(--primary-strong); font-size:.63rem; }
+.shelter-org-activity > .eyebrow { margin:0 0 8px; color:var(--primary-strong); font-size:.75rem; }
 .shelter-org-activity > div { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:11px 0; border-top:1px solid var(--border); }
 .shelter-org-activity > div strong { color:var(--primary-strong); font:750 1.35rem "Poppins",sans-serif; }
-.shelter-org-activity > div span { color:var(--text-soft); font-size:.72rem; text-align:right; }
+.shelter-org-activity > div span { color:var(--text-soft); font-size:.75rem; text-align:right; }
 .shelter-profile-setup { display:grid; gap:15px; max-width:900px; padding:24px; }
 .shelter-profile-setup > .shelter-form-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
 .shelter-profile-setup-note { display:flex; align-items:flex-start; gap:8px; margin:0; color:var(--text-soft); font-size:.75rem; line-height:1.5; }
@@ -756,8 +757,8 @@ watch(() => state.step, () => persist());
 .shelter-health-record-list li { display:grid; gap:3px; padding:11px 12px; border:1px solid var(--border); border-radius:11px; background:var(--white); }
 .shelter-health-record-list li > div { display:flex; align-items:center; justify-content:space-between; gap:10px; }
 .shelter-health-record-list strong { color:var(--text); font-size:.86rem; }
-.shelter-health-record-list span { color:var(--primary-strong); font-size:.65rem; font-weight:800; }
-.shelter-health-record-list small { color:var(--text-soft); font-size:.68rem; }
+.shelter-health-record-list span { color:var(--primary-strong); font-size:.75rem; font-weight:800; }
+.shelter-health-record-list small { color:var(--text-soft); font-size:.75rem; }
 .shelter-health-record-remove { display:inline-flex; align-items:center; gap:4px; justify-self:start; margin-top:4px; padding:5px 9px; border:1px solid var(--border); border-radius:8px; background:var(--white); color:var(--text-soft); cursor:pointer; font:700 .68rem "Montserrat",sans-serif; }
 .shelter-health-record-remove:hover { border-color:var(--danger); color:var(--danger); }
 .shelter-health-record-remove :deep(svg) { width:13px; height:13px; }

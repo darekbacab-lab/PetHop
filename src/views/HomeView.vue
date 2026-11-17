@@ -26,11 +26,14 @@ const pendingPetMoves = [];
 let petAutoplayTimer;
 let petMotionPreference;
 const petLoadError = ref('');
+const petsLoading = ref(true);
 async function refreshPets() {
+  petsLoading.value = true;
   try {
     const result = await listPets({ sort: 'newest' });
     pets.value = result.content.slice(0, 6); petLoadError.value = '';
   } catch (error) { pets.value = []; petLoadError.value = error.message || 'No se pudieron cargar las mascotas.'; }
+  finally { petsLoading.value = false; }
   currentPetPage.value = 0;
   petTransitioning.value = false;
   pendingPetMoves.length = 0;
@@ -277,7 +280,7 @@ async function favorite(id) {
       <section class="quick-actions"><div class="actions-container"><RouterLink to="/explorar.html" class="action-card"><div class="action-content"><span>ADOPTANTES</span><h2>Adoptar</h2><p>Encuentra mascotas disponibles y conoce sus características antes de solicitar una adopción.</p><strong>Explorar mascotas</strong></div><span class="action-paw-trail" aria-hidden="true"><Icon name="paw-print" class="action-paw action-paw-one" /><Icon name="paw-print" class="action-paw action-paw-two" /><Icon name="paw-print" class="action-paw action-paw-four" /><Icon name="paw-print" class="action-paw action-paw-five" /><Icon name="paw-print" class="action-paw action-paw-six" /><Icon name="paw-print" class="action-paw action-paw-seven" /></span></RouterLink><RouterLink :to="{ path:'/acceso.html', query:{ mode:'register', role:'shelter' } }" class="action-card"><div class="action-content"><span>ORGANIZACIONES</span><h2>Registrar refugio</h2><p>Publica mascotas, organiza solicitudes y centraliza la información de tus procesos de adopción.</p><strong>Registrar refugio</strong></div><span class="action-paw-trail" aria-hidden="true"><Icon name="paw-print" class="action-paw action-paw-one" /><Icon name="paw-print" class="action-paw action-paw-two" /><Icon name="paw-print" class="action-paw action-paw-four" /><Icon name="paw-print" class="action-paw action-paw-five" /><Icon name="paw-print" class="action-paw action-paw-six" /><Icon name="paw-print" class="action-paw action-paw-seven" /></span></RouterLink><RouterLink to="/seguimiento.html" class="action-card"><div class="action-content"><span>SEGUIMIENTO</span><h2>Acompañar</h2><p>Mantén organizada la información posterior a la adopción y registra cómo continúa la historia.</p><strong>Ver seguimiento</strong></div><span class="action-paw-trail" aria-hidden="true"><Icon name="paw-print" class="action-paw action-paw-one" /><Icon name="paw-print" class="action-paw action-paw-two" /><Icon name="paw-print" class="action-paw action-paw-four" /><Icon name="paw-print" class="action-paw action-paw-five" /><Icon name="paw-print" class="action-paw action-paw-six" /><Icon name="paw-print" class="action-paw action-paw-seven" /></span></RouterLink></div></section>
       <section class="explore-section" id="explorar"><div class="explore-container"><div class="section-title"><div><span>CONOCE A LOS DISPONIBLES</span><h2>Tal vez tu nuevo compañero está aquí.</h2></div></div><div class="home-search"><form class="search-box" @submit.prevent="submitSearch"><div class="search-input"><span class="search-symbol" aria-hidden="true"><Icon name="search" /></span><label class="sr-only" for="homeSearch">Buscar mascota</label><input id="homeSearch" v-model="search" name="search" type="search" placeholder="Busca por nombre, especie o ubicación" autocomplete="off"></div><button type="submit" class="search-button">Buscar</button></form></div>
         <div class="home-pets-carousel" id="featuredPets" aria-label="Mascotas destacadas" @mouseenter="petCarouselHovered = true" @mouseleave="petCarouselHovered = false" @focusin="petCarouselFocused = true" @focusout="handleCarouselFocusOut">
-          <p v-if="petLoadError" class="catalog-empty" role="alert">{{ petLoadError }}</p><p v-else-if="!pets.length" class="catalog-empty" role="status">Aún no hay mascotas publicadas. Vuelve pronto para conocerlas.</p>
+          <p v-if="petLoadError" class="catalog-empty" role="alert">{{ petLoadError }}</p><div v-else-if="petsLoading" class="home-pets-loading" role="status" aria-label="Cargando mascotas"><div v-for="item in 3" :key="item" class="catalog-loading-card" aria-hidden="true"></div></div><p v-else-if="!pets.length" class="catalog-empty" role="status">Aún no hay mascotas publicadas. Vuelve pronto para conocerlas.</p>
           <button v-if="canPagePets" class="home-pets-arrow home-pets-arrow-previous" type="button" aria-label="Ver mascotas anteriores" @click="movePetPage(-1)"><Icon name="arrow-left" /></button>
           <div class="home-pets-viewport" aria-live="polite" aria-atomic="true">
             <Transition :name="petTransitionName" @after-enter="finishPetPageMove">
@@ -288,6 +291,7 @@ async function favorite(id) {
           </div>
           <button v-if="canPagePets" class="home-pets-arrow home-pets-arrow-next" type="button" aria-label="Ver más mascotas" @click="movePetPage(1)"><Icon name="arrow-right" /></button>
           <button v-if="canPagePets" class="home-pets-pause" type="button" :aria-pressed="petAutoplayPaused" :aria-label="petAutoplayPaused ? 'Reanudar el carrusel de mascotas' : 'Pausar el carrusel de mascotas'" @click="togglePetAutoplay">{{ petAutoplayPaused ? 'Reanudar carrusel' : 'Pausar carrusel' }}</button>
+          <p v-if="canPagePets" class="home-pets-counter" aria-live="polite">Grupo {{ currentPetPage + 1 }} de {{ petPages.length }}</p>
         </div>
         <RouterLink to="/explorar.html" class="load-more ui-button">Explorar todas las mascotas</RouterLink></div></section>
       <section class="process-section" id="como-funciona">
@@ -418,6 +422,8 @@ async function favorite(id) {
 .home-pets-pause { display:block; margin:12px auto 0; min-height:34px; padding:0 16px; border:1px solid var(--border); border-radius:999px; background:var(--white); color:var(--primary-dark); font-weight:800; font-size:.72rem; cursor:pointer; }
 .home-pets-pause:hover { background:var(--primary-soft); }
 .home-pets-pause:focus-visible { outline:3px solid var(--primary); outline-offset:3px; }
+.home-pets-loading { display:grid; grid-template-columns:repeat(var(--home-pet-count, 3), minmax(0,1fr)); gap:18px; }
+.home-pets-counter { margin:8px 0 0; text-align:center; color:var(--text-soft); font-size:.75rem; font-weight:700; }
 
 .hero-actions {
   display: grid;
