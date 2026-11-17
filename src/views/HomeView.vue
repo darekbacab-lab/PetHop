@@ -116,15 +116,12 @@ const processCarouselSlides = computed(() => {
     { ...slides[0], clone: true, key: 'process-clone-first' }
   ];
 });
-const processPositionLabel = computed(() => {
+const processActiveStep = computed(() => {
   const count = processSteps.length;
-  const { first, last } = processVisibleRange.value;
-  const pad = value => String(value).padStart(2, '0');
-  if (first && last && first !== last) return `Mostrando pasos ${pad(first)}–${pad(last)} de ${pad(count)}`;
-  const current = processPosition.value === 0 ? count : processPosition.value === count + 1 ? 1 : processPosition.value;
-  return `Mostrando paso ${pad(current)} de ${pad(count)}`;
+  if (processPosition.value === 0) return count;
+  if (processPosition.value === count + 1) return 1;
+  return processPosition.value;
 });
-const processVisibleRange = ref({ first: 1, last: 3 });
 let processAutoTimer;
 let processScrollTimer;
 let processScrollFrame;
@@ -155,25 +152,12 @@ function updateProcessPosition() {
   const center = track.getBoundingClientRect().left + track.clientWidth / 2;
   let closestPosition = processPosition.value;
   let closestDistance = Infinity;
-  const count = processSteps.length;
-  const trackRect = track.getBoundingClientRect();
-  let firstVisible = null;
-  let visibleCount = 0;
   [...track.children].forEach((slide, index) => {
     const rect = slide.getBoundingClientRect();
     const distance = Math.abs(rect.left + rect.width / 2 - center);
     if (distance < closestDistance) { closestDistance = distance; closestPosition = index; }
-    if (rect.right > trackRect.left + 4 && rect.left < trackRect.right - 4) {
-      const real = index === 0 ? count : index === count + 1 ? 1 : index;
-      if (firstVisible === null) firstVisible = real;
-      visibleCount++;
-    }
   });
   processPosition.value = closestPosition;
-  if (firstVisible !== null && visibleCount > 0) {
-    const last = ((firstVisible - 1 + visibleCount - 1) % count) + 1;
-    processVisibleRange.value = { first: firstVisible, last };
-  }
 }
 function recenterProcessSlide(position) {
   processIsRecentering.value = true;
@@ -205,6 +189,11 @@ function moveProcessCarousel(direction, userInitiated = true) {
   if (current === processSteps.length + 1) { recenterProcessSlide(1); current = 1; }
   processNavigationTarget = current + direction;
   centerProcessSlide(processNavigationTarget, processMotionPreference?.matches ? 'auto' : 'smooth');
+}
+function goToProcessSlide(position) {
+  noteProcessActivity();
+  processNavigationTarget = position;
+  centerProcessSlide(position, processMotionPreference?.matches ? 'auto' : 'smooth');
 }
 function onProcessKeydown(event) {
   if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
@@ -338,7 +327,9 @@ async function favorite(id) {
             </div>
             <div class="process-carousel-controls">
               <button type="button" aria-label="Ver etapa anterior" @click="moveProcessCarousel(-1)"><Icon name="arrow-left" /></button>
-              <span aria-live="polite" aria-atomic="true">{{ processPositionLabel }}</span>
+              <div class="process-carousel-dots" role="tablist" aria-label="Etapas del proceso de adopción">
+                <button v-for="(step, index) in processSteps" :key="step.title" type="button" role="tab" :aria-selected="processActiveStep === index + 1" :aria-label="`Ir a la etapa ${index + 1}: ${step.title}`" :class="{ 'is-active': processActiveStep === index + 1 }" @click="goToProcessSlide(index + 1)" />
+              </div>
               <button type="button" aria-label="Ver etapa siguiente" @click="moveProcessCarousel(1)"><Icon name="arrow-right" /></button>
             </div>
           </div>
@@ -537,7 +528,11 @@ async function favorite(id) {
 .process-carousel-controls button:hover { border-color:#3a9fa5; background:#e4f4f2; transform:translateY(-1px); }
 .process-carousel-controls button:focus-visible { outline:3px solid #3eb2ba; outline-offset:3px; }
 .process-carousel-controls button svg { width:18px; height:18px; }
-.process-carousel-controls > span { min-width:230px; color:#14545c; font-size:.72rem; font-weight:800; letter-spacing:.04em; text-align:center; }
+.process-carousel-dots { display:flex; align-items:center; justify-content:center; gap:8px; min-width:230px; }
+.process-carousel-dots button { width:9px; height:9px; padding:0; border:0; border-radius:999px; background:#b9dfe1; cursor:pointer; transition:background .18s ease, width .18s ease, transform .18s ease; }
+.process-carousel-dots button:hover { background:#3a9fa5; transform:scale(1.15); }
+.process-carousel-dots button.is-active { width:26px; background:#167f87; }
+.process-carousel-dots button:focus-visible { outline:3px solid #3eb2ba; outline-offset:2px; }
 
 @media (max-width: 900px) {
   .quick-actions .action-card {
@@ -734,8 +729,8 @@ async function favorite(id) {
 }
 
 @media (min-width: 901px) {
-  /* Three whole slides fill the track, no peeking neighbours. Side padding still lets the loop clones center at scroll boundaries. */
-  .process-carousel-track { --process-slide-width:calc((100% - 36px) / 3); padding-inline:calc((100% - var(--process-slide-width)) / 2); }
+  /* Three whole slides fill the track, no peeking neighbours. The width uses viewport units on purpose: a percentage here would resolve against the track's own content box and collapse the slides. Side padding still lets the loop clones center at scroll boundaries. */
+  .process-carousel-track { --process-slide-width:calc((min(var(--container-width), 100vw - 56px) - 36px) / 3); padding-inline:calc((100% - var(--process-slide-width)) / 2); }
   .process-slide { flex:0 0 var(--process-slide-width); opacity:1; transform:none; }
   .process-slide.is-active { opacity:1; transform:none; }
   .process-steps .process-step { aspect-ratio:3 / 4; gap:8px; padding:clamp(18px, 2vw, 24px); }
@@ -774,13 +769,13 @@ async function favorite(id) {
 }
 
 /* "Cómo funciona": la imagen ocupa los bordes superiores y el texto conserva una base sólida. */
-.process-steps .process-step { grid-template-rows:70% 30%; grid-template-areas:"art" "copy"; padding:0; background:#126a72; border-color:transparent; box-shadow:0 16px 34px rgba(18,63,75,.12); transition:transform .3s ease, box-shadow .3s ease; }
+.process-steps .process-step { grid-template-rows:70% 30%; grid-template-areas:"art" "copy"; padding:0; background:var(--button-primary-bg); border-color:transparent; box-shadow:0 16px 34px rgba(18,63,75,.12); transition:transform .3s ease, box-shadow .3s ease; }
 .process-steps .process-step:hover { transform:translateY(-4px); box-shadow:0 24px 46px rgba(18,63,75,.18); }
 .process-steps .process-step .process-step-art { position:relative; inset:auto; z-index:0; display:block; width:100%; height:auto; min-height:0; max-height:none; aspect-ratio:auto; align-self:stretch; justify-self:stretch; overflow:hidden; border-radius:28px 28px 0 0; }
 .process-steps .process-step .process-step-art img { width:100%; height:100%; object-fit:cover; }
 .process-steps .process-step::after { display:none; }
 .process-steps .process-step-number { position:absolute; top:16px; left:16px; z-index:3; justify-self:start; padding:7px 12px; border-radius:999px; background:rgba(20,84,92,.55); color:#fff; border:1px solid rgba(255,255,255,.35); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); }
-.process-steps .process-step-copy { z-index:2; align-self:stretch; padding:16px clamp(18px, 2vw, 24px) 20px; background:linear-gradient(180deg, #17848c 0%, #126a72 100%); }
+.process-steps .process-step-copy { z-index:2; align-self:stretch; padding:16px clamp(18px, 2vw, 24px) 20px; background:var(--button-primary-bg); }
 .process-steps .process-step h3 { color:#fff; }
 .process-steps .process-step p { color:rgba(232,247,246,.92); }
 @media (max-width:700px) {
@@ -790,6 +785,6 @@ async function favorite(id) {
 @media (max-width:380px) {
   .process-steps .process-step { grid-template-rows:58% 42%; }
   .process-steps .process-step .process-step-art { border-radius:19px 19px 0 0; }
-  .process-carousel-controls > span { min-width:180px; font-size:.65rem; }
+  .process-carousel-dots { min-width:180px; }
 }
 </style>
