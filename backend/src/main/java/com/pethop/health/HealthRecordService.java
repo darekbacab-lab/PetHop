@@ -26,6 +26,17 @@ public class HealthRecordService {
     @Transactional public com.pethop.health.dto.HealthRecordResponse create(SecurityUser user,UUID petId,com.pethop.health.dto.HealthRecordRequest request){
         Pet pet=getPet(petId);authorize(user,pet,true);if(request.nextDueAt()!=null&&request.nextDueAt().isBefore(request.performedAt()))throw ApiException.badRequest("La próxima fecha no puede ser anterior a la fecha realizada.");PetHealthRecord record=new PetHealthRecord();record.setPet(pet);record.setCreatedBy(user.user());record.setRecordType(request.recordType());record.setTitle(request.title().trim());record.setDescription(request.description()==null?null:request.description().trim());record.setPerformedAt(request.performedAt());record.setNextDueAt(request.nextDueAt());record.setVeterinarianName(request.veterinarianName()==null?null:request.veterinarianName().trim());return com.pethop.health.dto.HealthRecordResponse.from(records.save(record));
     }
+    @Transactional public com.pethop.health.dto.HealthRecordResponse update(SecurityUser user,UUID petId,UUID recordId,com.pethop.health.dto.HealthRecordRequest request){
+        Pet pet=getPet(petId);authorize(user,pet,true);PetHealthRecord record=findRecord(petId,recordId);if(request.nextDueAt()!=null&&request.nextDueAt().isBefore(request.performedAt()))throw ApiException.badRequest("La próxima fecha no puede ser anterior a la fecha realizada.");record.setRecordType(request.recordType());record.setTitle(request.title().trim());record.setDescription(request.description()==null?null:request.description().trim());record.setPerformedAt(request.performedAt());record.setNextDueAt(request.nextDueAt());record.setVeterinarianName(request.veterinarianName()==null?null:request.veterinarianName().trim());return com.pethop.health.dto.HealthRecordResponse.from(records.save(record));
+    }
+    @Transactional public void delete(SecurityUser user,UUID petId,UUID recordId){
+        Pet pet=getPet(petId);authorize(user,pet,true);records.delete(findRecord(petId,recordId));
+    }
+    private PetHealthRecord findRecord(UUID petId,UUID recordId){
+        PetHealthRecord record=records.findById(recordId).orElseThrow(()->ApiException.notFound("Registro no encontrado."));
+        if(!record.getPet().getId().equals(petId))throw ApiException.notFound("Registro no encontrado.");
+        return record;
+    }
     private Pet getPet(UUID id){return pets.findByIdAndDeletedAtIsNull(id).orElseThrow(()->ApiException.notFound("Mascota no encontrada."));}
     private void authorize(SecurityUser user,Pet pet,boolean write){
         boolean owner=user.user().getRole()==UserRole.ADMIN||shelters.findByUserId(user.id()).map(s->s.getId().equals(pet.getShelter().getId())).orElse(false);

@@ -39,7 +39,15 @@ public class PetModerationService {
     }
 
     @Transactional(readOnly = true)
-    public PetResponse get(UUID id) { return response(find(id)); }
+    public PetResponse get(UUID id) {
+        Pet pet = find(id);
+        List<PetImageResponse> photos = images.findAllByPetIdOrderByDisplayOrder(pet.getId()).stream().map(PetImageResponse::from).toList();
+        List<PetResponse.ShelterPetSummary> others = pets.findAllByShelterIdAndDeletedAtIsNullOrderByCreatedAtDesc(pet.getShelter().getId()).stream()
+                .filter(other -> !other.getId().equals(pet.getId()))
+                .map(other -> new PetResponse.ShelterPetSummary(other.getId(), other.getName(), other.getModerationStatus()))
+                .toList();
+        return PetResponse.fromForReview(pet, photos, pet.getPersonalityTraits(), pet.getShelter().getUser().getEmail(), others);
+    }
 
     @Transactional
     public PetResponse decide(UUID id, SecurityUser admin, ModerationDecisionRequest request) {

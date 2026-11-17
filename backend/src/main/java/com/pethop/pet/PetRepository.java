@@ -1,5 +1,6 @@
 package com.pethop.pet;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,6 +15,7 @@ public interface PetRepository extends JpaRepository<Pet, UUID>, JpaSpecificatio
     long countByDeletedAtIsNullAndModerationStatus(ModerationStatus status);
     long countByDeletedAtIsNullAndAdoptionStatus(AdoptionStatus status);
     Optional<Pet> findByIdAndDeletedAtIsNull(UUID id);
+    List<Pet> findAllByShelterIdAndDeletedAtIsNullOrderByCreatedAtDesc(UUID shelterId);
     @Lock(LockModeType.PESSIMISTIC_WRITE) @Query("select p from Pet p where p.id=:id and p.deletedAt is null")
     Optional<Pet> findByIdForUpdate(@Param("id") UUID id);
 }

@@ -32,7 +32,7 @@ public class HealthReminderScheduler {
                 String when = days == 0 ? "hoy" : "en " + days + " días";
                 notifications.create(value.getAdopter(), "HEALTH_REMINDER", "Próximo cuidado de " + record.getPet().getName(),
                         record.getTitle() + " está programado para " + when + ". Consulta a tu veterinario si necesitas orientación.",
-                        "HEALTH_RECORD", record.getId(), "health-reminder:" + record.getId() + ":" + record.getNextDueAt());
+                        "PET", record.getPet().getId(), "health-reminder:" + record.getId() + ":" + record.getNextDueAt());
             });
         });
     }

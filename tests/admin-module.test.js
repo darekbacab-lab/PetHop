@@ -17,7 +17,12 @@ test('la revisión de mascotas muestra datos reales, galería y checklist sin ev
   assert.match(view, /imageUrl\(image\)/);
   assert.match(view, /Esta publicación no tiene fotografías cargadas/);
   assert.match(view, /v-model="checklist\[item\[0\]\]"/);
-  assert.match(view, /no están disponibles en este endpoint/);
+  assert.match(view, /selected\.shelterVerificationStatus/);
+  assert.match(view, /selected\.shelterContactEmail/);
+  assert.match(view, /selected\.shelterContactPhone/);
+  assert.match(view, /selected\.shelterOtherPets/);
+  assert.match(view, /Otras publicaciones del refugio/);
+  assert.doesNotMatch(view, /no están disponibles en este endpoint/);
   assert.doesNotMatch(view, /placeholder\.com|unsplash\.com|picsum\.photos/);
 });
 

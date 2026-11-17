@@ -27,7 +27,7 @@ const conversations = computed(() => {
 });
 const activeConversation = computed(() => conversations.value.find(thread => thread.id === selectedThreadId.value) || conversations.value[0] || null);
 const threadPhoto = pet => pet?.photos?.[0] || pet?.image || '';
-const publisherName = thread => thread?.pet?.shelterName || (currentUser.value?.role === 'ADOPTER' ? thread?.otherParticipant : '');
+const publisherName = thread => currentUser.value?.role === 'SHELTER' ? thread?.otherParticipant : (thread?.pet?.shelterName || thread?.otherParticipant);
 async function loadThreads() {
   try {
     currentUser.value = await api('/auth/me');
@@ -50,6 +50,7 @@ async function chooseConversation(thread) {
   try {
     const page = await api('/conversations/' + thread.id + '/messages?page=0&size=100');
     thread.messages = (page.content || []).map(item => ({ ...item, text: item.content, sender: item.senderId === currentUser.value?.id ? 'adopter' : 'shelter' }));
+    thread.unreadCount = 0;
   } catch (error) { sendError.value = error.message || 'No se pudieron cargar los mensajes.'; }
   scrollTranscriptToEnd();
 }
@@ -148,7 +149,7 @@ onUnmounted(() => document.removeEventListener('click', closeConversationMenuOnO
             <div v-for="thread in conversations" :key="thread.id" class="adopter-conversation-item" :class="{ 'is-selected': activeConversation?.id === thread.id, 'is-pinned': thread.pinned }">
               <button type="button" class="adopter-conversation-select" @click="chooseConversation(thread)">
                 <span class="adopter-pet-avatar"><img v-if="threadPhoto(thread.pet)" :src="threadPhoto(thread.pet)" :alt="''" /><Icon v-else name="paw-print" /></span>
-                <span class="adopter-conversation-copy"><span class="adopter-conversation-top"><strong>{{ thread.petName }}</strong><time>{{ formatConversationDate(thread) }}</time></span><span class="adopter-conversation-bottom"><span>{{ thread.messages.at(-1)?.text || 'Inicia la conversación' }}</span><Icon name="chevron-right" :size="16" /></span></span>
+                <span class="adopter-conversation-copy"><span class="adopter-conversation-top"><strong>{{ thread.petName }}</strong><time>{{ formatConversationDate(thread) }}</time></span><span class="adopter-conversation-bottom"><span>{{ thread.lastMessage || thread.messages.at(-1)?.text || 'Inicia la conversación' }}</span><span v-if="thread.unreadCount" class="adopter-unread-badge" aria-label="Mensajes no leídos">{{ thread.unreadCount > 9 ? '9+' : thread.unreadCount }}</span><Icon name="chevron-right" :size="16" /></span></span>
               </button>
               <div class="adopter-conversation-actions"><button type="button" class="adopter-conversation-menu-trigger" :aria-label="`Opciones de conversación sobre ${thread.petName}`" aria-haspopup="true" :aria-expanded="openConversationMenuId===thread.id" @click.stop="toggleConversationMenu(thread,$event)" @keydown.esc.stop="closeConversationMenu"><span aria-hidden="true">•••</span></button></div>
             </div>
@@ -221,6 +222,7 @@ onUnmounted(() => document.removeEventListener('click', closeConversationMenuOnO
 .adopter-pet-avatar img { width:100%; height:100%; object-fit:cover; }
 .adopter-conversation-copy { display:flex; min-width:0; flex:1; flex-direction:column; gap:5px; }
 .adopter-conversation-top,.adopter-conversation-bottom { display:flex; min-width:0; align-items:center; justify-content:space-between; gap:9px; }
+.adopter-unread-badge { flex:0 0 auto; min-width:20px; height:20px; padding:0 6px; display:inline-grid; place-items:center; border-radius:999px; background:var(--primary-strong); color:#fff; font-size:.68rem; font-weight:800; }
 .adopter-conversation-top strong { overflow:hidden; font-size:.82rem; text-overflow:ellipsis; white-space:nowrap; }
 .adopter-conversation-top time { flex:0 0 auto; color:var(--text-soft); font-size:.64rem; }
 .adopter-conversation-bottom > span { overflow:hidden; color:var(--text-soft); font-size:.72rem; text-overflow:ellipsis; white-space:nowrap; }

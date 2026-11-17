@@ -15,6 +15,7 @@ import com.pethop.shelter.ShelterProfile;
 import com.pethop.user.User;
 import com.pethop.user.UserRole;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -88,6 +89,8 @@ public class MessagingService {
     private ConversationResponse conversationResponse(Conversation c,UUID currentUserId,boolean pinned){
         List<ConversationParticipant> people=participants.findAllByConversationId(c.getId());
         String other=people.stream().map(ConversationParticipant::getUser).filter(u->!u.getId().equals(currentUserId)).map(User::getFullName).findFirst().orElse("Participante");
-        return ConversationResponse.from(c,other,pinned);
+        Optional<Message> last=messages.findFirstByConversationIdOrderByCreatedAtDesc(c.getId());
+        long unread=messages.countByConversationIdAndReadAtIsNullAndSender_IdNot(c.getId(),currentUserId);
+        return ConversationResponse.from(c,other,pinned,last.map(Message::getContent).orElse(null),last.map(Message::getCreatedAt).orElse(null),unread);
     }
 }

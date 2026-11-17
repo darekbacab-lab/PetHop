@@ -36,7 +36,7 @@ public class AdoptionService {
         Adoption adoption=new Adoption();adoption.setApplication(app);adoption.setPet(pet);adoption.setAdopter(app.getAdopter());adoption.setShelter(app.getShelter());
         adoption.setAdoptionDate(request.adoptionDate());adoption.setAgreementNotes(request.agreementNotes());
         adoption=adoptions.save(adoption);pet.setAdoptionStatus(AdoptionStatus.ADOPTED);pets.save(pet);
-        notifications.create(app.getAdopter(),"ADOPTION_FORMALIZED","Adopción formalizada","La adopción de "+pet.getName()+" quedó registrada.","ADOPTION",adoption.getId());
+        notifications.create(app.getAdopter(),"ADOPTION_FORMALIZED","Adopción formalizada","La adopción de "+pet.getName()+" quedó registrada.","APPLICATION",app.getId());
         return AdoptionResponse.from(adoption);
     }
     @Transactional(readOnly=true) public PageResponse<AdoptionResponse> mine(SecurityUser user,int page,int size){return PageResponse.from(adoptions.findAllByAdopterIdOrderByAdoptionDateDesc(user.id(),PageRequest.of(page,size,Sort.by(Sort.Direction.DESC,"adoptionDate"))),AdoptionResponse::from);}

@@ -26,7 +26,7 @@ public class FollowUpService {
     @Transactional
     public FollowUpResponse create(SecurityUser user,UUID adoptionId,FollowUpRequest request){
         Adoption adoption=adoptions.authorized(adoptionId,user);FollowUpReport report=new FollowUpReport();report.setAdoption(adoption);report.setCreatedBy(user.user());apply(report,request);report=reports.save(report);
-        notifications.create(otherParty(adoption,user),"FOLLOW_UP_CREATED","Nuevo reporte de seguimiento","Se agregó un reporte para "+adoption.getPet().getName()+".","FOLLOW_UP",report.getId());
+        notifications.create(otherParty(adoption,user),"FOLLOW_UP_CREATED","Nuevo reporte de seguimiento","Se agregó un reporte para "+adoption.getPet().getName()+".","APPLICATION",adoption.getApplication().getId());
         return response(report);
     }
     @Transactional(readOnly=true)

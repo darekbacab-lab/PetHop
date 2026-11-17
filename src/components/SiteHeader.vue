@@ -31,7 +31,7 @@ const profileLabel = computed(() => 'Mi perfil');
 const links = computed(() => [
   { label: 'Inicio', to: '/inicio.html', icon: 'house' },
   { label: 'Explorar', to: '/explorar.html', icon: 'search' },
-  { label: 'Mensajes', to: '/mensajes.html', icon: 'messages-square' },
+  { label: 'Mensajes', to: currentUser.value?.role === 'SHELTER' ? '/refugio.html?section=mensajes' : '/mensajes.html', icon: 'messages-square' },
   { label: 'Seguimiento', to: currentUser.value?.role === 'SHELTER' ? '/refugio.html?section=solicitudes' : '/seguimiento.html', icon: 'paw-print' },
   { label: 'Aliados', to: '/aliados.html', icon: 'building-2' },
   { label: 'Dar en adopción', to: '/refugio.html', icon: 'hand-heart' }
@@ -106,10 +106,10 @@ function notificationDestination(item) {
     case 'APPLICATION_SUBMITTED': return '/refugio.html?section=solicitudes';
     case 'APPLICATION_STATUS_CHANGED': return refId ? `/seguimiento.html?application=${refId}` : '/seguimiento.html';
     case 'ADOPTION_FORMALIZED':
-    case 'FOLLOW_UP_CREATED': return '/seguimiento.html';
-    case 'NEW_MESSAGE': return refId ? `/mensajes.html?conversation=${refId}` : '/mensajes.html';
+    case 'FOLLOW_UP_CREATED': return refId ? `/seguimiento.html?application=${refId}` : '/seguimiento.html';
+    case 'NEW_MESSAGE': return currentUser.value?.role === 'SHELTER' ? '/refugio.html?section=mensajes' : (refId ? `/mensajes.html?conversation=${refId}` : '/mensajes.html');
     case 'PET_MODERATION': return refId ? `/mascota.html?pet=${refId}` : '/refugio.html?section=mascotas';
-    case 'HEALTH_REMINDER': return '/salud.html';
+    case 'HEALTH_REMINDER': return refId ? `/salud.html?pet=${refId}` : '/salud.html';
     case 'SHELTER_VERIFICATION': return '/refugio.html?section=perfil';
     default: return '';
   }

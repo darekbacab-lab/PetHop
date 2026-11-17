@@ -75,4 +75,26 @@ class PetModerationServiceTest {
                 .isInstanceOf(ApiException.class).hasMessage("Solo se puede devolver a revisión una publicación ya decidida.");
         verify(history, never()).save(any());
     }
+
+    @Test void getIncludesShelterVerificationContactAndOtherPets() {
+        ShelterProfile shelter = pet.getShelter();
+        ReflectionTestUtils.setField(shelter, "contactPhone", "555-1234");
+        shelter.getUser().setEmail("refugio@example.com");
+        Pet other = new Pet();
+        ReflectionTestUtils.setField(other, "id", UUID.randomUUID());
+        other.setName("Coco");
+        other.setModerationStatus(ModerationStatus.APPROVED);
+        lenient().when(pets.findByIdAndDeletedAtIsNull(pet.getId())).thenReturn(Optional.of(pet));
+        lenient().when(pets.findAllByShelterIdAndDeletedAtIsNullOrderByCreatedAtDesc(shelter.getId()))
+                .thenReturn(java.util.List.of(pet, other));
+
+        com.pethop.pet.dto.PetResponse response = service.get(pet.getId());
+
+        org.assertj.core.api.Assertions.assertThat(response.shelterVerificationStatus()).isEqualTo("PENDING");
+        org.assertj.core.api.Assertions.assertThat(response.shelterContactEmail()).isEqualTo("refugio@example.com");
+        org.assertj.core.api.Assertions.assertThat(response.shelterContactPhone()).isEqualTo("555-1234");
+        org.assertj.core.api.Assertions.assertThat(response.shelterOtherPets()).hasSize(1);
+        org.assertj.core.api.Assertions.assertThat(response.shelterOtherPets().get(0).name()).isEqualTo("Coco");
+        org.assertj.core.api.Assertions.assertThat(response.shelterOtherPets().get(0).moderationStatus()).isEqualTo(ModerationStatus.APPROVED);
+    }
 }
