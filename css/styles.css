@@ -2496,6 +2496,25 @@ ol {
     grid-template-columns: 1fr 0.8fr;
     gap: 55px;
     align-items: center;
+    padding: clamp(32px, 4vw, 56px) clamp(28px, 4vw, 56px);
+    border: 1px solid #cde9e7;
+    border-radius: 28px;
+    background:
+        radial-gradient(420px 220px at 92% 12%, rgba(13, 180, 180, .14), transparent 70%),
+        linear-gradient(115deg, #e7f6f5 0%, #f7fdfc 62%);
+    box-shadow: 0 18px 40px rgba(18, 63, 75, .08);
+}
+
+.organization-container > div > span {
+    display: inline-block;
+    margin-bottom: 12px;
+    padding: 6px 13px;
+    border-radius: 999px;
+    background: rgba(22, 127, 135, .10);
+    color: var(--primary-strong);
+    font-size: 0.69rem;
+    font-weight: 850;
+    letter-spacing: 0.08em;
 }
 
 .organization-container h2 {
@@ -2514,28 +2533,36 @@ ol {
 }
 
 .organization-button {
-    min-height: 46px;
+    min-height: 54px;
+    min-width: 300px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     justify-self: start;
-    padding: 0 18px;
+    padding: 0 40px;
     border: 1px solid var(--primary);
     border-radius: 10px;
     background: var(--primary);
     color: var(--white);
-    font-size: 0.76rem;
+    font-size: 0.85rem;
     font-weight: 800;
+    box-shadow: 0 10px 22px rgba(22, 127, 135, .25);
+    transition: background .18s ease, border-color .18s ease, transform .18s ease, box-shadow .18s ease;
 }
 
 .organization-button:hover {
     background: var(--secondary);
     border-color: var(--text);
+    transform: translateY(-1px);
+    box-shadow: 0 14px 28px rgba(22, 127, 135, .30);
 }
 
 .process-section {
     padding: 95px 0;
-    background: var(--background);
+    background-color: var(--background);
+    background-image:
+        radial-gradient(560px 300px at 88% 0%, rgba(13, 180, 180, .10), transparent 70%),
+        linear-gradient(180deg, rgba(22, 127, 135, .07), rgba(22, 127, 135, 0) 55%);
 }
 
 .process-container {
@@ -2549,9 +2576,12 @@ ol {
 }
 
 .process-intro > span {
-    display: block;
-    margin-bottom: 8px;
-    color: var(--text);
+    display: inline-block;
+    margin-bottom: 12px;
+    padding: 6px 13px;
+    border-radius: 999px;
+    background: rgba(22, 127, 135, .10);
+    color: var(--primary-strong);
     font-size: 0.69rem;
     font-weight: 850;
     letter-spacing: 0.08em;
@@ -3356,6 +3386,12 @@ p.form-success {
 
     .organization-container {
         gap: 30px;
+        padding: 28px 22px;
+    }
+
+    .organization-button {
+        min-width: 0;
+        width: 100%;
     }
 
     .footer-container {

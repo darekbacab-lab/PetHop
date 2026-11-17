@@ -105,7 +105,7 @@ const processSteps = [
   { title: 'Cambia vidas', text: 'Con una adopción responsable, ayudas a una mascota a encontrar un hogar y construyes una nueva historia juntos.', mobileText: 'Cada adopción abre una nueva historia.', art: '/img/como-funciona-cambia-vidas.jpg', position: 'center 18%' }
 ];
 const processTrack = ref(null);
-const processPosition = ref(1);
+const processPosition = ref(2);
 const processIsDragging = ref(false);
 const processIsRecentering = ref(false);
 const processCarouselSlides = computed(() => {
@@ -129,7 +129,7 @@ let processAutoTimer;
 let processScrollTimer;
 let processScrollFrame;
 let processPauseUntil = 0;
-let processNavigationTarget = 1;
+let processNavigationTarget = 2;
 let processDrag = null;
 let processMotionPreference;
 function centerProcessSlide(position, behavior = 'smooth') {
@@ -251,7 +251,7 @@ onMounted(async () => {
   ]);
   updateVisiblePetCount();
   startPetAutoplay();
-  requestAnimationFrame(() => { centerProcessSlide(1, 'auto'); updateProcessPosition(); });
+  requestAnimationFrame(() => { centerProcessSlide(2, 'auto'); updateProcessPosition(); });
   processAutoTimer = window.setInterval(processAutoplayTick, 5500);
   window.addEventListener('resize', updateVisiblePetCount, { passive: true });
   window.addEventListener('resize', updateProcessPosition, { passive: true });
@@ -734,8 +734,8 @@ async function favorite(id) {
 }
 
 @media (min-width: 901px) {
-  /* Side padding lets both the first real slide and the loop clones center at scroll boundaries. */
-  .process-carousel-track { --process-slide-width:min(361px, calc((100vw - 86px) / 3)); padding-inline:calc((100% - var(--process-slide-width)) / 2); }
+  /* Three whole slides fill the track, no peeking neighbours. Side padding still lets the loop clones center at scroll boundaries. */
+  .process-carousel-track { --process-slide-width:calc((100% - 36px) / 3); padding-inline:calc((100% - var(--process-slide-width)) / 2); }
   .process-slide { flex:0 0 var(--process-slide-width); opacity:1; transform:none; }
   .process-slide.is-active { opacity:1; transform:none; }
   .process-steps .process-step { aspect-ratio:3 / 4; gap:8px; padding:clamp(18px, 2vw, 24px); }
@@ -774,12 +774,13 @@ async function favorite(id) {
 }
 
 /* "Cómo funciona": la imagen ocupa los bordes superiores y el texto conserva una base sólida. */
-.process-steps .process-step { grid-template-rows:64% 36%; grid-template-areas:"art" "copy"; padding:0; background:var(--button-primary-bg); border-color:transparent; }
+.process-steps .process-step { grid-template-rows:70% 30%; grid-template-areas:"art" "copy"; padding:0; background:#126a72; border-color:transparent; box-shadow:0 16px 34px rgba(18,63,75,.12); transition:transform .3s ease, box-shadow .3s ease; }
+.process-steps .process-step:hover { transform:translateY(-4px); box-shadow:0 24px 46px rgba(18,63,75,.18); }
 .process-steps .process-step .process-step-art { position:relative; inset:auto; z-index:0; display:block; width:100%; height:auto; min-height:0; max-height:none; aspect-ratio:auto; align-self:stretch; justify-self:stretch; overflow:hidden; border-radius:28px 28px 0 0; }
 .process-steps .process-step .process-step-art img { width:100%; height:100%; object-fit:cover; }
 .process-steps .process-step::after { display:none; }
 .process-steps .process-step-number { position:absolute; top:16px; left:16px; z-index:3; justify-self:start; padding:7px 12px; border-radius:999px; background:rgba(20,84,92,.55); color:#fff; border:1px solid rgba(255,255,255,.35); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); }
-.process-steps .process-step-copy { z-index:2; align-self:stretch; padding:20px clamp(18px, 2vw, 24px) clamp(20px, 2.4vw, 28px); background:var(--button-primary-bg); }
+.process-steps .process-step-copy { z-index:2; align-self:stretch; padding:16px clamp(18px, 2vw, 24px) 20px; background:linear-gradient(180deg, #17848c 0%, #126a72 100%); }
 .process-steps .process-step h3 { color:#fff; }
 .process-steps .process-step p { color:rgba(232,247,246,.92); }
 @media (max-width:700px) {

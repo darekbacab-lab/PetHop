@@ -241,6 +241,32 @@ test('organization registration uses one account form then creates and edits its
     assert.match(shelter, /api\('\/shelters\/me', \{ method: 'PATCH'/);
 });
 
+test('how-it-works carousel shows exactly three cards with a shorter teal base', () => {
+    const home = fs.readFileSync(path.join(projectRoot, 'src/views/HomeView.vue'), 'utf8');
+    // Tres tarjetas completas llenan el carrusel en escritorio, sin vecinas asomando.
+    assert.match(home, /--process-slide-width:calc\(\(100% - 36px\) \/ 3\)/);
+    assert.doesNotMatch(home, /--process-slide-width:min\(361px/);
+    assert.match(home, /const processPosition = ref\(2\)/);
+    assert.match(home, /let processNavigationTarget = 2;/);
+    assert.match(home, /centerProcessSlide\(2, 'auto'\)/);
+    // La base turquesa es más baja (70% imagen / 30% texto) y tiene sombra y degradado.
+    assert.match(home, /grid-template-rows:70% 30%; grid-template-areas:"art" "copy"/);
+    assert.doesNotMatch(home, /grid-template-rows:64% 36%/);
+    assert.match(home, /box-shadow:0 16px 34px rgba\(18,63,75,\.12\)/);
+    assert.match(home, /background:linear-gradient\(180deg, #17848c 0%, #126a72 100%\)/);
+});
+
+test('flat home sections have depth and the shelter registration button is longer', () => {
+    const css = fs.readFileSync(path.join(projectRoot, 'css/styles.css'), 'utf8');
+    assert.match(css, /\.process-section \{[^}]*background-image:\s*radial-gradient\(560px 300px at 88% 0%, rgba\(13, 180, 180, \.10\)/);
+    assert.match(css, /\.organization-container \{[^}]*border-radius: 28px;/);
+    assert.match(css, /\.organization-container \{[^}]*box-shadow: 0 18px 40px rgba\(18, 63, 75, \.08\);/);
+    assert.match(css, /\.organization-button \{[^}]*min-width: 300px;/);
+    assert.match(css, /\.organization-button \{[^}]*min-height: 54px;/);
+    assert.match(css, /\.organization-button \{[^}]*padding: 0 40px;/);
+    assert.match(css, /\.organization-button \{[^}]*box-shadow: 0 10px 22px rgba\(22, 127, 135, \.25\);/);
+});
+
 test('auth redesign keeps real session flows, role payloads, validation and responsive layout', () => {
     const access = fs.readFileSync(path.join(projectRoot, 'src/views/AccessView.vue'), 'utf8');
     const css = fs.readFileSync(path.join(projectRoot, 'css/acceso.css'), 'utf8');
