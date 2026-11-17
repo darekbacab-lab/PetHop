@@ -272,7 +272,6 @@ async function favorite(id) {
       <section class="explore-section" id="explorar"><div class="explore-container"><div class="section-title"><div><span>CONOCE A LOS DISPONIBLES</span><h2>Tal vez tu nuevo compañero está aquí.</h2></div></div><div class="home-search"><form class="search-box" @submit.prevent="submitSearch"><div class="search-input"><span class="search-symbol" aria-hidden="true"><Icon name="search" /></span><label class="sr-only" for="homeSearch">Buscar mascota</label><input id="homeSearch" v-model="search" name="search" type="search" placeholder="Busca por nombre, especie o ubicación" autocomplete="off"></div><button type="submit" class="search-button">Buscar</button></form></div>
         <div class="home-pets-carousel" id="featuredPets" aria-label="Mascotas destacadas" @mouseenter="petCarouselHovered = true" @mouseleave="petCarouselHovered = false" @focusin="petCarouselFocused = true" @focusout="handleCarouselFocusOut">
           <p v-if="petLoadError" class="catalog-empty" role="alert">{{ petLoadError }}</p><p v-else-if="!pets.length" class="catalog-empty" role="status">Aún no hay mascotas publicadas. Vuelve pronto para conocerlas.</p>
-          <button v-if="canPagePets" class="home-pets-arrow home-pets-arrow-previous" type="button" aria-label="Ver mascotas anteriores" @click="movePetPage(-1)"><Icon name="arrow-left" /></button>
           <div class="home-pets-viewport" aria-live="polite" aria-atomic="true">
             <Transition :name="petTransitionName" @after-enter="finishPetPageMove">
               <section v-if="petPages[currentPetPage]" :key="currentPetPage" class="home-pets-page" :style="{ '--home-pet-count': visiblePetCount }" role="group" :aria-label="`Grupo ${currentPetPage + 1} de ${petPages.length}`">
@@ -280,7 +279,6 @@ async function favorite(id) {
               </section>
             </Transition>
           </div>
-          <button v-if="canPagePets" class="home-pets-arrow home-pets-arrow-next" type="button" aria-label="Ver más mascotas" @click="movePetPage(1)"><Icon name="arrow-right" /></button>
         </div>
         <RouterLink to="/explorar.html" class="load-more ui-button">Explorar todas las mascotas</RouterLink></div></section>
       <section class="process-section" id="como-funciona">
@@ -343,13 +341,13 @@ async function favorite(id) {
 <style scoped>
 .home-pets-carousel {
   position: relative;
-  margin-inline: 42px;
 }
 
 .home-pets-viewport {
   display: grid;
   overflow: hidden;
   border-radius: 18px;
+  padding: 14px 14px 22px;
 }
 
 .home-pets-page {
@@ -382,30 +380,6 @@ async function favorite(id) {
 
 .home-pets-slide-auto-enter-from { transform: translateX(100%); }
 .home-pets-slide-auto-leave-to { transform: translateX(-100%); }
-
-.home-pets-arrow {
-  position: absolute;
-  z-index: 2;
-  top: 50%;
-  display: grid;
-  width: 38px;
-  height: 38px;
-  place-items: center;
-  padding: 0;
-  border: 1px solid var(--border);
-  border-radius: 50%;
-  background: var(--white);
-  color: var(--primary-dark);
-  box-shadow: var(--shadow-sm);
-  cursor: pointer;
-  transform: translateY(-50%);
-}
-
-.home-pets-arrow:hover { background: var(--primary-soft); }
-.home-pets-arrow:focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
-.home-pets-arrow :deep(svg) { width: 19px; height: 19px; }
-.home-pets-arrow-previous { left: -42px; }
-.home-pets-arrow-next { right: -42px; }
 
 .hero-actions {
   display: grid;
@@ -744,10 +718,7 @@ async function favorite(id) {
 }
 
 @media (max-width: 700px) {
-  .home-pets-carousel { margin-inline: 34px; }
   .home-pets-page { gap: 0; }
-  .home-pets-arrow-previous { left: -34px; }
-  .home-pets-arrow-next { right: -34px; }
   .hero-actions { grid-template-columns: minmax(0, 1fr); }
 
   .hero-actions > .primary-button,

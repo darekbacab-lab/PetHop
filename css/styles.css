@@ -998,7 +998,7 @@ ol {
     border: 1px solid var(--border);
     border-radius: 18px;
     background: var(--white);
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 8px 14px rgba(0, 0, 0, 0.12);
     transition: var(--transition);
     cursor: pointer;
 }
@@ -1011,7 +1011,7 @@ ol {
 
 .pet-card:hover {
     transform: translateY(-5px);
-    box-shadow: var(--shadow-md);
+    box-shadow: 0 12px 22px rgba(0, 0, 0, 0.16);
 }
 
 .pet-image {
