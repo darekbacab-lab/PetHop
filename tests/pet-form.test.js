@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mapPet } from '../src/services/petApi.js';
-import { mergePhotoSelection, petPayload, togglePersonality } from '../src/services/petForm.js';
+import { healthRecordPayload, mergePhotoSelection, petPayload, togglePersonality } from '../src/services/petForm.js';
 
 test('personalidad se alterna de forma independiente y admite varias características', () => {
   const first = togglePersonality([], 'Cariñosa');
@@ -57,4 +57,22 @@ test('mapPet muestra etapa de vida real, rasgos, ubicación, booleanos y fotos r
   assert.deepEqual(mapped.personalityTraits, ['Juguetona']);
   assert.deepEqual(mapped.photos, ['http://localhost:8080/api/v1/pet-images/i1']);
   assert.equal(mapPet({}).age, 'No especificada');
+});
+
+test('el registro sanitario del borrador se normaliza y exige título y fecha realizada', () => {
+  const record = healthRecordPayload({
+    recordType: 'VACCINATION', title: '  Vacuna antirrábica ', description: ' Primera dosis ',
+    performedAt: '2026-11-10', nextDueAt: '2027-11-10', veterinarianName: ' Dra. Ruiz '
+  });
+  assert.deepEqual(record, {
+    recordType: 'VACCINATION', title: 'Vacuna antirrábica', description: 'Primera dosis',
+    performedAt: '2026-11-10', nextDueAt: '2027-11-10', veterinarianName: 'Dra. Ruiz'
+  });
+  assert.equal(healthRecordPayload({ title: 'Sin fecha', performedAt: '' }), null);
+  assert.equal(healthRecordPayload({ title: '   ', performedAt: '2026-11-10' }), null);
+  const minimal = healthRecordPayload({ title: 'Desparasitación', performedAt: '2026-11-10' });
+  assert.equal(minimal.recordType, 'VACCINATION');
+  assert.equal(minimal.description, null);
+  assert.equal(minimal.nextDueAt, null);
+  assert.equal(minimal.veterinarianName, null);
 });

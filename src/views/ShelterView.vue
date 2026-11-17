@@ -8,7 +8,7 @@ import { storageService } from '../services/storage.js';
 import { API_BASE, api } from '../services/api.js';
 import { currentUser, loadCurrentUser, logout } from '../services/auth.js';
 import { mapPet } from '../services/petApi.js';
-import { mergePhotoSelection, normalizePersonality, petPayload, PERSONALITY_OPTIONS } from '../services/petForm.js';
+import { healthRecordPayload, mergePhotoSelection, normalizePersonality, petPayload, PERSONALITY_OPTIONS } from '../services/petForm.js';
 import { shelterWorkspaceKey } from '../services/shelterWorkspace.js';
 
 const router = useRouter();
@@ -32,6 +32,7 @@ function initialState(stored = {}) {
   draft.photos = Array.isArray(draft.photos) ? draft.photos : [];
   draft.photoNames = Array.isArray(draft.photoNames) ? draft.photoNames : [];
   draft.photoKeys = Array.isArray(draft.photoKeys) ? draft.photoKeys : [];
+  draft.healthRecords = Array.isArray(draft.healthRecords) ? draft.healthRecords : [];
   return { ...stored, role: '', section: stored.section || 'Inicio', pets: [], requests: [], messages: [], profile: {}, draft, step: stored.step || 0, filter: stored.filter || 'Todas', petFilter: stored.petFilter || 'Todas', notify: stored.notify ?? true };
 }
 const state = reactive(initialState());
@@ -314,6 +315,22 @@ async function savePetInformation() {
   }
   finally { savingPetChanges.value = false; }
 }
+const healthRecordForm = reactive({ recordType: 'VACCINATION', title: '', description: '', performedAt: new Date().toISOString().slice(0, 10), nextDueAt: '', veterinarianName: '' });
+const healthRecordTypeLabels = { VACCINATION: 'Vacunación', DEWORMING: 'Desparasitación', STERILIZATION: 'Esterilización', MEDICAL_CONSULTATION: 'Consulta médica', TREATMENT: 'Tratamiento', OTHER: 'Otro' };
+function addHealthRecord() {
+  const record = healthRecordPayload(healthRecordForm);
+  if (!record) { toast('Escribe el título y la fecha realizada del registro.'); return; }
+  if (record.nextDueAt && record.nextDueAt < record.performedAt) { toast('La próxima fecha no puede ser anterior a la fecha realizada.'); return; }
+  if (!Array.isArray(state.draft.healthRecords)) state.draft.healthRecords = [];
+  state.draft.healthRecords.push(record);
+  healthRecordForm.title = ''; healthRecordForm.description = ''; healthRecordForm.nextDueAt = ''; healthRecordForm.veterinarianName = '';
+  healthRecordForm.performedAt = new Date().toISOString().slice(0, 10);
+  persist();
+}
+function removeHealthRecord(index) {
+  state.draft.healthRecords.splice(index, 1);
+  persist();
+}
 async function advancePublish(event) {
   if (!event.currentTarget.reportValidity()) return;
   if (state.step < 6) { state.step += 1; persist(); return; }
@@ -336,9 +353,18 @@ async function advancePublish(event) {
       try { await api('/pets/' + created.id, { method: 'DELETE' }); } catch { /* Keep the upload error visible if cleanup also fails. */ }
       throw uploadError;
     }
+    const failedRecords = [];
+    let savedRecords = 0;
+    for (const record of (draft.healthRecords || [])) {
+      const body = healthRecordPayload(record);
+      if (!body) continue;
+      try { await api(`/pets/${created.id}/health-records`, { method: 'POST', body }); savedRecords += 1; }
+      catch { failedRecords.push(record); }
+    }
     const response = await api('/pets/mine?page=0&pageSize=48');
     state.pets = (response.content || []).map(item => { const pet = mapPet(item); return { ...pet, status: ({ AVAILABLE:'Publicada', IN_PROCESS:'En proceso de adopción', ADOPTED:'Adoptada', UNAVAILABLE:'Pausada', DRAFT:'Borrador' })[item.adoptionStatus], age: pet.ageGroup, requests: state.requests.filter(request => String(request.petId) === String(item.id)).length, days: daysSincePublished(item), image: pet.photos?.[0] || '' }; });
-    state.draft = {}; state.step = 0; section.value = state.section = 'Mis mascotas'; persist('La publicación quedó guardada en PetHop.');
+    state.draft = {}; state.step = 0; section.value = state.section = 'Mis mascotas';
+    persist(failedRecords.length ? `La publicación quedó guardada, pero ${failedRecords.length} ${failedRecords.length === 1 ? 'registro sanitario no se pudo guardar' : 'registros sanitarios no se pudieron guardar'}. Agrégalos desde el expediente sanitario de la mascota.` : savedRecords ? `La publicación quedó guardada en PetHop con ${savedRecords} ${savedRecords === 1 ? 'registro' : 'registros'} en su expediente sanitario.` : 'La publicación quedó guardada en PetHop.');
   } catch (error) { toast(error.message || 'No se pudo guardar la publicación.'); }
 }
 async function requestAction(action) {
@@ -493,6 +519,7 @@ watch(() => state.step, () => persist());
             <h2>{{ steps[state.step] }}</h2><p class="shelter-step-hint">Paso {{ state.step+1 }} de {{ steps.length }}</p>
             <template v-if="state.step===6">
               <div class="shelter-review-card"><div class="shelter-review-progress"><div><strong>Progreso del proceso: {{ completion }}%</strong><p>La barra refleja el paso actual; el último paso representa el 100%.</p></div></div><div class="shelter-review-pet"><img v-if="state.draft.photos?.[0]" :src="state.draft.photos[0]" :alt="`Fotografía de ${state.draft.name}`"><div><h3>{{ state.draft.name || 'Nombre de la mascota' }}</h3><p>{{ state.draft.species || 'Especie por agregar' }} · {{ state.draft.lifeStage || 'Etapa por confirmar' }} · {{ state.draft.location || 'Ubicación por confirmar' }}</p><p>Revisa los datos antes de publicar. Podrás actualizarlos después.</p></div></div></div>
+              <p v-if="state.draft.healthRecords?.length" class="shelter-review-health"><Icon name="clipboard-list" /> Expediente sanitario: {{ state.draft.healthRecords.length }} {{ state.draft.healthRecords.length === 1 ? 'registro' : 'registros' }} se agregarán al publicar.</p>
             </template>
             <template v-else>
               <template v-for="field in stepFields[state.step]" :key="field[0]">
@@ -502,6 +529,22 @@ watch(() => state.step, () => persist());
                 <fieldset v-else-if="field[2]==='checks'" class="shelter-field shelter-checks shelter-form-wide"><legend>{{ field[1] }}</legend><label v-for="option in field[3].split('|')" :key="option" class="shelter-check-option" :class="{ 'is-selected': state.draft[field[0]].includes(option) }"><input v-model="state.draft[field[0]]" type="checkbox" :value="option"><span>{{ option }}</span></label></fieldset>
                 <div v-else-if="field[2]==='file'" class="shelter-field shelter-photo-field shelter-form-wide"><label for="publish-photos">Fotografías</label><input id="publish-photos" class="shelter-photo-input" type="file" accept="image/*" multiple @change="processPhotos"><small>Hasta 6 fotografías optimizadas y guardadas en PetHop (máximo 10 MB cada una).</small><div v-if="state.draft.photos.length" class="shelter-photo-preview"><article v-for="(photo,index) in state.draft.photos" :key="state.draft.photoKeys[index] || index" class="shelter-draft-photo"><img :src="photo" :alt="`Fotografía seleccionada ${index+1}`"><button type="button" :aria-label="`Quitar fotografía ${index+1}`" @click="removeDraftPhoto(index)"><Icon name="x" /> Quitar</button></article></div></div>
               </template>
+              <section v-if="state.step===1" class="shelter-health-records">
+                <h3>Expediente sanitario <small>OPCIONAL</small></h3>
+                <p>Agrega los registros de salud que ya tenga {{ state.draft.name || 'la mascota' }}. Se guardarán en su expediente al publicar; también podrás agregarlos después.</p>
+                <ol v-if="state.draft.healthRecords?.length" class="shelter-health-record-list">
+                  <li v-for="(record, index) in state.draft.healthRecords" :key="index"><div><strong>{{ record.title }}</strong><span>{{ healthRecordTypeLabels[record.recordType] || record.recordType }}</span></div><small>Realizado: {{ new Date(`${record.performedAt}T12:00:00`).toLocaleDateString('es-MX') }}<template v-if="record.nextDueAt"> · Próximo: {{ new Date(`${record.nextDueAt}T12:00:00`).toLocaleDateString('es-MX') }}</template><template v-if="record.veterinarianName"> · {{ record.veterinarianName }}</template></small><button type="button" class="shelter-health-record-remove" :aria-label="`Quitar registro ${record.title}`" @click="removeHealthRecord(index)"><Icon name="x" /> Quitar</button></li>
+                </ol>
+                <div class="shelter-health-record-form">
+                  <label class="shelter-field">Tipo<select v-model="healthRecordForm.recordType"><option v-for="(label, value) in healthRecordTypeLabels" :key="value" :value="value">{{ label }}</option></select></label>
+                  <label class="shelter-field">Título<input v-model="healthRecordForm.title" maxlength="180" placeholder="Ej. Vacuna antirrábica"></label>
+                  <label class="shelter-field">Fecha realizada<input v-model="healthRecordForm.performedAt" type="date"></label>
+                  <label class="shelter-field">Próxima fecha<input v-model="healthRecordForm.nextDueAt" type="date" :min="healthRecordForm.performedAt"></label>
+                  <label class="shelter-field">Veterinario<input v-model="healthRecordForm.veterinarianName" maxlength="160" placeholder="Nombre del veterinario"></label>
+                  <label class="shelter-field shelter-form-wide">Descripción<textarea v-model="healthRecordForm.description" maxlength="4000" rows="2" placeholder="Detalles del registro (opcional)"></textarea></label>
+                  <div class="shelter-form-actions"><button class="button button-outline" type="button" @click="addHealthRecord">Agregar registro</button></div>
+                </div>
+              </section>
             </template>
             <label v-if="state.step===6" class="shelter-ack"><input name="reviewed" type="checkbox" required> Confirmo que la información es correcta y puedo responder las solicitudes de adopción.</label>
             <div class="shelter-form-actions"><button v-if="state.step>0" type="button" class="button button-outline" @click="state.step--;persist()"><Icon name="arrow-left" /> Anterior</button><span v-else></span><button type="submit" class="button button-primary"><template v-if="state.step<6">Continuar <Icon name="arrow-right" /></template><template v-else>Publicar mascota</template></button></div>
@@ -563,7 +606,7 @@ watch(() => state.step, () => persist());
        <div class="shelter-applicant-grid"><article><small>Estado de publicación</small><p>{{ selectedPet.status }}</p></article><article><small>Actividad</small><p>{{ selectedPet.requests || 0 }} solicitudes</p></article></div><label class="shelter-field">Actualizar estado<select v-model="selectedPetStatus"><option v-for="status in ['Publicada','Borrador','Pausada']" :key="status">{{ status }}</option></select></label><p class="shelter-modal-note">El proceso y el cierre de adopción se actualizan al revisar la solicitud y formalizar el acuerdo.</p><div class="shelter-modal-actions shelter-pet-details-actions"><RouterLink class="button button-outline" :to="{ path: '/salud.html', query: { pet: selectedPet.id } }" @click="selectedPet=null"><Icon name="clipboard-list" /> Expediente sanitario</RouterLink><button type="button" class="button button-danger-outline" @click="deletePet(selectedPet)"><Icon name="x" /> Eliminar mascota</button><button type="button" class="button button-outline" @click="selectedPet=null">Cerrar</button><button type="button" class="button button-outline" @click="editPetInformation">Editar información</button><button type="button" class="button button-primary" @click="savePetStatus">Guardar estado</button></div>
      </template>
    </section></div>
-   <div v-if="selectedRequest" class="shelter-modal-backdrop" @click.self="selectedRequest=null"><section class="shelter-request-modal" role="dialog" aria-modal="true" aria-labelledby="request-title"><button class="shelter-modal-close" aria-label="Cerrar" @click="selectedRequest=null"><Icon name="x" /></button><span class="eyebrow">SOLICITUD DE ADOPCIÓN</span><h2 id="request-title">{{ selectedRequest.adopter }} <span class="shelter-status">{{ selectedRequest.status }}</span></h2><p class="shelter-request-lead">Solicitud para <strong>{{ selectedRequest.pet }}</strong> · {{ new Date(selectedRequest.date).toLocaleDateString('es-MX') }}</p><div class="shelter-applicant-grid"><article v-for="[label,value] in [['Tipo de vivienda',selectedRequest.home],['Experiencia con mascotas',selectedRequest.experience],['Personas en el hogar',selectedRequest.household],['Motivo de adopción',selectedRequest.reason],['Condiciones del hogar',selectedRequest.conditions],['Información relevante',selectedRequest.notes]]" :key="label"><small>{{ label }}</small><p>{{ value || 'No proporcionado' }}</p></article></div><div class="shelter-modal-actions"><button class="button button-outline" @click="requestAction('contact')">Contactar</button><button class="button button-outline" @click="requestAction('review')">Continuar revisión</button><button class="button button-primary" @click="requestAction('accept')">Aceptar solicitud</button><button v-if="selectedRequest.status === 'Aceptada'" class="button button-primary" @click="formalizeAdoption(selectedRequest)">Formalizar adopción</button><button class="button button-danger" @click="requestAction('reject')">Rechazar</button></div><p class="shelter-modal-note">Aceptar inicia la coordinación; la adopción se completa después del encuentro y seguimiento.</p></section></div>
+   <div v-if="selectedRequest" class="shelter-modal-backdrop" @click.self="selectedRequest=null"><section class="shelter-request-modal" role="dialog" aria-modal="true" aria-labelledby="request-title"><button class="shelter-modal-close" aria-label="Cerrar" @click="selectedRequest=null"><Icon name="x" /></button><span class="eyebrow">SOLICITUD DE ADOPCIÓN</span><h2 id="request-title">{{ selectedRequest.adopter }} <span class="shelter-status">{{ selectedRequest.status }}</span></h2><p class="shelter-request-lead">Solicitud para <strong>{{ selectedRequest.pet }}</strong> · {{ new Date(selectedRequest.date).toLocaleDateString('es-MX') }}</p><div class="shelter-applicant-grid"><article v-for="[label,value] in [['Tipo de vivienda',selectedRequest.home],['Experiencia con mascotas',selectedRequest.experience],['Personas en el hogar',selectedRequest.household],['Motivo de adopción',selectedRequest.reason],['Condiciones del hogar',selectedRequest.conditions],['Información relevante',selectedRequest.notes]]" :key="label"><small>{{ label }}</small><p>{{ value || 'No proporcionado' }}</p></article></div><div class="shelter-modal-actions"><RouterLink class="button button-outline" :to="{ path: '/salud.html', query: { pet: selectedRequest.petId } }" @click="selectedRequest=null"><Icon name="clipboard-list" /> Expediente sanitario</RouterLink><button class="button button-outline" @click="requestAction('contact')">Contactar</button><button class="button button-outline" @click="requestAction('review')">Continuar revisión</button><button class="button button-primary" @click="requestAction('accept')">Aceptar solicitud</button><button v-if="selectedRequest.status === 'Aceptada'" class="button button-primary" @click="formalizeAdoption(selectedRequest)">Formalizar adopción</button><button class="button button-danger" @click="requestAction('reject')">Rechazar</button></div><p class="shelter-modal-note">Aceptar inicia la coordinación; la adopción se completa después del encuentro y seguimiento.</p></section></div>
    <div v-if="notice" class="shelter-toast is-visible" role="status">{{ notice }}</div>
  </div>
 </template>
@@ -677,4 +720,22 @@ watch(() => state.step, () => persist());
   .shelter-profile-setup { padding:18px; }
   .shelter-profile-setup > .shelter-form-grid { grid-template-columns:1fr; }
 }
+.shelter-health-records { grid-column:1/-1; display:grid; gap:12px; padding:18px; border:1px solid var(--border); border-radius:14px; background:#f7fcfc; }
+.shelter-health-records h3 { margin:0; color:var(--text); font:750 1rem "Poppins",sans-serif; }
+.shelter-health-records h3 small { color:var(--primary-strong); font:800 .62rem "Montserrat",sans-serif; letter-spacing:.08em; }
+.shelter-health-records > p { margin:0; color:var(--text-soft); font-size:.78rem; line-height:1.55; }
+.shelter-health-record-list { display:grid; gap:8px; margin:0; padding:0; list-style:none; }
+.shelter-health-record-list li { display:grid; gap:3px; padding:11px 12px; border:1px solid var(--border); border-radius:11px; background:var(--white); }
+.shelter-health-record-list li > div { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.shelter-health-record-list strong { color:var(--text); font-size:.86rem; }
+.shelter-health-record-list span { color:var(--primary-strong); font-size:.65rem; font-weight:800; }
+.shelter-health-record-list small { color:var(--text-soft); font-size:.68rem; }
+.shelter-health-record-remove { display:inline-flex; align-items:center; gap:4px; justify-self:start; margin-top:4px; padding:5px 9px; border:1px solid var(--border); border-radius:8px; background:var(--white); color:var(--text-soft); cursor:pointer; font:700 .68rem "Montserrat",sans-serif; }
+.shelter-health-record-remove:hover { border-color:var(--danger); color:var(--danger); }
+.shelter-health-record-remove :deep(svg) { width:13px; height:13px; }
+.shelter-health-record-form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.shelter-health-record-form .shelter-form-actions { grid-column:1/-1; justify-content:flex-end; margin-top:2px; }
+.shelter-review-health { display:flex; align-items:center; gap:8px; margin:14px 0 0; color:var(--primary-strong); font-size:.8rem; font-weight:700; }
+.shelter-review-health :deep(svg) { width:16px; height:16px; }
+@media(max-width:600px) { .shelter-health-record-form { grid-template-columns:1fr; } }
 </style>

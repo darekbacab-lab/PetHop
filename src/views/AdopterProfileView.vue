@@ -197,7 +197,7 @@ onMounted(async () => {
 
 <style scoped>
 .adopter-profile-page { min-height:100vh; background:var(--background); }
-.adopter-profile-main { width:min(1120px,calc(100% - 40px)); margin:0 auto; padding:42px 0 70px; }
+.adopter-profile-main { width:min(var(--container-width),calc(100% - 40px)); margin:0 auto; padding:42px 0 70px; }
 .adopter-profile-state { display:grid; min-height:280px; justify-items:center; align-content:center; gap:12px; color:var(--text-soft); text-align:center; }
 .adopter-profile-state :deep(svg) { width:30px; height:30px; color:var(--primary-strong); }
 .adopter-profile-page .button { display:inline-flex; min-height:42px; align-items:center; justify-content:center; gap:8px; padding:9px 14px; border:1px solid transparent; border-radius:11px; cursor:pointer; font:700 .78rem "Montserrat",sans-serif; text-decoration:none; transition:background .16s ease,border-color .16s ease,color .16s ease,transform .16s ease; }

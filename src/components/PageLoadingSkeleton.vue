@@ -89,8 +89,8 @@ const view = computed(() => routeLoadingName.value);
 <style scoped>
 .page-loading { min-height: 100vh; background: #fff; color: transparent; }
 .assistant-launcher-skeleton { position:fixed; z-index:1200; right:24px; bottom:24px; width:58px; height:58px; border-radius:50%; }
-.page-loading-header { height: 78px; display:flex; align-items:center; gap:28px; padding:0 max(24px, calc((100vw - 1260px)/2)); border-bottom:1px solid #dcebed; }
-.page-loading-main { width:min(1260px, calc(100% - 48px)); margin:0 auto; padding:70px 0 90px; }
+.page-loading-header { height: 78px; display:flex; align-items:center; gap:28px; padding:0 max(24px, calc((100vw - var(--container-width))/2)); border-bottom:1px solid #dcebed; }
+.page-loading-main { width:min(var(--container-width), calc(100% - 48px)); margin:0 auto; padding:70px 0 90px; }
 .skeleton-shape { position:relative; display:block; overflow:hidden; border-radius:8px; background:#ededed; }
 .skeleton-shape::after { position:absolute; inset:0; content:""; transform:translateX(-100%); background:linear-gradient(105deg, transparent 25%, rgba(255,255,255,.82) 48%, transparent 70%); animation:loading-shimmer 1.45s ease-in-out infinite; }
 .menu-shape { width:42px; height:42px; border-radius:12px; border:1px solid #e2eded; background:#f2f2f2; }

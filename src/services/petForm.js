@@ -67,3 +67,18 @@ export function petPayload(form) {
     adoptionStatus: form.adoptionStatus || 'AVAILABLE'
   };
 }
+
+export function healthRecordPayload(record) {
+  const title = String(record?.title || '').trim();
+  const performedAt = String(record?.performedAt || '').trim();
+  if (!title || !performedAt) return null;
+  const nextDueAt = String(record?.nextDueAt || '').trim();
+  return {
+    recordType: record?.recordType || 'VACCINATION',
+    title,
+    description: String(record?.description || '').trim() || null,
+    performedAt,
+    nextDueAt: nextDueAt || null,
+    veterinarianName: String(record?.veterinarianName || '').trim() || null
+  };
+}

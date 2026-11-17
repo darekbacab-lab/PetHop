@@ -477,7 +477,7 @@ async function favorite(id) {
 .process-step-art,
 .process-step-copy-mobile { display:none; }
 
-.process-carousel { position:relative; width:min(1120px, 100%); margin-inline:auto; }
+.process-carousel { position:relative; width:min(var(--container-width), 100%); margin-inline:auto; }
 .process-carousel-track {
   display:flex;
   align-items:stretch;

@@ -23,17 +23,17 @@ const unreadNotifications = computed(() => notifications.value.filter(item => !i
 const count = computed(() => favorites.value.length);
 const accountRoute = computed(() => '/perfil.html');
 const profileLabel = computed(() => 'Mi perfil');
-const links = [
+const links = computed(() => [
   { label: 'Inicio', to: '/inicio.html', icon: 'house' },
   { label: 'Explorar', to: '/explorar.html', icon: 'search' },
   { label: 'Mensajes', to: '/mensajes.html', icon: 'messages-square' },
-  { label: 'Seguimiento', to: '/seguimiento.html', icon: 'paw-print' },
+  { label: 'Seguimiento', to: currentUser.value?.role === 'SHELTER' ? '/refugio.html?section=solicitudes' : '/seguimiento.html', icon: 'paw-print' },
   { label: 'Aliados', to: '/aliados.html', icon: 'building-2' },
   { label: 'Dar en adopción', to: '/refugio.html', icon: 'hand-heart' }
-];
+]);
 function isNavActive(item) {
   if (item.to.includes('?')) return route.fullPath === item.to;
-  if (item.to === '/refugio.html' && route.query.section === 'mensajes') return false;
+  if (item.to === '/refugio.html' && route.query.section) return false;
   return route.path === item.to;
 }
 watch(open, value => document.body.classList.toggle('menu-open', value));
