@@ -268,12 +268,11 @@ test('how-it-works carousel shows exactly three cards with dots instead of a tex
 
 test('flat home sections keep only the floating shadow and most buttons share it', () => {
     const css = fs.readFileSync(path.join(projectRoot, 'css/styles.css'), 'utf8');
-    // Sin degradados: secciones planas, solo sombra flotante.
+    // Sin degradados: secciones planas, solo sombra flotante por elemento.
     assert.match(css, /\.process-section \{\s*padding: 95px 0;\s*background: var\(--background\);\s*\}/);
     assert.doesNotMatch(css, /\.organization-container \{[^}]*linear-gradient/);
-    assert.match(css, /\.organization-container \{[^}]*background: #f2fafa;/);
-    assert.match(css, /\.organization-container \{[^}]*border-radius: 28px;/);
-    assert.match(css, /\.organization-container \{[^}]*box-shadow: 0 18px 40px rgba\(18, 63, 75, \.08\);/);
+    assert.doesNotMatch(css, /\.organization-container \{[^}]*box-shadow/);
+    assert.doesNotMatch(css, /\.organization-container \{[^}]*background:/);
     // La mayoría de botones comparte la sombra flotante (sombra suave, más fuerte al pasar el mouse).
     assert.match(css, /\.btn-primary,\s*\.primary-button,\s*\.search-button,\s*\.filter-button,\s*\.catalog-apply,\s*\.login-button,\s*\.pet-apply-button,\s*\.application-submit,\s*\.organization-button,\s*\.message-shelter-button,\s*\.dynamic-modal button\[type="submit"\] \{[^}]*box-shadow: var\(--shadow-sm\);/);
     assert.match(css, /\.secondary-button \{[^}]*box-shadow: var\(--shadow-sm\);/);
@@ -285,13 +284,16 @@ test('flat home sections keep only the floating shadow and most buttons share it
 
 test('reference login aesthetic is the site-wide design language', () => {
     const css = fs.readFileSync(path.join(projectRoot, 'css/styles.css'), 'utf8');
-    // Fondo pálido azulado, texto pizarra oscuro, bordes casi invisibles.
-    assert.match(css, /--background: #EDF4F6;/);
-    assert.match(css, /--text: #1E2A30;/);
-    assert.match(css, /--text-soft: #55666E;/);
+    // Los colores y fondos se quedan como estaban: blanco, nada azulado.
+    assert.match(css, /--background: #F3FEFF;/);
+    assert.match(css, /--text: #313434;/);
+    assert.match(css, /--text-soft: #4A5556;/);
+    assert.match(css, /--primary-soft: #F3FEFF;/);
+    assert.match(css, /--primary-dark: #2C5357;/);
+    assert.match(css, /--hero-title-dark: #12515A;/);
+    assert.doesNotMatch(css, /--background: #EDF4F6;/);
+    // Bordes casi invisibles, sombras suaves y difusas con tinte frío, nunca negras y duras.
     assert.match(css, /--border: #DDE8EB;/);
-    assert.doesNotMatch(css, /--border: #AEDBE0;/);
-    // Sombras suaves y difusas con tinte frío, nunca negras y duras.
     assert.match(css, /--shadow-sm: 0 6px 20px rgba\(23, 61, 73, 0\.06\);/);
     assert.match(css, /--shadow-md: 0 16px 42px rgba\(23, 61, 73, 0\.10\);/);
     assert.match(css, /--shadow-lg: 0 30px 70px rgba\(23, 61, 73, 0\.13\);/);
@@ -299,7 +301,9 @@ test('reference login aesthetic is the site-wide design language', () => {
     assert.match(css, /--radius-sm: 12px;/);
     assert.match(css, /--radius-md: 18px;/);
     assert.match(css, /--radius-lg: 26px;/);
-    // La mayoría de botones comparte la sombra flotante.
+    // La sombra es por botón y por tarjeta, nunca por bloque: la sección de
+    // refugios vuelve a ser solo layout, sin fondo, borde ni sombra propios.
+    assert.match(css, /\.organization-container \{\s*width: min\(var\(--max-width\), calc\(100% - 40px\)\);\s*margin: 0 auto;\s*display: grid;\s*grid-template-columns: 1fr 0\.8fr;\s*gap: 55px;\s*align-items: center;\s*\}/);
     assert.match(css, /\.button \{[^}]*box-shadow:var\(--shadow-sm\);/);
     const access = fs.readFileSync(path.join(projectRoot, 'css/acceso.css'), 'utf8');
     assert.match(access, /\.auth-card \{[^}]*border-radius:26px;/);

@@ -2,25 +2,25 @@
     --primary: #3EB2BA;
     --primary-hover: #61BAC1;
     --primary-strong: #167F87;
-    --primary-strong-hover: #0F6B72;
+    --primary-strong-hover: #167F87;
     --button-primary-bg: #167F87;
-    --button-primary-hover-bg: #0F6B72;
+    --button-primary-hover-bg: #167F87;
     --button-primary-text: #FFFFFF;
     --button-secondary-bg: #FFFFFF;
     --button-secondary-hover-bg: #F3FEFF;
     --button-secondary-border: #2C5357;
     --button-secondary-text: #2C5357;
     --primary-light: #72C7CC;
-    --hero-title-dark: #1E2A30;
+    --hero-title-dark: #12515A;
     --hero-title-light: #3EB2BA;
-    --primary-dark: #22333B;
-    --primary-soft: #E9F5F5;
+    --primary-dark: #2C5357;
+    --primary-soft: #F3FEFF;
     --secondary: #90D6CD;
-    --background: #EDF4F6;
+    --background: #F3FEFF;
     --white: #FFFFFF;
     --surface: #FFFFFF;
-    --text: #1E2A30;
-    --text-soft: #55666E;
+    --text: #313434;
+    --text-soft: #4A5556;
     --border: #DDE8EB;
     --border-dark: #2C5357;
     --success: #287451;
@@ -2497,11 +2497,6 @@ ol {
     grid-template-columns: 1fr 0.8fr;
     gap: 55px;
     align-items: center;
-    padding: clamp(32px, 4vw, 56px) clamp(28px, 4vw, 56px);
-    border: 1px solid #cde9e7;
-    border-radius: 28px;
-    background: #f2fafa;
-    box-shadow: 0 18px 40px rgba(18, 63, 75, .08);
 }
 
 .organization-container > div > span {
@@ -3373,7 +3368,6 @@ p.form-success {
 
     .organization-container {
         gap: 30px;
-        padding: 28px 22px;
     }
 
     .organization-button {
