@@ -4671,6 +4671,9 @@ textarea {
 .shelter-nav-item span { flex: 1; min-width: 0; white-space: nowrap; }
 .shelter-nav-item b { min-width: 22px; padding: 1px 6px; border-radius: 20px; background: #def1f2; color: var(--primary-strong); text-align: center; font-size: .72rem; }
 .shelter-nav-item:hover, .shelter-nav-item.is-active { color: var(--primary-strong); background: #eaf7f7; }
+.shelter-nav-item.is-locked { opacity: .55; cursor: not-allowed; }
+.shelter-nav-item small { color: var(--text-soft); font-size: .68rem; font-weight: 700; }
+.shelter-nav-lock-note { margin: 10px 12px 0; color: var(--text-soft); font-size: .75rem; line-height: 1.5; }
 .shelter-nav-item.is-active { font-weight: 800; }
 .shelter-back-home { display: flex; align-items: center; gap: 9px; margin: auto 12px 4px; padding-top: 22px; color: var(--text-soft); text-decoration: none; font-weight: 700; }
 .shelter-back-home svg { width: 18px; }

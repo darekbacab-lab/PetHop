@@ -916,3 +916,33 @@ test('audit batch B1: gallery counter, hidden empty facts, favorites title, unif
     assert.match(adoption, /v-if="petLoading" class="application-pet-card" role="status" aria-label="Cargando mascota"/);
     assert.doesNotMatch(adoption, /vaccination: 'Pendiente de confirmar'/);
 });
+
+test('audit batch B2: health record field errors, locked shelter sections, chat send guard, profile cancel confirm, public profile hints, report photo cap, progress note by status', () => {
+    const shelter = fs.readFileSync(path.join(projectRoot, 'src/views/ShelterView.vue'), 'utf8');
+    const follow = fs.readFileSync(path.join(projectRoot, 'src/views/FollowUpView.vue'), 'utf8');
+    const styles = fs.readFileSync(path.join(projectRoot, 'css/styles.css'), 'utf8');
+    assert.match(shelter, /healthRecordErrors/);
+    assert.match(shelter, /:aria-invalid="healthRecordErrors\.title"/);
+    assert.match(shelter, /:aria-invalid="healthRecordErrors\.performedAt"/);
+    assert.match(shelter, /is-invalid/);
+    assert.match(shelter, /is-locked/);
+    assert.match(shelter, /Bloqueada/);
+    assert.match(shelter, /Completa el perfil de tu organización para habilitar el panel\./);
+    assert.match(shelter, /:disabled="!profileExists && item\.label !== 'Perfil \/ Organización'"/);
+    assert.match(shelter, /sendingMessage/);
+    assert.match(shelter, /:disabled="sendingMessage"/);
+    assert.match(shelter, /Enviando…/);
+    assert.match(shelter, /confirmCancelProfile/);
+    assert.match(shelter, /profileHasChanges/);
+    assert.match(shelter, /¿Descartar los cambios\?/);
+    assert.match(shelter, /Estos datos se muestran públicamente a las familias adoptantes\./);
+    assert.match(shelter, /placeholder="Ej\.: 77500"/);
+    assert.match(shelter, /placeholder="Ej\.: \+52 998 123 4567"/);
+    assert.match(styles, /\.shelter-nav-item\.is-locked/);
+    assert.match(styles, /\.shelter-nav-lock-note/);
+    assert.match(follow, /uploadNotice/);
+    assert.match(follow, /Se adjuntaron las primeras 6 fotografías\./);
+    assert.match(follow, /progressNote/);
+    assert.match(follow, /El refugio no aprobó esta solicitud\. El proceso terminó aquí\./);
+    assert.match(follow, /Retiraste esta solicitud\. El proceso terminó aquí\./);
+});
