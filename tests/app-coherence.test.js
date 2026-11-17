@@ -246,9 +246,14 @@ test('how-it-works carousel shows exactly three cards with dots instead of a tex
     // Tres tarjetas completas llenan el carrusel en escritorio, sin vecinas asomando.
     // El ancho usa unidades de viewport a propósito: un porcentaje se resolvería
     // contra la caja de contenido del propio carril y colapsaría las tarjetas.
-    assert.match(home, /--process-slide-width:calc\(\(min\(var\(--container-width\), 100vw - 56px\) - 36px\) \/ 3\)/);
+    assert.match(home, /--process-slide-width:calc\(\(min\(var\(--container-width\), 100vw - 56px\) - 56px\) \/ 3\)/);
     assert.doesNotMatch(home, /--process-slide-width:min\(361px/);
     assert.doesNotMatch(home, /--process-slide-width:calc\(\(100% - 36px\) \/ 3\)/);
+    // Cada tarjeta flota por su cuenta: separación ancha entre tarjetas y hueco
+    // debajo del carril para que la sombra de cada una se vea entera y no se
+    // funda con la de la vecina.
+    assert.match(home, /@media \(min-width: 901px\) \{[^}]*\.process-carousel-track \{[^}]*gap:28px;/);
+    assert.match(home, /\.process-carousel-track \{[^}]*padding:22px max\(calc\(\(100% - min\(680px, 74vw\)\) \/ 2\), 14px\) 44px;/);
     assert.match(home, /const processPosition = ref\(2\)/);
     assert.match(home, /let processNavigationTarget = 2;/);
     assert.match(home, /centerProcessSlide\(2, 'auto'\)/);
@@ -261,7 +266,7 @@ test('how-it-works carousel shows exactly three cards with dots instead of a tex
     // La base turquesa es más baja (70% imagen / 30% texto), plana, con sombra flotante.
     assert.match(home, /grid-template-rows:70% 30%; grid-template-areas:"art" "copy"/);
     assert.doesNotMatch(home, /grid-template-rows:64% 36%/);
-    assert.match(home, /box-shadow:0 16px 34px rgba\(18,63,75,\.12\)/);
+    assert.match(home, /box-shadow:0 18px 38px rgba\(18,63,75,\.15\)/);
     assert.doesNotMatch(home, /linear-gradient\(180deg, #17848c/);
     assert.match(home, /\.process-steps \.process-step-copy \{[^}]*background:var\(--button-primary-bg\);/);
 });

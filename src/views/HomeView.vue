@@ -476,7 +476,7 @@ async function favorite(id) {
   width:100%;
   overflow-x:auto;
   overflow-y:hidden;
-  padding:22px max(calc((100% - min(680px, 74vw)) / 2), 14px) 30px;
+  padding:22px max(calc((100% - min(680px, 74vw)) / 2), 14px) 44px;
   scrollbar-width:none;
   scroll-snap-type:x mandatory;
   scroll-behavior:smooth;
@@ -729,8 +729,8 @@ async function favorite(id) {
 }
 
 @media (min-width: 901px) {
-  /* Three whole slides fill the track, no peeking neighbours. The width uses viewport units on purpose: a percentage here would resolve against the track's own content box and collapse the slides. Side padding still lets the loop clones center at scroll boundaries. */
-  .process-carousel-track { --process-slide-width:calc((min(var(--container-width), 100vw - 56px) - 36px) / 3); padding-inline:calc((100% - var(--process-slide-width)) / 2); }
+  /* Three whole slides fill the track, no peeking neighbours. The width uses viewport units on purpose: a percentage here would resolve against the track's own content box and collapse the slides. Side padding still lets the loop clones center at scroll boundaries. Each card floats on its own: a wide 28px gap and room below the track so no card's shadow is clipped or merges with its neighbour's. */
+  .process-carousel-track { --process-slide-width:calc((min(var(--container-width), 100vw - 56px) - 56px) / 3); padding-inline:calc((100% - var(--process-slide-width)) / 2); gap:28px; }
   .process-slide { flex:0 0 var(--process-slide-width); opacity:1; transform:none; }
   .process-slide.is-active { opacity:1; transform:none; }
   .process-steps .process-step { aspect-ratio:3 / 4; gap:8px; padding:clamp(18px, 2vw, 24px); }
@@ -769,8 +769,8 @@ async function favorite(id) {
 }
 
 /* "Cómo funciona": la imagen ocupa los bordes superiores y el texto conserva una base sólida. */
-.process-steps .process-step { grid-template-rows:70% 30%; grid-template-areas:"art" "copy"; padding:0; background:var(--button-primary-bg); border-color:transparent; box-shadow:0 16px 34px rgba(18,63,75,.12); transition:transform .3s ease, box-shadow .3s ease; }
-.process-steps .process-step:hover { transform:translateY(-4px); box-shadow:0 24px 46px rgba(18,63,75,.18); }
+.process-steps .process-step { grid-template-rows:70% 30%; grid-template-areas:"art" "copy"; padding:0; background:var(--button-primary-bg); border-color:transparent; box-shadow:0 18px 38px rgba(18,63,75,.15); transition:transform .3s ease, box-shadow .3s ease; }
+.process-steps .process-step:hover { transform:translateY(-4px); box-shadow:0 28px 52px rgba(18,63,75,.20); }
 .process-steps .process-step .process-step-art { position:relative; inset:auto; z-index:0; display:block; width:100%; height:auto; min-height:0; max-height:none; aspect-ratio:auto; align-self:stretch; justify-self:stretch; overflow:hidden; border-radius:28px 28px 0 0; }
 .process-steps .process-step .process-step-art img { width:100%; height:100%; object-fit:cover; }
 .process-steps .process-step::after { display:none; }
