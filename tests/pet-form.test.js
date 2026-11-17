@@ -20,6 +20,11 @@ test('selecciones sucesivas de fotos se agregan, quitan duplicados y respetan el
   assert.equal(appended.additions.length, 1);
   assert.equal(appended.additions[0].file, second);
   assert.equal(mergePhotoSelection(['a','b','c','d','e','f'], [second]).exceeded, true);
+  const partial = mergePhotoSelection(['a','b','c','d','e'], [first, second]);
+  assert.equal(partial.exceeded, true);
+  assert.equal(partial.additions.length, 1);
+  assert.equal(partial.additions[0].file, first);
+  assert.deepEqual(partial.dropped, [second]);
 });
 
 test('payload conserva ubicación, etapa y todos los apartados sin inventar edad exacta', () => {

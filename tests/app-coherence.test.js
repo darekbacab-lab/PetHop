@@ -554,7 +554,7 @@ test('audit batch 3: verification gate, confirmations, visible visit errors and 
     assert.match(confirm, /@click="emit\('cancel'\)"/);
     assert.match(shelter, /shelter-verify-notice/);
     assert.match(shelter, /Tu perfil está pendiente de verificación/);
-    assert.match(shelter, /:disabled="state\.step === 6 && state\.profile\.verificationStatus !== 'VERIFIED'"/);
+    assert.match(shelter, /:disabled="publishing \|\| \(state\.step === 6 && state\.profile\.verificationStatus !== 'VERIFIED'\)"/);
     assert.match(shelter, /if \(state\.profile\.verificationStatus !== 'VERIFIED'\) \{ toast\('Tu perfil debe estar verificado para publicar\.', true\); return; \}/);
     assert.match(shelter, /confirmRequest\.value = \{ action, request, title:/);
     assert.match(shelter, /async function runRequestAction\(action, request\)/);
@@ -786,4 +786,37 @@ test('audit batch M2: filters, sort label, pet ghost card, unified favorites, ad
     assert.match(styles, /\.application-submit-hint/);
     assert.match(styles, /\.form-field-link/);
     assert.match(styles, /\.form-field-notice/);
+});
+
+test('audit batch M3: publish review notice, publishing state, draft note, photo selection, review filter, follow-up detail error and folio', () => {
+    const styles = fs.readFileSync(path.join(projectRoot, 'css/styles.css'), 'utf8');
+    const shelter = fs.readFileSync(path.join(projectRoot, 'src/views/ShelterView.vue'), 'utf8');
+    const access = fs.readFileSync(path.join(projectRoot, 'src/views/AccessView.vue'), 'utf8');
+    const followUp = fs.readFileSync(path.join(projectRoot, 'src/views/FollowUpView.vue'), 'utf8');
+    const register = fs.readFileSync(path.join(projectRoot, 'backend/src/main/java/com/pethop/security/dto/RegisterRequest.java'), 'utf8');
+    const profile = fs.readFileSync(path.join(projectRoot, 'backend/src/main/java/com/pethop/user/dto/UpdateProfileRequest.java'), 'utf8');
+    const phoneMessage = 'El teléfono no tiene un formato válido. Usa solo dígitos y, si quieres, + ( ) - . , entre 7 y 32 caracteres.';
+    assert.ok(access.includes(phoneMessage));
+    assert.ok(register.includes(phoneMessage));
+    assert.ok(profile.includes(phoneMessage));
+    assert.match(shelter, /reviewNotice/);
+    assert.match(shelter, /Marca la casilla para confirmar que la información es correcta antes de publicar\./);
+    assert.match(shelter, /publishing/);
+    assert.match(shelter, /Publicando…/);
+    assert.match(shelter, /finally \{ publishing\.value = false; \}/);
+    assert.match(shelter, /draftSavedAt/);
+    assert.match(shelter, /Borrador guardado automáticamente/);
+    assert.match(shelter, /Al publicar, tu mascota pasará por revisión antes de aparecer en el catálogo\./);
+    assert.match(shelter, /supera los 10 MB y no se agregó/);
+    assert.match(shelter, /no es una imagen y no se agregó/);
+    assert.match(shelter, /Solo caben/);
+    assert.match(shelter, /item\.moderationStatus === 'PENDING'/);
+    assert.match(shelter, /status-en-revision">En revisión<\/span>/);
+    assert.match(followUp, /selectionError/);
+    assert.match(followUp, /@click="loadSelected\(selectedId\)">Reintentar<\/button>/);
+    assert.match(followUp, /#\{\{ currentApplication\.id\.slice\(0, 8\) \}\}/);
+    assert.doesNotMatch(followUp, /<dd>\{\{ currentApplication\.id \}\}<\/dd>/);
+    assert.match(styles, /\.shelter-draft-saved/);
+    assert.match(styles, /\.shelter-review-note/);
+    assert.match(styles, /\.shelter-review-notice/);
 });

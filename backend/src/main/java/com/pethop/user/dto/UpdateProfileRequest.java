@@ -4,4 +4,4 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public record UpdateProfileRequest(@Size(min = 2, max = 160) String fullName,
-        @Pattern(regexp = "^$|^[+()0-9 .-]{7,32}$", message = "El teléfono no tiene un formato válido.") String phone) { }
+        @Pattern(regexp = "^$|^[+()0-9 .-]{7,32}$", message = "El teléfono no tiene un formato válido. Usa solo dígitos y, si quieres, + ( ) - . , entre 7 y 32 caracteres.") String phone) { }

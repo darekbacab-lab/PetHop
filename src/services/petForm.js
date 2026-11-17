@@ -21,15 +21,16 @@ export function mergePhotoSelection(selectedKeys, files, limit = 6) {
   const keys = [...selectedKeys];
   const seen = new Set(keys);
   const additions = [];
+  const dropped = [];
   let duplicates = 0;
   for (const file of files) {
     const key = `${file.name}\u0000${file.size}\u0000${file.lastModified}`;
     if (seen.has(key)) { duplicates += 1; continue; }
     seen.add(key);
+    if (keys.length + additions.length >= limit) { dropped.push(file); continue; }
     additions.push({ file, key });
   }
-  if (keys.length + additions.length > limit) return { additions: [], duplicates, exceeded: true };
-  return { additions, duplicates, exceeded: false };
+  return { additions, duplicates, exceeded: dropped.length > 0, dropped };
 }
 
 const booleanStatus = value => value === 'Sí' || value === 'Al día' ? true : value === 'No' || value === 'No vacunada' ? false : null;

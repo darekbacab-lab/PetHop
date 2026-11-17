@@ -72,7 +72,7 @@ const stepFields = [
 ];
 const requests = computed(() => state.requests.filter(item => requestFilter.value === 'Todas' || item.status === ({ Nuevas: 'Nueva', Aceptadas: 'Aceptada' }[requestFilter.value] || requestFilter.value)));
 const visibleRequests = computed(() => ['En proceso','Seguimiento'].includes(section.value) ? state.requests.filter(item => ['Aceptada','En proceso'].includes(item.status)) : requests.value);
-const visiblePets = computed(() => state.pets.filter(item => petFilter.value === 'Todas' || item.status === petFilter.value));
+const visiblePets = computed(() => state.pets.filter(item => petFilter.value === 'Todas' || (petFilter.value === 'En revisión' ? item.moderationStatus === 'PENDING' : item.status === petFilter.value)));
 const petLocationOptions = computed(() => {
   const supported = ['Playa del Carmen', 'Cancún', 'Cozumel', 'Tulum', 'Puerto Morelos', 'Bacalar', 'Chetumal', 'Mérida', 'Valladolid', 'Progreso', 'Umán', 'Kanasín', 'Tizimín', 'Izamal', 'Motul'];
   const currentLegacyValue = String(petEditForm.value?.location || '').trim();
@@ -146,11 +146,15 @@ function persist(message = '') {
   // por cuota de localStorage.
   const localOnly = { draft, section: state.section, step: state.step, filter: state.filter, petFilter: state.petFilter, notify: state.notify };
   if (!storageService.write(workspaceKey, localOnly)) { notice.value = 'No se pudieron guardar las preferencias locales.'; return false; }
+  draftSavedAt.value = Date.now();
   if (message) toast(message);
   return true;
 }
 let toastTimer;
 const noticeIsError = ref(false);
+const publishing = ref(false);
+const reviewNotice = ref('');
+const draftSavedAt = ref(0);
 function toast(message, isError = false) { notice.value = message; noticeIsError.value = isError; clearTimeout(toastTimer); if (!isError) toastTimer = setTimeout(() => notice.value = '', 3200); }
 function chooseRole() { router.push({ path: '/acceso.html', query: { mode: 'register', role: 'shelter' } }); }
 async function signOut() {
@@ -270,18 +274,24 @@ function removeEditPhoto(imageId) {
 }
 async function addEditPhotos(event) {
   const files = [...event.target.files];
-  const remaining = 6 - petEditForm.value.photosToKeep.length - petEditForm.value.newPhotos.length;
-  if (!files.length) return;
-  if (files.length > remaining || files.some(file => !file.type.startsWith('image/') || file.size > 10 * 1024 * 1024)) {
-    toast(`Puedes agregar hasta ${Math.max(0, remaining)} fotos más; cada archivo debe pesar como máximo 10 MB.`, true);
-    event.target.value = '';
-    return;
-  }
-  try {
-    const additions = await Promise.all(files.map(async file => ({ dataUrl: await imageToJpeg(file), name: file.name })));
-    petEditForm.value.newPhotos.push(...additions);
-  } catch { toast('No se pudieron procesar las fotos. Intenta con otros archivos.', true); }
   event.target.value = '';
+  if (!files.length) return;
+  const remaining = Math.max(0, 6 - petEditForm.value.photosToKeep.length - petEditForm.value.newPhotos.length);
+  const rejected = [];
+  const valid = [];
+  for (const file of files) {
+    if (!file.type.startsWith('image/')) rejected.push(`${file.name} no es una imagen y no se agregó.`);
+    else if (file.size > 10 * 1024 * 1024) rejected.push(`${file.name} supera los 10 MB y no se agregó.`);
+    else valid.push(file);
+  }
+  const taken = valid.slice(0, remaining);
+  if (valid.length > remaining) rejected.push(`Solo caben ${remaining} fotos más; no se agregaron: ${valid.slice(remaining).map(file => file.name).join(', ')}.`);
+  if (!taken.length) { if (rejected.length) toast(rejected.join(' '), true); return; }
+  try {
+    const additions = await Promise.all(taken.map(async file => ({ dataUrl: await imageToJpeg(file), name: file.name })));
+    petEditForm.value.newPhotos.push(...additions);
+    if (rejected.length) toast(rejected.join(' '), true);
+  } catch { toast('No se pudieron procesar las fotos. Intenta con otros archivos.', true); }
 }
 function removeNewEditPhoto(index) { petEditForm.value.newPhotos.splice(index, 1); }
 async function savePetInformation() {
@@ -345,9 +355,11 @@ async function advancePublish(event) {
   if (state.step < 6) { state.step += 1; persist(); return; }
   if (state.profile.verificationStatus !== 'VERIFIED') { toast('Tu perfil debe estar verificado para publicar.', true); return; }
   const reviewed = event.currentTarget.elements.reviewed;
-  if (!reviewed?.checked) { reviewed?.focus(); return; }
+  if (!reviewed?.checked) { reviewNotice.value = 'Marca la casilla para confirmar que la información es correcta antes de publicar.'; reviewed?.focus(); return; }
+  reviewNotice.value = '';
   const draft = state.draft;
   const payload = petPayload({ ...draft, adoptionStatus: 'AVAILABLE' });
+  publishing.value = true;
   try {
     const created = await api('/pets', { method: 'POST', body: payload });
     try {
@@ -376,6 +388,7 @@ async function advancePublish(event) {
     state.draft = {}; state.step = 0; section.value = state.section = 'Mis mascotas';
     persist(failedRecords.length ? `La publicación quedó guardada, pero ${failedRecords.length} ${failedRecords.length === 1 ? 'registro sanitario no se pudo guardar' : 'registros sanitarios no se pudieron guardar'}. Agrégalos desde el expediente sanitario de la mascota.` : savedRecords ? `La publicación quedó guardada en PetHop con ${savedRecords} ${savedRecords === 1 ? 'registro' : 'registros'} en su expediente sanitario.` : 'La publicación quedó guardada en PetHop.');
   } catch (error) { toast(error.message || 'No se pudo guardar la publicación.', true); }
+  finally { publishing.value = false; }
 }
 async function requestAction(action) {
   const request = selectedRequest.value; if (!request) return;
@@ -421,16 +434,23 @@ async function runFormalizeAdoption(request) {
 async function processPhotos(event) {
   const files = [...event.target.files];
   event.target.value = '';
-  if (files.some(file => !file.type.startsWith('image/') || file.size > 10 * 1024 * 1024)) { toast('Cada foto debe ser una imagen de máximo 10 MB.', true); return; }
-  const selection = mergePhotoSelection(state.draft.photoKeys, files);
-  if (selection.exceeded) { toast('Puedes seleccionar hasta 6 fotografías en total.', true); return; }
-  if (!selection.additions.length) { if (selection.duplicates) toast('Esas fotografías ya están seleccionadas.'); return; }
+  const rejected = [];
+  const valid = [];
+  for (const file of files) {
+    if (!file.type.startsWith('image/')) rejected.push(`${file.name} no es una imagen y no se agregó.`);
+    else if (file.size > 10 * 1024 * 1024) rejected.push(`${file.name} supera los 10 MB y no se agregó.`);
+    else valid.push(file);
+  }
+  const selection = mergePhotoSelection(state.draft.photoKeys, valid);
+  if (selection.dropped.length) rejected.push(`Solo caben ${Math.max(0, 6 - state.draft.photoKeys.length)} fotos más; no se agregaron: ${selection.dropped.map(file => file.name).join(', ')}.`);
+  if (!selection.additions.length) { if (rejected.length) toast(rejected.join(' '), true); else if (selection.duplicates) toast('Esas fotografías ya están seleccionadas.'); return; }
   try {
     const converted = await Promise.all(selection.additions.map(async ({ file, key }) => ({ dataUrl: await imageToJpeg(file), name: file.name, key })));
     state.draft.photos.push(...converted.map(item => item.dataUrl));
     state.draft.photoNames.push(...converted.map(item => item.name));
     state.draft.photoKeys.push(...converted.map(item => item.key));
     persist();
+    if (rejected.length) toast(rejected.join(' '), true);
   } catch { toast('No se pudieron procesar las fotos. Intenta con otras imágenes.', true); }
 }
 function removeDraftPhoto(index) {
@@ -535,9 +555,10 @@ watch(() => state.step, () => persist());
         </div>
         <section class="shelter-panel"><div class="shelter-panel-title"><div><span class="eyebrow">TUS PUBLICACIONES</span><h2>Mascotas recientes</h2></div><button type="button" class="shelter-text-action" @click="go('Mis mascotas')">Ver todas <Icon name="arrow-up-right" /></button></div><div class="shelter-pet-grid"><article v-for="pet in recentPets" :key="pet.id" class="shelter-pet-card" tabindex="0" role="button" :aria-label="'Administrar publicación de ' + pet.name" @click="openPet(pet)" @keydown.enter="openPet(pet)" @keydown.space.prevent="openPet(pet)"><ImageWithSkeleton frame-class="shelter-pet-photo" :src="shelterPetPhoto(pet)" :alt="`Fotografía de ${pet.name}`" image-class="shelter-pet-image" role="img"><span v-if="!shelterPetPhoto(pet)" class="shelter-pet-no-photo" aria-hidden="true"><Icon name="paw-print" /><small>Sin fotografía</small></span></ImageWithSkeleton><div class="shelter-pet-card-body"><div class="shelter-card-line"><span class="shelter-status">{{ pet.status }}</span><small>{{ pet.days || 0 }} días publicada</small></div><h3>{{ pet.name }}</h3><p>{{ pet.species }} · {{ pet.age }} · {{ pet.gender }}</p><div class="shelter-card-line shelter-pet-request-count"><span><Icon name="inbox" /> {{ pet.requests || 0 }} solicitudes</span></div></div></article><div v-if="!recentPets.length" class="shelter-empty"><Icon name="paw-print" /><strong>Sin publicaciones</strong><p>Publica una mascota para comenzar a organizar sus solicitudes.</p></div></div></section>
       </template>
-      <template v-else-if="section === 'Mis mascotas' || section === 'Completadas'"><div class="shelter-section-header"><div><span class="eyebrow">TUS PUBLICACIONES</span><h1>{{ section }}</h1><p>Consulta su estado, las solicitudes recibidas y el tiempo de publicación.</p></div><button class="button button-primary" @click="go('Publicar mascota')"><Icon name="plus" /> Publicar mascota</button></div><div v-if="section==='Mis mascotas'" class="shelter-filter-pills"><button v-for="filter in ['Todas','Publicada','En revisión','En proceso de adopción','Adoptada','Pausada']" :key="filter" :class="{ 'is-selected': petFilter===filter }" :aria-pressed="petFilter===filter" @click="petFilter=filter">{{ filter }}</button></div><div class="shelter-pet-grid"><article v-for="pet in (section==='Completadas' ? state.pets.filter(item=>item.status==='Adoptada') : visiblePets)" :key="pet.id" class="shelter-pet-card" tabindex="0" role="button" :aria-label="`Ver detalles de ${pet.name}`" @click="openPet(pet)" @keydown.enter="openPet(pet)" @keydown.space.prevent="openPet(pet)"><ImageWithSkeleton frame-class="shelter-pet-photo" :src="shelterPetPhoto(pet)" :alt="`Fotografía de ${pet.name}`" image-class="shelter-pet-image" role="img"><span v-if="!shelterPetPhoto(pet)" class="shelter-pet-no-photo" aria-hidden="true"><Icon name="paw-print" /><small>Sin fotografía</small></span></ImageWithSkeleton><div class="shelter-pet-card-body"><span class="shelter-status">{{ pet.status }}</span><h3>{{ pet.name }}</h3><p>{{ pet.species }} · {{ pet.age }} · {{ pet.gender }}</p><p>{{ pet.days || 0 }} días publicada · {{ pet.requests || 0 }} solicitudes</p></div></article><p v-if="!(section==='Completadas' ? state.pets.filter(item=>item.status==='Adoptada') : visiblePets).length" class="shelter-empty">{{ section==='Completadas' ? 'Aquí veremos las adopciones completadas.' : 'No hay mascotas en este estado. Prueba otro filtro o publica una mascota.' }}</p></div></template>
+      <template v-else-if="section === 'Mis mascotas' || section === 'Completadas'"><div class="shelter-section-header"><div><span class="eyebrow">TUS PUBLICACIONES</span><h1>{{ section }}</h1><p>Consulta su estado, las solicitudes recibidas y el tiempo de publicación.</p></div><button class="button button-primary" @click="go('Publicar mascota')"><Icon name="plus" /> Publicar mascota</button></div><div v-if="section==='Mis mascotas'" class="shelter-filter-pills"><button v-for="filter in ['Todas','Publicada','En revisión','En proceso de adopción','Adoptada','Pausada']" :key="filter" :class="{ 'is-selected': petFilter===filter }" :aria-pressed="petFilter===filter" @click="petFilter=filter">{{ filter }}</button></div><div class="shelter-pet-grid"><article v-for="pet in (section==='Completadas' ? state.pets.filter(item=>item.status==='Adoptada') : visiblePets)" :key="pet.id" class="shelter-pet-card" tabindex="0" role="button" :aria-label="`Ver detalles de ${pet.name}`" @click="openPet(pet)" @keydown.enter="openPet(pet)" @keydown.space.prevent="openPet(pet)"><ImageWithSkeleton frame-class="shelter-pet-photo" :src="shelterPetPhoto(pet)" :alt="`Fotografía de ${pet.name}`" image-class="shelter-pet-image" role="img"><span v-if="!shelterPetPhoto(pet)" class="shelter-pet-no-photo" aria-hidden="true"><Icon name="paw-print" /><small>Sin fotografía</small></span></ImageWithSkeleton><div class="shelter-pet-card-body"><span class="shelter-status">{{ pet.status }}</span><span v-if="pet.moderationStatus === 'PENDING'" class="shelter-status status-en-revision">En revisión</span><h3>{{ pet.name }}</h3><p>{{ pet.species }} · {{ pet.age }} · {{ pet.gender }}</p><p>{{ pet.days || 0 }} días publicada · {{ pet.requests || 0 }} solicitudes</p></div></article><p v-if="!(section==='Completadas' ? state.pets.filter(item=>item.status==='Adoptada') : visiblePets).length" class="shelter-empty">{{ section==='Completadas' ? 'Aquí veremos las adopciones completadas.' : 'No hay mascotas en este estado. Prueba otro filtro o publica una mascota.' }}</p></div></template>
       <template v-else-if="section === 'Publicar mascota'">
         <div class="shelter-section-header"><div><span class="eyebrow">NUEVA PUBLICACIÓN</span><h1>Publicar mascota</h1><p>Completa la información paso a paso para presentar su perfil de forma clara.</p></div></div>
+        <p v-if="draftSavedAt" class="shelter-draft-saved" role="status">Borrador guardado automáticamente</p>
         <section class="shelter-panel shelter-publish-panel">
           <p v-if="state.profile.verificationStatus !== 'VERIFIED'" class="shelter-verify-notice" role="alert">{{ state.profile.verificationStatus === 'REJECTED' ? 'Tu verificación fue rechazada. Corrige los datos de tu perfil para volver a solicitarla.' : 'Tu perfil está pendiente de verificación: podrás publicar cuando te verifiquen. Puedes completar el borrador mientras tanto.' }}</p>
           <div class="shelter-steps"><button v-for="(label,index) in steps" :key="label" type="button" class="shelter-step" :class="{ 'is-current':state.step===index,'is-done':index<state.step }" :disabled="index>state.step" :aria-current="state.step===index ? 'step' : undefined" @click="state.step=index"><span><Icon v-if="index<state.step" name="check" /><template v-else>{{ String(index+1).padStart(2,'0') }}</template></span><small>{{ label }}</small></button></div>
@@ -547,6 +568,7 @@ watch(() => state.step, () => persist());
             <template v-if="state.step===6">
               <div class="shelter-review-card"><div class="shelter-review-progress"><div><strong>Progreso del proceso: {{ completion }}%</strong><p>La barra refleja el paso actual; el último paso representa el 100%.</p></div></div><div class="shelter-review-pet"><img v-if="state.draft.photos?.[0]" :src="state.draft.photos[0]" :alt="`Fotografía de ${state.draft.name}`"><div><h3>{{ state.draft.name || 'Nombre de la mascota' }}</h3><p>{{ state.draft.species || 'Especie por agregar' }} · {{ state.draft.lifeStage || 'Etapa por confirmar' }} · {{ state.draft.location || 'Ubicación por confirmar' }}</p><p>Revisa los datos antes de publicar. Podrás actualizarlos después.</p></div></div></div>
               <p v-if="state.draft.healthRecords?.length" class="shelter-review-health"><Icon name="clipboard-list" /> Expediente sanitario: {{ state.draft.healthRecords.length }} {{ state.draft.healthRecords.length === 1 ? 'registro' : 'registros' }} se agregarán al publicar.</p>
+              <p class="shelter-review-note">Al publicar, tu mascota pasará por revisión antes de aparecer en el catálogo.</p>
             </template>
             <template v-else>
               <template v-for="field in stepFields[state.step]" :key="field[0]">
@@ -573,8 +595,9 @@ watch(() => state.step, () => persist());
                 </div>
               </section>
             </template>
-            <label v-if="state.step===6" class="shelter-ack"><input name="reviewed" type="checkbox" required> Confirmo que la información es correcta y puedo responder las solicitudes de adopción. <span class="shelter-required">* Obligatorio</span></label>
-            <div class="shelter-form-actions"><button v-if="state.step>0" type="button" class="button button-outline" @click="state.step--;persist()"><Icon name="arrow-left" /> Anterior</button><span v-else></span><button type="submit" class="button button-primary" :disabled="state.step === 6 && state.profile.verificationStatus !== 'VERIFIED'"><template v-if="state.step<6">Continuar <Icon name="arrow-right" /></template><template v-else>Publicar mascota</template></button></div>
+            <label v-if="state.step===6" class="shelter-ack"><input name="reviewed" type="checkbox" required @change="reviewNotice = ''"> Confirmo que la información es correcta y puedo responder las solicitudes de adopción. <span class="shelter-required">* Obligatorio</span></label>
+            <p v-if="state.step===6 && reviewNotice" class="shelter-review-notice" role="alert">{{ reviewNotice }}</p>
+            <div class="shelter-form-actions"><button v-if="state.step>0" type="button" class="button button-outline" @click="state.step--;persist()"><Icon name="arrow-left" /> Anterior</button><span v-else></span><button type="submit" class="button button-primary" :disabled="publishing || (state.step === 6 && state.profile.verificationStatus !== 'VERIFIED')"><template v-if="state.step<6">Continuar <Icon name="arrow-right" /></template><template v-else>{{ publishing ? 'Publicando…' : 'Publicar mascota' }}</template></button></div>
           </form>
         </section>
       </template>
