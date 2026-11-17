@@ -2,26 +2,26 @@
     --primary: #3EB2BA;
     --primary-hover: #61BAC1;
     --primary-strong: #167F87;
-    --primary-strong-hover: #167F87;
+    --primary-strong-hover: #0F6B72;
     --button-primary-bg: #167F87;
-    --button-primary-hover-bg: #167F87;
+    --button-primary-hover-bg: #0F6B72;
     --button-primary-text: #FFFFFF;
     --button-secondary-bg: #FFFFFF;
     --button-secondary-hover-bg: #F3FEFF;
     --button-secondary-border: #2C5357;
     --button-secondary-text: #2C5357;
     --primary-light: #72C7CC;
-    --hero-title-dark: #12515A;
+    --hero-title-dark: #1E2A30;
     --hero-title-light: #3EB2BA;
-    --primary-dark: #2C5357;
-    --primary-soft: #F3FEFF;
+    --primary-dark: #22333B;
+    --primary-soft: #E9F5F5;
     --secondary: #90D6CD;
-    --background: #F3FEFF;
+    --background: #EDF4F6;
     --white: #FFFFFF;
     --surface: #FFFFFF;
-    --text: #313434;
-    --text-soft: #4A5556;
-    --border: #AEDBE0;
+    --text: #1E2A30;
+    --text-soft: #55666E;
+    --border: #DDE8EB;
     --border-dark: #2C5357;
     --success: #287451;
     --warning: #8A5B12;
@@ -35,12 +35,12 @@
     --space-4: 24px;
     --space-5: 32px;
     --space-6: 48px;
-    --shadow-sm: 0 5px 18px rgba(18, 63, 75, 0.07);
-    --shadow-md: 0 12px 30px rgba(18, 63, 75, 0.09);
-    --shadow-lg: 0 22px 55px rgba(18, 63, 75, 0.12);
-    --radius-sm: 10px;
-    --radius-md: 16px;
-    --radius-lg: 24px;
+    --shadow-sm: 0 6px 20px rgba(23, 61, 73, 0.06);
+    --shadow-md: 0 16px 42px rgba(23, 61, 73, 0.10);
+    --shadow-lg: 0 30px 70px rgba(23, 61, 73, 0.13);
+    --radius-sm: 12px;
+    --radius-md: 18px;
+    --radius-lg: 26px;
     --radius-xl: 32px;
     --max-width: var(--container-width);
     --header-height: 78px;
@@ -98,9 +98,10 @@ button {
     align-items: center;
     justify-content: center;
     padding: 9px 15px;
-    border-radius: 9px;
+    border-radius: 12px;
     font-size: 0.76rem;
     font-weight: 800;
+    box-shadow: var(--shadow-sm);
     transition: var(--transition);
 }
 
@@ -4753,7 +4754,7 @@ textarea {
 .shelter-progress { height:5px;margin:16px 0 24px;overflow:hidden;border-radius:9px;background:#eaf2f2; }.shelter-progress span { display:block;height:100%;background:var(--primary);transition:width .2s; }
 .shelter-publish-panel form > h2 { font:700 1.4rem "Poppins",sans-serif; }.shelter-step-hint { margin:2px 0 18px;color:var(--text-soft);font-size:.88rem; }
 .shelter-form-grid { display:grid;grid-template-columns:1fr 1fr;gap:16px; }
-.shelter-field { display:flex;flex-direction:column;gap:7px;color:var(--text);font-weight:700;font-size:.9rem; }.shelter-field input:not([type=checkbox]):not([type=file]),.shelter-field select,.shelter-field textarea,.shelter-chat-form textarea { width:100%;padding:12px 13px;border:1px solid var(--border);border-radius:11px;background:#fbfefe;color:var(--text);font-weight:500;outline:none; }.shelter-field :focus,.shelter-chat-form textarea:focus { border-color:var(--primary-strong)!important;box-shadow:0 0 0 3px rgba(22,127,135,.12); }
+.shelter-field { display:flex;flex-direction:column;gap:7px;color:var(--text);font-weight:700;font-size:.9rem; }.shelter-field input:not([type=checkbox]):not([type=file]),.shelter-field select,.shelter-field textarea,.shelter-chat-form textarea { width:100%;padding:12px 13px;border:1px solid var(--border);border-radius:12px;background:#fff;color:var(--text);font-weight:500;outline:none; }.shelter-field :focus,.shelter-chat-form textarea:focus { border-color:var(--primary-strong)!important;box-shadow:0 0 0 3px rgba(22,127,135,.12); }
 .shelter-field textarea { resize:vertical; }.shelter-field small { color:var(--text-soft);font-weight:500; }.shelter-field:has(textarea),.shelter-checks,.shelter-review-card { grid-column:1/-1; }
 .shelter-checks { border:0; }.shelter-checks legend { margin-bottom:9px;font-weight:700; }.shelter-checks > div { display:flex;flex-wrap:wrap;gap:8px; }.shelter-checks label { cursor:pointer; }.shelter-checks input { position:absolute;opacity:0; }.shelter-checks label span { display:inline-flex;padding:8px 11px;border:1px solid var(--border);border-radius:24px;background:#fff;color:var(--text-soft);font-size:.82rem;font-weight:600; }.shelter-checks input:checked+span { background:#e3f4f3;border-color:var(--primary);color:var(--primary-strong); }
 .shelter-form-actions { grid-column:1/-1;display:flex;justify-content:space-between;gap:10px;margin-top:12px; }

@@ -612,7 +612,7 @@ watch(() => state.step, () => persist());
 </template>
 
 <style scoped>
-.shelter-pet-details-modal { width:min(820px,100%); padding:34px; border:1px solid #dcebed; border-radius:24px; }
+.shelter-pet-details-modal { width:min(820px,100%); padding:34px; border:1px solid var(--border); border-radius:24px; }
 .shelter-pet-edit-backdrop { display:flex; align-items:flex-start; justify-content:center; overflow-y:auto; padding:20px; }
 .shelter-pet-edit-backdrop .shelter-pet-details-modal { flex:0 0 auto; max-height:calc(100dvh - 40px); margin:0 auto; }
 .shelter-pet-modal-title { display:flex; align-items:center; justify-content:space-between; gap:14px; margin:9px 42px 2px 0; }
@@ -620,7 +620,7 @@ watch(() => state.step, () => persist());
 .shelter-pet-modal-title .shelter-status { flex:0 0 auto; }
 .shelter-pet-details-modal .shelter-request-lead { margin-top:5px; }
 .shelter-pet-details-modal .shelter-applicant-grid { margin:20px 0; }
-.shelter-pet-details-modal .shelter-applicant-grid article { padding:15px; border-color:#dcebed; background:#f7fcfc; }
+.shelter-pet-details-modal .shelter-applicant-grid article { padding:15px; border-color:var(--border); background:#f7fcfc; }
 .shelter-pet-details-modal .shelter-field { gap:7px; }
 .shelter-pet-details-modal .shelter-field :deep(input),.shelter-pet-details-modal .shelter-field :deep(select),.shelter-pet-details-modal .shelter-field :deep(textarea) { min-height:44px; border-color:#c5e1e4; background:#fbfefe; color:var(--text); font:500 .88rem "Montserrat",Arial,sans-serif; }
 .shelter-pet-edit-form { margin-top:19px; }

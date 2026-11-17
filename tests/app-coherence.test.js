@@ -283,6 +283,36 @@ test('flat home sections keep only the floating shadow and most buttons share it
     assert.match(css, /\.organization-button \{[^}]*padding: 0 40px;/);
 });
 
+test('reference login aesthetic is the site-wide design language', () => {
+    const css = fs.readFileSync(path.join(projectRoot, 'css/styles.css'), 'utf8');
+    // Fondo pálido azulado, texto pizarra oscuro, bordes casi invisibles.
+    assert.match(css, /--background: #EDF4F6;/);
+    assert.match(css, /--text: #1E2A30;/);
+    assert.match(css, /--text-soft: #55666E;/);
+    assert.match(css, /--border: #DDE8EB;/);
+    assert.doesNotMatch(css, /--border: #AEDBE0;/);
+    // Sombras suaves y difusas con tinte frío, nunca negras y duras.
+    assert.match(css, /--shadow-sm: 0 6px 20px rgba\(23, 61, 73, 0\.06\);/);
+    assert.match(css, /--shadow-md: 0 16px 42px rgba\(23, 61, 73, 0\.10\);/);
+    assert.match(css, /--shadow-lg: 0 30px 70px rgba\(23, 61, 73, 0\.13\);/);
+    // Radios generosos como en la referencia.
+    assert.match(css, /--radius-sm: 12px;/);
+    assert.match(css, /--radius-md: 18px;/);
+    assert.match(css, /--radius-lg: 26px;/);
+    // La mayoría de botones comparte la sombra flotante.
+    assert.match(css, /\.button \{[^}]*box-shadow:var\(--shadow-sm\);/);
+    const access = fs.readFileSync(path.join(projectRoot, 'css/acceso.css'), 'utf8');
+    assert.match(access, /\.auth-card \{[^}]*border-radius:26px;/);
+    assert.match(access, /\.auth-card \{[^}]*box-shadow:var\(--shadow-lg\);/);
+    assert.match(access, /\.auth-input-wrap input \{[^}]*border-radius:12px;/);
+    assert.doesNotMatch(access, /box-shadow:0 2px 3px rgba\(18,63,75,\.12\)/);
+    // Las vistas usan los tokens, no hex sueltos, para bordes y superficies pálidas.
+    for (const view of ['HomeView.vue', 'ShelterView.vue', 'AdopterMessagesView.vue', 'AdopterProfileView.vue', 'HealthRecordsView.vue']) {
+        const source = fs.readFileSync(path.join(projectRoot, 'src/views', view), 'utf8');
+        assert.doesNotMatch(source, /#dcebed|#e8f6f5|#e7f6f5|#eaf7f6|#dff2f1/);
+    }
+});
+
 test('auth redesign keeps real session flows, role payloads, validation and responsive layout', () => {
     const access = fs.readFileSync(path.join(projectRoot, 'src/views/AccessView.vue'), 'utf8');
     const css = fs.readFileSync(path.join(projectRoot, 'css/acceso.css'), 'utf8');

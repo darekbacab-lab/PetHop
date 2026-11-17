@@ -89,7 +89,7 @@ const view = computed(() => routeLoadingName.value);
 <style scoped>
 .page-loading { min-height: 100vh; background: #fff; color: transparent; }
 .assistant-launcher-skeleton { position:fixed; z-index:1200; right:24px; bottom:24px; width:58px; height:58px; border-radius:50%; }
-.page-loading-header { height: 78px; display:flex; align-items:center; gap:28px; padding:0 max(24px, calc((100vw - var(--container-width))/2)); border-bottom:1px solid #dcebed; }
+.page-loading-header { height: 78px; display:flex; align-items:center; gap:28px; padding:0 max(24px, calc((100vw - var(--container-width))/2)); border-bottom:1px solid var(--border); }
 .page-loading-main { width:min(var(--container-width), calc(100% - 48px)); margin:0 auto; padding:70px 0 90px; }
 .skeleton-shape { position:relative; display:block; overflow:hidden; border-radius:8px; background:#ededed; }
 .skeleton-shape::after { position:absolute; inset:0; content:""; transform:translateX(-100%); background:linear-gradient(105deg, transparent 25%, rgba(255,255,255,.82) 48%, transparent 70%); animation:loading-shimmer 1.45s ease-in-out infinite; }

@@ -506,9 +506,9 @@ async function favorite(id) {
   border:1px solid transparent;
   border-radius:28px;
 }
-.process-steps .process-step-1 { border-color:#c5e5e4; background:#e8f7f5; }
+.process-steps .process-step-1 { border-color:var(--border); background:var(--primary-soft); }
 .process-steps .process-step-2 { border-color:#36999e; background:#3a9fa5; }
-.process-steps .process-step-3 { border-color:#c8e8ea; background:#e7f5f7; }
+.process-steps .process-step-3 { border-color:var(--border); background:var(--primary-soft); }
 .process-steps .process-step-4 { border-color:#367d82; background:#347d82; }
 .process-steps .process-step-5 { border-color:#14545c; background:#14545c; }
 .process-step-number { grid-area:number; align-self:end; margin:0; color:#167f87; font-size:.75rem; font-weight:850; letter-spacing:.1em; }
@@ -524,12 +524,12 @@ async function favorite(id) {
 .process-step-art img { display:block; width:100%; height:100%; object-fit:contain; user-select:none; }
 .process-step-5::after { position:absolute; top:8%; right:9%; width:42%; aspect-ratio:1; border:1px solid rgba(208,244,240,.24); border-radius:50%; content:""; pointer-events:none; }
 .process-carousel-controls { display:flex; align-items:center; justify-content:center; gap:16px; margin-top:4px; }
-.process-carousel-controls button { display:grid; width:42px; height:42px; place-items:center; border:1px solid #b9dfe1; border-radius:50%; background:#f5fbfa; color:#14545c; cursor:pointer; transition:background .18s ease,border-color .18s ease,transform .18s ease; }
+.process-carousel-controls button { display:grid; width:42px; height:42px; place-items:center; border:1px solid var(--border); border-radius:50%; background:#f5fbfa; color:#14545c; cursor:pointer; transition:background .18s ease,border-color .18s ease,transform .18s ease; }
 .process-carousel-controls button:hover { border-color:#3a9fa5; background:#e4f4f2; transform:translateY(-1px); }
 .process-carousel-controls button:focus-visible { outline:3px solid #3eb2ba; outline-offset:3px; }
 .process-carousel-controls button svg { width:18px; height:18px; }
 .process-carousel-dots { display:flex; align-items:center; justify-content:center; gap:8px; min-width:230px; }
-.process-carousel-dots button { width:9px; height:9px; padding:0; border:0; border-radius:999px; background:#b9dfe1; cursor:pointer; transition:background .18s ease, width .18s ease, transform .18s ease; }
+.process-carousel-dots button { width:9px; height:9px; padding:0; border:0; border-radius:999px; background:var(--border); cursor:pointer; transition:background .18s ease, width .18s ease, transform .18s ease; }
 .process-carousel-dots button:hover { background:#3a9fa5; transform:scale(1.15); }
 .process-carousel-dots button.is-active { width:26px; background:#167f87; }
 .process-carousel-dots button:focus-visible { outline:3px solid #3eb2ba; outline-offset:2px; }
