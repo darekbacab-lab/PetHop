@@ -44,7 +44,7 @@ function onDocumentFiles(event) { documentFiles.value = [...event.target.files].
 </script>
 
 <template>
-  <div class="application-page"><SiteHeader /><main>
+  <div class="application-page"><SiteHeader /><main id="main-content" tabindex="-1">
     <section class="application-header"><div class="application-header-container"><h1>Da el siguiente <span>paso.</span></h1><p>Completa la información necesaria para iniciar el proceso de adopción de {{ pet.name }}.</p></div></section>
     <section class="application-section"><div class="application-container"><div class="application-main">
       <form class="application-form" @submit.prevent="submit">

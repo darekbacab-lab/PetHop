@@ -17,7 +17,7 @@ const routes = [
   { path: '/mensajes.html', name: 'mensajes', meta: { title: 'Mensajes | PetHop' }, component: () => import('../views/AdopterMessagesView.vue') },
   { path: '/perfil.html', name: 'perfil', meta: { title: 'Mi perfil | PetHop' }, component: () => import('../views/AdopterProfileView.vue') },
   { path: '/salud.html', name: 'salud', meta: { title: 'Expediente sanitario | PetHop' }, component: () => import('../views/HealthRecordsView.vue') },
-  { path: '/aliados.html', name: 'aliados', meta: { title: 'Aliados PetHop | PetHop' }, component: () => import('../views/AffiliatesView.vue') },
+  { path: '/aliados.html', name: 'aliados', meta: { title: 'Aliados | PetHop' }, component: () => import('../views/AffiliatesView.vue') },
   { path: '/refugio.html', name: 'refugio', meta: { title: 'Dar en adopción | PetHop' }, component: () => import('../views/ShelterView.vue') },
   { path: '/admin.html', name: 'admin', meta: { title: 'Moderación | PetHop' }, component: () => import('../views/AdminView.vue') },
   { path: '/:pathMatch(.*)*', redirect: '/inicio.html' }
@@ -39,9 +39,13 @@ router.beforeEach(to => {
   routeLoading.value = true;
 });
 
-router.afterEach(to => {
+router.afterEach((to, from) => {
   if (to.fullPath === pendingFullPath) routeLoading.value = false;
   document.title = to.meta.title || 'PetHop';
+  if (to.path !== from.path) {
+    const main = document.querySelector('main');
+    if (main) { main.setAttribute('tabindex', '-1'); main.focus({ preventScroll: true }); }
+  }
 });
 
 router.onError(() => { routeLoading.value = false; });

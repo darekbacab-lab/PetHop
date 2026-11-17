@@ -495,3 +495,48 @@ test('audit batch 1: failed images keep their name, focus is solid, links are un
         assert.match(admin, new RegExp(`<label[^>]*>${label}<`));
     }
 });
+
+test('audit batch 2: filters live in the URL, pages have unique titles, skip link and focus trap', () => {
+    const explore = fs.readFileSync(path.join(projectRoot, 'src/views/ExploreView.vue'), 'utf8');
+    const router = fs.readFileSync(path.join(projectRoot, 'src/router/index.js'), 'utf8');
+    const pet = fs.readFileSync(path.join(projectRoot, 'src/views/PetView.vue'), 'utf8');
+    const trap = fs.readFileSync(path.join(projectRoot, 'src/services/dialogFocus.js'), 'utf8');
+    const header = fs.readFileSync(path.join(projectRoot, 'src/components/SiteHeader.vue'), 'utf8');
+    const admin = fs.readFileSync(path.join(projectRoot, 'src/views/AdminView.vue'), 'utf8');
+    const shelter = fs.readFileSync(path.join(projectRoot, 'src/views/ShelterView.vue'), 'utf8');
+    const profile = fs.readFileSync(path.join(projectRoot, 'src/views/AdopterProfileView.vue'), 'utf8');
+    const access = fs.readFileSync(path.join(projectRoot, 'src/views/AccessView.vue'), 'utf8');
+    const css = fs.readFileSync(path.join(projectRoot, 'css/styles.css'), 'utf8');
+    for (const view of ['AccessView', 'AdminView', 'AdopterMessagesView', 'AdopterProfileView', 'AdoptionView', 'AffiliatesView', 'ExploreView', 'FollowUpView', 'HealthRecordsView', 'HomeView', 'PetView', 'ShelterView']) {
+        const source = fs.readFileSync(path.join(projectRoot, 'src/views', `${view}.vue`), 'utf8');
+        assert.ok(source.includes('id="main-content"'), `${view} has a main-content landmark`);
+    }
+    assert.match(explore, /species: String\(route\.query\.species \|\| ''\)/);
+    assert.match(explore, /function filterQuery\(\)/);
+    assert.match(explore, /function syncFromQuery\(\)/);
+    assert.match(explore, /watch\(\(\) => route\.query, \(\) => \{ if \(syncFromQuery\(\)\) loadPets\(\); \}\)/);
+    assert.match(explore, /router\.replace\(\{ query: filterQuery\(\) \}\)/);
+    assert.match(router, /title: 'Aliados \| PetHop'/);
+    assert.doesNotMatch(router, /Aliados PetHop \| PetHop/);
+    assert.match(router, /if \(to\.path !== from\.path\) \{[\s\S]*?main\.focus\(\{ preventScroll: true \}\)/);
+    assert.match(pet, /document\.title = 'Cargando mascota \| PetHop'/);
+    assert.match(pet, /document\.title = 'Mascota no encontrada \| PetHop'/);
+    assert.match(trap, /export function useFocusTrap\(dialogRef, isOpen, onClose\)/);
+    assert.match(trap, /event\.key === 'Escape'/);
+    assert.match(trap, /event\.key !== 'Tab'/);
+    assert.match(css, /\.skip-link \{[\s\S]*?position: absolute;/);
+    assert.match(css, /\.skip-link:focus \{[\s\S]*?top: 10px;/);
+    assert.match(header, /<a class="skip-link" href="#main-content">Saltar al contenido<\/a>/);
+    assert.match(header, /useFocusTrap\(favoritesDialog, favoritesOpen/);
+    assert.match(header, /useFocusTrap\(notificationsDialog, notificationsOpen/);
+    assert.match(admin, /<a class="skip-link" href="#main-content">Saltar al contenido<\/a>/);
+    assert.match(admin, /useFocusTrap\(reviewDialog, \(\) => !!selected\.value/);
+    assert.match(shelter, /useFocusTrap\(petDialog, \(\) => !!selectedPet\.value/);
+    assert.match(shelter, /useFocusTrap\(requestDialog, \(\) => !!selectedRequest\.value/);
+    assert.match(profile, /useFocusTrap\(detailDialog, \(\) => !!selectedActivity\.value/);
+    assert.match(access, /<a class="skip-link" href="#main-content">Saltar al contenido<\/a>/);
+    for (const [file, title] of [['acceso.html', 'Ingresar | PetHop'], ['explorar.html', 'Explorar mascotas | PetHop'], ['inicio.html', 'PetHop | Adopta, conecta, cambia vidas'], ['mascota.html', 'Mascota | PetHop'], ['refugio.html', 'Dar en adopción | PetHop'], ['seguimiento.html', 'Seguimiento | PetHop'], ['solicitud.html', 'Solicitud de adopción | PetHop'], ['aliados.html', 'Aliados | PetHop']]) {
+        const html = fs.readFileSync(path.join(projectRoot, file), 'utf8');
+        assert.ok(html.includes(`<title>${title}</title>`), `${file} titles ${title}`);
+    }
+});

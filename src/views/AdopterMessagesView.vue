@@ -123,7 +123,7 @@ onUnmounted(() => document.removeEventListener('click', closeConversationMenuOnO
 <template>
   <div class="adopter-messages-page">
     <SiteHeader />
-    <main class="adopter-messages-main">
+    <main id="main-content" tabindex="-1" class="adopter-messages-main">
       <div class="adopter-messages-heading">
         <div><span class="eyebrow">TUS CONVERSACIONES</span><h1>Tus <span>mensajes.</span></h1><p>Continúa las conversaciones sobre las mascotas que te interesan.</p></div>
       </div>

@@ -7,6 +7,7 @@ import Icon from '../components/Icon.vue';
 import { api } from '../services/api.js';
 import { currentUser, loadCurrentUser, logout } from '../services/auth.js';
 import { listFavorites } from '../services/petApi.js';
+import { useFocusTrap } from '../services/dialogFocus.js';
 
 const router = useRouter();
 const route = useRoute();
@@ -29,6 +30,8 @@ const passwordOpen = ref(false);
 const roleSaving = ref(false);
 const roleFeedback = ref('');
 const selectedActivity = ref(null);
+const detailDialog = ref(null);
+useFocusTrap(detailDialog, () => !!selectedActivity.value, () => { selectedActivity.value = null; });
 const activityLoading = ref(false);
 const activityError = ref('');
 const initials = computed(() => String(user.value?.fullName || '').trim().split(/\s+/).slice(0, 2).map(part => part[0]).join('').toLocaleUpperCase('es-MX') || 'P');
@@ -148,7 +151,7 @@ onMounted(async () => {
 <template>
   <div class="adopter-profile-page">
     <SiteHeader />
-    <main class="adopter-profile-main">
+    <main id="main-content" tabindex="-1" class="adopter-profile-main">
       <div v-if="loading" class="adopter-profile-state" role="status">Cargando tu espacio…</div>
       <div v-else-if="pageError" class="adopter-profile-state" role="alert"><Icon name="circle-alert" /><p>{{ pageError }}</p><RouterLink class="button button-primary" to="/acceso.html">Ingresar</RouterLink></div>
       <template v-else>
@@ -190,7 +193,7 @@ onMounted(async () => {
         </section>
       </template>
     </main>
-    <div v-if="selectedActivity" class="adopter-detail-backdrop" @click.self="selectedActivity=null"><section class="panel adopter-detail-modal" role="dialog" aria-modal="true" :aria-labelledby="'activity-detail-title'" @keydown.esc="selectedActivity=null"><button class="adopter-detail-close" type="button" aria-label="Cerrar detalle" @click="selectedActivity=null"><Icon name="x" /></button><span class="eyebrow">{{ selectedActivity.type === 'application' ? 'SOLICITUD DE ADOPCIÓN' : 'ADOPCIÓN FORMALIZADA' }}</span><h2 id="activity-detail-title">{{ selectedActivity.data.petName }}</h2><p v-if="activityLoading" role="status">Cargando detalle…</p><p v-else-if="activityError" role="alert">{{ activityError }}</p><dl v-else class="adopter-detail-grid"><template v-if="selectedActivity.type === 'application'"><div><dt>Estado</dt><dd>{{ statusLabel(selectedActivity.data.status) }}</dd></div><div><dt>Enviada</dt><dd>{{ selectedActivity.data.submittedAt ? new Date(selectedActivity.data.submittedAt).toLocaleString('es-MX') : 'No disponible' }}</dd></div><div><dt>Motivo</dt><dd>{{ selectedActivity.data.motivation || 'No proporcionado' }}</dd></div><div><dt>Tipo de hogar</dt><dd>{{ selectedActivity.data.housingType || 'No proporcionado' }}</dd></div><div><dt>Experiencia</dt><dd>{{ selectedActivity.data.experience || 'No proporcionada' }}</dd></div><div><dt>Disponibilidad</dt><dd>{{ selectedActivity.data.availability || 'No proporcionada' }}</dd></div><div><dt>Información adicional</dt><dd>{{ selectedActivity.data.additionalInformation || 'No proporcionada' }}</dd></div></template><template v-else><div><dt>Fecha de adopción</dt><dd>{{ selectedActivity.data.adoptionDate || 'No disponible' }}</dd></div><div><dt>Notas del acuerdo</dt><dd>{{ selectedActivity.data.agreementNotes || 'Sin notas registradas' }}</dd></div></template></dl><RouterLink v-if="selectedActivity.data.petId" class="button button-primary" :to="{ path: '/mascota.html', query: { pet: selectedActivity.data.petId } }" @click="selectedActivity=null">Ver perfil de la mascota</RouterLink></section></div>
+    <div v-if="selectedActivity" class="adopter-detail-backdrop" @click.self="selectedActivity=null"><section ref="detailDialog" class="panel adopter-detail-modal" role="dialog" aria-modal="true" :aria-labelledby="'activity-detail-title'" @keydown.esc="selectedActivity=null"><button class="adopter-detail-close" type="button" aria-label="Cerrar detalle" @click="selectedActivity=null"><Icon name="x" /></button><span class="eyebrow">{{ selectedActivity.type === 'application' ? 'SOLICITUD DE ADOPCIÓN' : 'ADOPCIÓN FORMALIZADA' }}</span><h2 id="activity-detail-title">{{ selectedActivity.data.petName }}</h2><p v-if="activityLoading" role="status">Cargando detalle…</p><p v-else-if="activityError" role="alert">{{ activityError }}</p><dl v-else class="adopter-detail-grid"><template v-if="selectedActivity.type === 'application'"><div><dt>Estado</dt><dd>{{ statusLabel(selectedActivity.data.status) }}</dd></div><div><dt>Enviada</dt><dd>{{ selectedActivity.data.submittedAt ? new Date(selectedActivity.data.submittedAt).toLocaleString('es-MX') : 'No disponible' }}</dd></div><div><dt>Motivo</dt><dd>{{ selectedActivity.data.motivation || 'No proporcionado' }}</dd></div><div><dt>Tipo de hogar</dt><dd>{{ selectedActivity.data.housingType || 'No proporcionado' }}</dd></div><div><dt>Experiencia</dt><dd>{{ selectedActivity.data.experience || 'No proporcionada' }}</dd></div><div><dt>Disponibilidad</dt><dd>{{ selectedActivity.data.availability || 'No proporcionada' }}</dd></div><div><dt>Información adicional</dt><dd>{{ selectedActivity.data.additionalInformation || 'No proporcionada' }}</dd></div></template><template v-else><div><dt>Fecha de adopción</dt><dd>{{ selectedActivity.data.adoptionDate || 'No disponible' }}</dd></div><div><dt>Notas del acuerdo</dt><dd>{{ selectedActivity.data.agreementNotes || 'Sin notas registradas' }}</dd></div></template></dl><RouterLink v-if="selectedActivity.data.petId" class="button button-primary" :to="{ path: '/mascota.html', query: { pet: selectedActivity.data.petId } }" @click="selectedActivity=null">Ver perfil de la mascota</RouterLink></section></div>
     <SiteFooter />
   </div>
 </template>

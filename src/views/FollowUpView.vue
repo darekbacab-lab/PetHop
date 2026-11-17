@@ -180,7 +180,7 @@ onBeforeUnmount(() => Object.values(reportMediaSources.value).forEach(url => URL
 
 <template>
   <div class="follow-up-page"><SiteHeader />
-    <main class="follow-up-main">
+    <main id="main-content" tabindex="-1" class="follow-up-main">
       <section class="follow-up-header"><div class="follow-up-header-container"><span class="eyebrow">SEGUIMIENTO DE ADOPCIONES</span><h1>El camino hacia un <span>nuevo hogar.</span></h1><p>Consulta el avance de tus solicitudes y descubre cómo evoluciona la historia de tus adopciones.</p></div></section>
       <section class="follow-up-container follow-up-dashboard">
         <div v-if="loading" class="follow-up-state"><Icon name="refresh-cw" /><p>Cargando tu seguimiento…</p></div>

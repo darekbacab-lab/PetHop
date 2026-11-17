@@ -15,7 +15,7 @@ const loading = ref(false);
 const loadError = ref('');
 const query = ref(String(route.query.search || ''));
 const favoritesOnly = ref(route.query.favorites === '1');
-const filters = reactive({ species: '', age: '', gender: '', size: '', location: '', sort: '' });
+const filters = reactive({ species: String(route.query.species || ''), age: String(route.query.age || ''), gender: String(route.query.gender || ''), size: String(route.query.size || ''), location: String(route.query.location || ''), sort: String(route.query.sort || '') });
 const appliedFilters = reactive({ ...filters });
 const normalize = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es');
 const locations = computed(() => [...new Set(pets.value.map(pet => pet.location).filter(Boolean))].sort());
@@ -29,8 +29,27 @@ const visiblePets = computed(() => {
   if (filters.sort === 'age') { const rank = { cachorro: 0, joven: 1, adulto: 2, senior: 3 }; result.sort((a, b) => (rank[normalize(a.age)] ?? 99) - (rank[normalize(b.age)] ?? 99)); }
   return result;
 });
-watch(() => route.query.search, value => { query.value = String(value || ''); loadPets(); });
-watch(() => route.query.favorites, value => { favoritesOnly.value = value === '1'; });
+function filterQuery() {
+  const next = {};
+  for (const key of ['species', 'age', 'gender', 'size', 'location', 'sort']) if (filters[key]) next[key] = filters[key];
+  if (query.value) next.search = query.value;
+  if (favoritesOnly.value) next.favorites = '1';
+  return next;
+}
+function syncFromQuery() {
+  let changed = false;
+  for (const key of Object.keys(filters)) {
+    const value = String(route.query[key] || '');
+    if (filters[key] !== value) { filters[key] = value; changed = true; }
+  }
+  const search = String(route.query.search || '');
+  if (query.value !== search) { query.value = search; changed = true; }
+  const fav = route.query.favorites === '1';
+  if (favoritesOnly.value !== fav) { favoritesOnly.value = fav; changed = true; }
+  if (changed) Object.assign(appliedFilters, filters);
+  return changed;
+}
+watch(() => route.query, () => { if (syncFromQuery()) loadPets(); });
 async function loadPets() {
   loading.value = true; loadError.value = '';
   try {
@@ -49,14 +68,14 @@ async function favorite(id) {
     else { await addFavorite(id); favorites.value = [...favorites.value, key]; }
   } catch (error) { loadError.value = error.status === 401 ? 'Inicia sesión para guardar mascotas en favoritos.' : error.message; }
 }
-function applyFilters() { Object.assign(appliedFilters, filters); loadPets(); }
+function applyFilters() { Object.assign(appliedFilters, filters); router.replace({ query: filterQuery() }); loadPets(); }
 function clearFilters() { Object.keys(filters).forEach(key => { filters[key] = ''; appliedFilters[key] = ''; }); query.value = ''; favoritesOnly.value = false; router.replace({ path: route.path }); loadPets(); }
 onMounted(refresh);
 </script>
 
 <template>
   <div class="catalog-page"><SiteHeader />
-    <main>
+    <main id="main-content" tabindex="-1">
       <section class="catalog-header"><div class="catalog-header-container"><div class="catalog-header-copy"><h1>Encuentra una mascota <span>que conecte contigo.</span></h1></div></div></section>
       <section class="catalog-section"><div class="catalog-container">
         <form class="catalog-search" @submit.prevent="applyFilters">
@@ -75,7 +94,7 @@ onMounted(refresh);
               <div class="filter-actions"><button class="btn btn-primary catalog-apply" type="button" @click="applyFilters">Aplicar filtros</button><button class="clear-filters" type="button" @click="clearFilters">Limpiar filtros</button></div>
             </div>
           </section>
-        <div class="catalog-results"><div class="results-header"><div><h2>Mascotas disponibles</h2><p class="results-count" aria-live="polite"><template v-if="loading"><strong>…</strong> Consultando disponibilidad</template><template v-else-if="loadError"><strong>—</strong> No se pudo consultar la disponibilidad</template><template v-else><strong>{{ visiblePets.length }}</strong>{{ visiblePets.length === 1 ? ' mascota disponible' : ' mascotas disponibles' }}</template></p></div><button v-if="favoritesOnly" class="clear-filters" type="button" @click="favoritesOnly = false; router.replace({ path: route.path })">Ver todas</button></div>
+        <div class="catalog-results"><div class="results-header"><div><h2>Mascotas disponibles</h2><p class="results-count" aria-live="polite"><template v-if="loading"><strong>…</strong> Consultando disponibilidad</template><template v-else-if="loadError"><strong>—</strong> No se pudo consultar la disponibilidad</template><template v-else><strong>{{ visiblePets.length }}</strong>{{ visiblePets.length === 1 ? ' mascota disponible' : ' mascotas disponibles' }}</template></p></div><button v-if="favoritesOnly" class="clear-filters" type="button" @click="favoritesOnly = false; router.replace({ query: filterQuery() })">Ver todas</button></div>
             <div v-if="loadError" class="catalog-empty" role="alert"><h2>No se pudieron consultar las mascotas.</h2><p>{{ loadError }}</p><button class="primary-button" type="button" @click="refresh">Reintentar</button></div>
             <div v-else-if="loading" class="catalog-loading" role="status" aria-label="Cargando mascotas"><div v-for="item in 3" :key="item" class="catalog-loading-card" aria-hidden="true"></div></div>
             <div v-else class="catalog-grid pets-grid"><PetCard v-for="pet in visiblePets" :key="pet.id" :pet="pet" :favorite="favorites.includes(String(pet.id).toLowerCase())" @favorite="favorite" /></div>

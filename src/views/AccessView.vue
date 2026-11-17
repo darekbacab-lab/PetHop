@@ -109,7 +109,8 @@ async function submitRegistration(event) {
 
 <template>
   <div class="auth-page">
-    <main class="auth-card" :class="{ 'is-register': isRegistering }">
+    <a class="skip-link" href="#main-content">Saltar al contenido</a>
+    <main id="main-content" tabindex="-1" class="auth-card" :class="{ 'is-register': isRegistering }">
       <section class="auth-panel" aria-labelledby="auth-title">
         <RouterLink class="auth-brand" to="/inicio.html" aria-label="PetHop, volver al inicio"><img src="/img/image1.png" alt="PetHop"></RouterLink>
         <div class="auth-panel-heading">

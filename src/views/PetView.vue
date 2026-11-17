@@ -43,9 +43,10 @@ const galleryTransform = computed(() => {
 watch(() => pet.value.id, () => { activeTrackIndex.value = 1; transitionEnabled.value = true; isTransitioning.value = false; pendingDirections.length = 0; });
 const photoSrc = item => item.startsWith('data:') || item.startsWith('http') || item.startsWith('/') ? item : `/img/${item}`;
 async function loadPet() {
-  if (!route.query.pet) { loadError.value = 'Selecciona una mascota desde el catálogo.'; return; }
+  if (!route.query.pet) { document.title = 'Mascota no encontrada | PetHop'; loadError.value = 'Selecciona una mascota desde el catálogo.'; return; }
+  document.title = 'Cargando mascota | PetHop';
   try { pet.value = await getPetById(route.query.pet); document.title = `${pet.value.name} | PetHop`; loadError.value = ''; }
-  catch (error) { loadError.value = error.message || 'No se pudo cargar esta mascota.'; }
+  catch (error) { document.title = 'Mascota no encontrada | PetHop'; loadError.value = error.message || 'No se pudo cargar esta mascota.'; }
 }
 onMounted(async () => {
   await loadPet();
@@ -96,7 +97,7 @@ async function askShelter() {
 <template>
   <div>
     <SiteHeader />
-    <main>
+    <main id="main-content" tabindex="-1">
       <p v-if="loadError" class="pet-profile-error" role="alert">{{ loadError }}</p>
       <section class="pet-profile" :data-pet-id="pet.id" :data-description="pet.description">
         <div class="pet-profile-container">
