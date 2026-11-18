@@ -297,6 +297,16 @@
     min-width: 0;
 }
 
+.application-page .application-sidebar .application-pet-card {
+    grid-template-columns: minmax(0, 1fr);
+    margin: 0 0 24px;
+}
+
+.application-page .application-sidebar .application-pet-image {
+    height: 300px;
+    min-height: 0;
+}
+
 .application-page .application-process {
     display: grid;
     grid-template-columns: minmax(0, 1fr);

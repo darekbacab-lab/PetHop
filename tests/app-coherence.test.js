@@ -1073,11 +1073,12 @@ test('audit P1: one button system, token radii, one h1 scale, collapsed palette,
         assert.ok(!radiusRe.test(source), `${name} still has hardcoded radii`);
         radiusRe.lastIndex = 0;
     }
-    // H1: one scale (catalog, explore scoped override, login); the hero is the
-    // intentional exception: bigger (4.25rem max) so it fills the hero.
+    // H1: one scale (catalog, login); exceptions: the hero is bigger (4.25rem max)
+    // so it fills the hero, and the explore title is smaller (2.9rem max, 560px)
+    // so it breaks into two lines like the design.
     assert.match(css, /\.hero h1 \{[\s\S]*?font-size: clamp\(2\.5rem, 5vw, 4\.25rem\);/);
     assert.match(css, /\.catalog-header h1 \{[\s\S]*?font-size: clamp\(2rem, 4vw, 3\.3rem\);/);
-    assert.match(explore, /\.catalog-header h1 \{ max-width:970px; color:var\(--hero-title-dark\); font-size:clamp\(2rem,4vw,3\.3rem\);/);
+    assert.match(explore, /\.catalog-header h1 \{ max-width:560px; color:var\(--hero-title-dark\); font-size:clamp\(2rem,4vw,2\.9rem\);/);
     assert.match(acceso, /font:800 clamp\(2rem,4vw,3\.3rem\)\/1\.12 "Poppins",sans-serif;/);
     // Palette: no stray blue/purple/amber/green/red hex, no name-based photo rules
     assert.doesNotMatch(css, /#28628a|#6652a6|#825e09|#754600|#9c2525|#3dba7c|#14545c/i);

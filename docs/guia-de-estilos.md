@@ -55,7 +55,9 @@ La sombra va en cada botón y tarjeta, nunca en todo el bloque o sección.
   -0.045em`. Una sola escala para todos los `h1` de página, salvo el
   hero: el titular del hero es más grande, `clamp(2.5rem, 5vw, 4.25rem)`,
   y el hero mide 500 px de alto (no 570 px) para que el titular llene el
-  espacio sin aire vacío arriba. Sistema de color: los titulares de dos colores llevan
+  espacio sin aire vacío arriba. Y salvo Explorar: su titular es más
+  chico, `clamp(2rem, 4vw, 2.9rem)` con `max-width: 560px`, para que
+  rompa en dos líneas como el diseño de referencia. Sistema de color: los titulares de dos colores llevan
   la parte oscura en `var(--hero-title-dark)` (`#2C5357`) y la palabra de
   acento en `var(--hero-title-light)` (`#3EB2BA`); los de un solo color
   quedan en `var(--text)` (`#313434`, negro casi). Las media queries
@@ -63,7 +65,8 @@ La sombra va en cada botón y tarjeta, nunca en todo el bloque o sección.
 - Cuerpo: Montserrat. Texto secundario mínimo `0.75rem` (12 px), salvo
   los textos secundarios de la tarjeta de mascota (`0.64–0.7rem`, como en
   la referencia).
-- Ancho de página: `--container-width: 1320px`.
+- Ancho de página: `--container-width: 1320px`, salvo Explorar, que usa
+  una columna compacta de `920px` como el diseño de referencia.
 
 ## Los 3 ejemplos
 
