@@ -101,9 +101,9 @@ vistas con el sistema de botones). No hay más sistemas de botón primario.
    oculta (`v-if`), no se muestra con un mensaje que diga que no puede.
 3. **Fotos por dato, no por nombre.** La foto de una mascota viene en
    sus datos (`images`); nunca se asigna una foto por el nombre en CSS.
-4. **Ritmo oscuro/claro.** Cada vista principal tiene al menos una banda
-   oscura: el componente `DarkBand.vue` (`--primary-dark`, texto blanco,
-   botón blanco con texto `--primary-strong`) al final del contenido.
+4. **Ritmo oscuro/claro.** La banda oscura `DarkBand.vue` (`--primary-dark`, texto blanco,
+   botón blanco con texto `--primary-strong`) va solo al final de Afiliados y Salud;
+   Explorar y el detalle de mascota no la llevan (quedaba pegada al pie).
 5. **Imágenes reales.** Fotos de mascotas y fotos reales del proyecto;
    nada que parezca generado.
 6. **Contraste.** El texto interactivo usa `--primary-strong`, no
@@ -128,7 +128,7 @@ vistas con el sistema de botones). No hay más sistemas de botón primario.
 2. Usar solo tokens de esta guía; si falta un color, añadir el token en
    `:root` y documentarlo aquí, no escribir el valor suelto.
 3. Titular con la escala única; texto secundario de `0.75rem` o más.
-4. Añadir una `DarkBand` al final del contenido.
+4. Añadir una `DarkBand` al final del contenido solo si la vista es Afiliados o Salud.
 5. Ocultar las acciones por rol con `v-if`.
 6. Añadir un test en `tests/app-coherence.test.js` que afirme lo anterior
    y correr `npm test` y `npm run build`.

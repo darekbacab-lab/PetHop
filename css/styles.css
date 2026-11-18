@@ -4752,7 +4752,7 @@ textarea {
 .shelter-pet-photo { position:relative; height:clamp(210px,22vw,300px); background-image:none; background-color:var(--tint); }
 .shelter-pet-image { object-fit:contain; }
 .catalog-page .catalog-card-image { height:clamp(270px,25vw,350px); background:var(--tint); }
-.catalog-page .catalog-card-image .image-loading-content { object-fit:contain; }
+.catalog-page .catalog-card-image .image-loading-content { object-fit:cover; }
 .gallery-slide-image { object-fit:contain; }
 .gallery-slide-frame { background:var(--tint); }
 .shelter-draft-photo { position:relative; overflow:hidden; aspect-ratio:1; border:1px solid var(--border); border-radius: var(--radius-sm); background:var(--tint); }
@@ -5118,11 +5118,12 @@ textarea {
 html[data-theme="light"] .pet-information .information-icon { background:var(--button-primary-bg); color:var(--white); }
 html[data-theme="light"] .pet-information .information-icon span { color:var(--white); }
 
-/* Preserve the full animal photo in catalog, shelter cards and detailed profiles. */
+/* Catalog cards fill the frame like the home cards, so all pet photos look
+   the same size; the full photo is preserved in the detail gallery and in
+   the shelter cards. */
 .shelter-pet-photo { position:relative; height:clamp(210px,22vw,300px); background-image:none; background-color:var(--tint); }
 .shelter-pet-image { object-fit:contain; }
 .catalog-page .catalog-card-image { height:clamp(270px,25vw,350px); background:var(--tint); }
-.catalog-page .catalog-card-image .image-loading-content,
 .gallery-slide-image { object-fit:contain; }
 .gallery-slide-frame { background:var(--tint); }
 .shelter-photo-preview { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,180px)); justify-content:start; gap:12px; margin-top:10px; }

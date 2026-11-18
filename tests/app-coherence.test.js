@@ -1129,13 +1129,18 @@ test('audit P2: login language everywhere, dark rhythm, min text 0.75rem, style 
     assert.match(health, /health-pet-photo/);
     assert.match(health, /pet\?\.photos\?\.\[0\]/);
 
-    // 18. Banda oscura en las 4 vistas, con el componente compartido
+    // 18. Banda oscura solo en Afiliados y Salud; Explorar y el detalle de
+    // mascota ya no la llevan (Ruisu pidió quitarla: quedaba pegada al pie).
     assert.match(band, /background:var\(--primary-dark\)/);
     assert.match(band, /color:var\(--white\)/);
     assert.match(band, /background:var\(--white\);color:var\(--primary-strong\)/);
-    for (const [name, source] of [['ExploreView', explore], ['PetView', pet], ['AffiliatesView', affiliates], ['HealthRecordsView', health]]) {
+    for (const [name, source] of [['AffiliatesView', affiliates], ['HealthRecordsView', health]]) {
         assert.match(source, /<DarkBand /, `${name} no usa DarkBand`);
         assert.match(source, /import DarkBand from '\.\.\/components\/DarkBand\.vue';/, `${name} no importa DarkBand`);
+    }
+    for (const [name, source] of [['ExploreView', explore], ['PetView', pet]]) {
+        assert.doesNotMatch(source, /<DarkBand /, `${name} sigue usando DarkBand`);
+        assert.doesNotMatch(source, /import DarkBand from/, `${name} sigue importando DarkBand`);
     }
     // Contraste de la banda: texto #DDE8EB sobre #2C5357 y #167F87 sobre blanco, >= 4.5:1
     const luminance = hex => {
@@ -1390,4 +1395,11 @@ test('organization section label is plain teal text, not a highlighted pill', ()
   const css = fs.readFileSync(path.join(projectRoot, 'css/styles.css'), 'utf8');
   assert.doesNotMatch(css, /\.organization-container > div > span \{[^}]*background:/);
   assert.match(css, /\.organization-container > div > span \{[^}]*color: var\(--primary-strong\);/);
+});
+
+test('catalog pet photos fill the card frame, gallery keeps the full photo', () => {
+  const css = fs.readFileSync(path.join(projectRoot, 'css/styles.css'), 'utf8');
+  assert.match(css, /\.catalog-page \.catalog-card-image \.image-loading-content \{ object-fit:cover; \}/);
+  assert.doesNotMatch(css, /\.catalog-page \.catalog-card-image \.image-loading-content,\s*\.gallery-slide-image \{ object-fit:contain; \}/);
+  assert.match(css, /\.gallery-slide-image \{ object-fit:contain; \}/);
 });

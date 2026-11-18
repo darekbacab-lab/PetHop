@@ -5,7 +5,6 @@ import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 import Icon from '../components/Icon.vue';
 import ImageWithSkeleton from '../components/ImageWithSkeleton.vue';
-import DarkBand from '../components/DarkBand.vue';
 import { getPetById, listFavorites, addFavorite, removeFavorite } from '../services/petApi.js';
 import { api } from '../services/api.js';
 import { listAffiliates } from '../services/affiliateApi.js';
@@ -171,7 +170,6 @@ async function askShelter() {
           </div>
         </div>
       </section>
-      <DarkBand title="Cada adopción empieza con una historia" text="Conoce a las mascotas que buscan hogar y el refugio que las cuida." cta-label="Explorar mascotas" cta-to="/explorar.html" />
     </main>
     <SiteFooter />
   </div>

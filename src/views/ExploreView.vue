@@ -5,7 +5,6 @@ import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 import Icon from '../components/Icon.vue';
 import PetCard from '../components/PetCard.vue';
-import DarkBand from '../components/DarkBand.vue';
 import { addFavorite, listFavorites, listPets, removeFavorite } from '../services/petApi.js';
 
 const route = useRoute();
@@ -107,7 +106,6 @@ onMounted(refresh);
           </div>
         </div>
       </div></section>
-      <DarkBand title="¿Tienes un refugio?" text="Publica mascotas, organiza solicitudes y centraliza tus adopciones." cta-label="Registrar refugio" cta-to="/acceso.html?mode=register&role=shelter" />
     </main><SiteFooter />
   </div>
 </template>
