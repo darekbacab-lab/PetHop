@@ -1066,8 +1066,9 @@ test('audit P1: one button system, token radii, one h1 scale, collapsed palette,
         assert.ok(!radiusRe.test(source), `${name} still has hardcoded radii`);
         radiusRe.lastIndex = 0;
     }
-    // H1: one scale (hero, catalog, explore scoped override, login)
-    assert.match(css, /\.hero h1 \{[\s\S]*?font-size: clamp\(2rem, 4vw, 3\.3rem\);/);
+    // H1: one scale (catalog, explore scoped override, login); the hero is the
+    // intentional exception: bigger (4.25rem max) so it fills the hero.
+    assert.match(css, /\.hero h1 \{[\s\S]*?font-size: clamp\(2\.5rem, 5vw, 4\.25rem\);/);
     assert.match(css, /\.catalog-header h1 \{[\s\S]*?font-size: clamp\(2rem, 4vw, 3\.3rem\);/);
     assert.match(explore, /\.catalog-header h1 \{ max-width:970px; color:var\(--hero-title-dark\); font-size:clamp\(2rem,4vw,3\.3rem\);/);
     assert.match(acceso, /font:800 clamp\(2rem,4vw,3\.3rem\)\/1\.12 "Poppins",sans-serif;/);
@@ -1330,4 +1331,31 @@ test('prelaunch G: GA4 loads only with ID and cookie consent', () => {
     assert.match(router, /import \{ trackPageView \} from '\.\.\/services\/analytics\.js';/);
     assert.match(router, /trackPageView\(to\.fullPath\);/);
     assert.match(banner, /if \(value === 'accepted'\) initAnalytics\(\);/);
+});
+
+test('audit fix: hero title is bigger and higher, third action card is white with a secondary stroke', () => {
+    const css = fs.readFileSync(path.join(projectRoot, 'css/styles.css'), 'utf8');
+    // Hero: the late rule used to cap the title at 3.3rem (the 4.7rem design size
+    // never rendered) and the 570px hero left empty space above it.
+    assert.match(css, /\.hero h1 \{[^}]*font-size: clamp\(2\.5rem, 5vw, 4\.25rem\);/);
+    assert.match(css, /\.hero \{[^}]*min-height: 500px;/);
+    assert.match(css, /\.hero-container \{[^}]*min-height: 500px;/);
+    // Third card: the late rule flattened all three cards to --primary-strong,
+    // leaving its dark text on teal; now it is white with a secondary stroke.
+    assert.match(css, /\.action-card:nth-child\(3\) \{[^}]*background: var\(--white\);/);
+    assert.match(css, /\.action-card:nth-child\(3\) \{[^}]*border: 1px solid var\(--primary\);/);
+    assert.match(css, /\.action-card:nth-child\(3\):hover \{[^}]*background: var\(--white\);/);
+    // The other two cards keep their dark/main backgrounds with white text.
+    assert.match(css, /\.action-card:nth-child\(2\) \{\s*background: var\(--primary-strong\);/);
+    // Dark text on the white third card passes AA.
+    const luminance = hex => {
+        const [r, g, b] = [0, 2, 4].map(i => parseInt(hex.slice(1 + i, 3 + i), 16) / 255);
+        const f = c => c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+        return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+    };
+    const contrast = (a, b) => {
+        const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+        return (hi + 0.05) / (lo + 0.05);
+    };
+    assert.ok(contrast('#313434', '#FFFFFF') >= 4.5, `card 3 text ${contrast('#313434', '#FFFFFF').toFixed(2)}:1`);
 });

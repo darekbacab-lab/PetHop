@@ -507,7 +507,7 @@ ol {
 
 .hero {
     position: relative;
-    min-height: 570px;
+    min-height: 500px;
     overflow: hidden;
     background: var(--white);
 }
@@ -516,7 +516,7 @@ ol {
     position: relative;
     z-index: 2;
     width: min(var(--max-width), calc(100% - 40px));
-    min-height: 570px;
+    min-height: 500px;
     margin: 0 auto;
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(420px, 0.9fr);
@@ -549,7 +549,7 @@ ol {
     max-width: 670px;
     margin-bottom: 20px;
     color: var(--hero-title-dark);
-    font-size: clamp(2rem, 4vw, 3.3rem);
+    font-size: clamp(2.5rem, 5vw, 4.25rem);
     font-weight: 800;
     line-height: 0.94;
     letter-spacing: -0.045em;
@@ -4032,7 +4032,7 @@ h1, h2, h3, h4,
 
 .hero h1 {
     max-width: 760px;
-    font-size: clamp(2rem, 4vw, 3.3rem);
+    font-size: clamp(2.5rem, 5vw, 4.25rem);
     line-height: 1.08;
     letter-spacing: -0.045em;
 }
@@ -4135,6 +4135,23 @@ h1, h2, h3, h4,
 .action-card:nth-child(2):hover,
 .action-card:nth-child(3):hover {
     background: var(--primary-strong);
+    background-image: none;
+}
+
+/* La tercera tarjeta (Acompañar) es blanca con stroke secundario: la regla
+   tardía de arriba la dejaba con el mismo fondo turquesa que las otras dos
+   y su texto oscuro (regla de :808) quedaba sobre turquesa, sin contraste
+   entre tarjetas. En blanco el texto oscuro sí pasa (12,22:1). */
+.action-card:nth-child(3) {
+    border: 1px solid var(--primary);
+    background: var(--white);
+    color: var(--text);
+    background-image: none;
+}
+
+.action-card:nth-child(3):hover {
+    border-color: var(--primary);
+    background: var(--white);
     background-image: none;
 }
 

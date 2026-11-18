@@ -52,8 +52,10 @@ La sombra va en cada botón y tarjeta, nunca en todo el bloque o sección.
 ### Tipografía
 
 - Titulares: Poppins 800, `clamp(2rem, 4vw, 3.3rem)`, `letter-spacing:
-  -0.045em`. Una sola escala para todos los `h1` de página, incluido el
-  hero y el login. Sistema de color: los titulares de dos colores llevan
+  -0.045em`. Una sola escala para todos los `h1` de página, salvo el
+  hero: el titular del hero es más grande, `clamp(2.5rem, 5vw, 4.25rem)`,
+  y el hero mide 500 px de alto (no 570 px) para que el titular llene el
+  espacio sin aire vacío arriba. Sistema de color: los titulares de dos colores llevan
   la parte oscura en `var(--hero-title-dark)` (`#2C5357`) y la palabra de
   acento en `var(--hero-title-light)` (`#3EB2BA`); los de un solo color
   quedan en `var(--text)` (`#313434`, negro casi). Las media queries
@@ -112,6 +114,13 @@ vistas con el sistema de botones). No hay más sistemas de botón primario.
 7. **Páginas legales y cookies.** Privacidad y términos existen y se
    enlazan en el pie de página; el banner pide el consentimiento una
    vez y la analítica solo carga si se acepta.
+8. **Tarjetas de acción del inicio.** Las tres no comparten fondo: Adoptar
+   en `--primary-dark` y Registrar refugio en `--primary-strong`, ambas
+   con texto blanco; Acompañar es blanca con stroke de 1 px en
+   `--primary` y texto oscuro. Una regla tardía las igualaba a todas en
+   `--primary-strong` y dejaba el texto oscuro de la tercera sobre
+   turquesa; la corrección vive después del bloque `:hover` de las
+   tarjetas en `css/styles.css`.
 
 ## Al añadir una vista nueva
 
