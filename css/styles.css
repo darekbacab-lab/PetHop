@@ -1239,12 +1239,6 @@ ol {
     letter-spacing: -0.045em;
 }
 
-.catalog-header p {
-    max-width: 750px;
-    color: var(--text-soft);
-    font-size: 0.95rem;
-}
-
 .catalog-layout {
     display: grid;
     grid-template-columns: 250px minmax(0, 1fr);
@@ -4430,15 +4424,6 @@ textarea {
     letter-spacing: -0.045em;
 }
 
-.catalog-header p {
-    grid-column: 2;
-    grid-row: 1 / span 2;
-    align-self: end;
-    margin-bottom: 6px;
-    font-size: 0.9375rem;
-    line-height: 1.65;
-}
-
 .catalog-search {
     display: flex;
     align-items: center;
@@ -4522,12 +4507,6 @@ textarea {
 
     .catalog-header-container > .back-link {
         grid-column: 1;
-    }
-
-    .catalog-header p {
-        grid-column: 1;
-        grid-row: auto;
-        margin-top: 12px;
     }
 
     .catalog-header-copy {

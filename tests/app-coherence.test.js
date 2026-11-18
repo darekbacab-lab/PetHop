@@ -1113,6 +1113,7 @@ test('audit P2: login language everywhere, dark rhythm, min text 0.75rem, style 
     // no tenía nada que ver ahí); el titular con palabra turquesa se queda
     assert.doesNotMatch(explore, /catalog-header-visual/);
     assert.doesNotMatch(explore, /src="\/img\/mascotas-hero-v2\.webp"/);
+    assert.doesNotMatch(explore, /<p>Explora las mascotas/);
     assert.match(explore, /Encuentra una mascota <span>que conecte contigo\.<\/span>/);
     assert.doesNotMatch(styles, /\.catalog-header-visual \{/);
     assert.match(styles, /\.catalog-header-container \{[^}]*grid-template-columns: minmax\(0, 1fr\);/);
