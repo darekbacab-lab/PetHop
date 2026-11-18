@@ -47,11 +47,26 @@ async function submitMessage(value, { recordUser = true } = {}) {
   const text = value.trim();
   if (!text || isSending.value) return;
   if (!isVeterinaryQuestion(text)) {
-    messages.value.push({ id: `${Date.now()}-${messages.value.length}`, role: 'user', text });
-    messages.value.push({ id: `${Date.now()}-${messages.value.length + 1}`, role: 'assistant', text: generalAnswer(text) });
-    draft.value = '';
+    // Las preguntas generales también van a la IA real; si la IA no está
+    // configurada o falla, se usa la respuesta guardada de antes para no
+    // dejar al usuario sin respuesta.
+    if (recordUser) messages.value.push({ id: `${Date.now()}-${messages.value.length}`, role: 'user', text });
+    if (recordUser) draft.value = '';
     error.value = '';
+    isSending.value = true;
     scrollToLatest();
+    try {
+      const response = await api('/veterinary-assistant/messages', {
+        method: 'POST',
+        body: { message: text, petId: currentPetId.value }
+      });
+      messages.value.push({ id: `${Date.now()}-${messages.value.length}`, role: 'assistant', response });
+    } catch (requestError) {
+      messages.value.push({ id: `${Date.now()}-${messages.value.length}`, role: 'assistant', text: generalAnswer(text) });
+    } finally {
+      isSending.value = false;
+      scrollToLatest();
+    }
     return;
   }
   if (recordUser) messages.value.push({ id: `${Date.now()}-${messages.value.length}`, role: 'user', text });

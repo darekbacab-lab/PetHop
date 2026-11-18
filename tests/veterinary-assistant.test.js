@@ -51,6 +51,15 @@ test('Paw preserves general assistant suggestions and composer behavior', () => 
   assert.doesNotMatch(assistant, /Inicia PostgreSQL|Reinicia Spring Boot|backend esté iniciado/i);
 });
 
+test('Paw asks the real AI for general questions and keeps the saved answer only as fallback', () => {
+  // La rama de preguntas generales llama al endpoint de la IA y solo usa
+  // generalAnswer dentro del catch; sin eso el asistente contestaba siempre
+  // con textos predeterminados.
+  const generalBranch = assistant.slice(assistant.indexOf('if (!isVeterinaryQuestion(text))'));
+  assert.match(generalBranch, /await api\('\/veterinary-assistant\/messages'/);
+  assert.match(generalBranch, /catch \(requestError\) \{[\s\S]*?generalAnswer\(text\)/);
+});
+
 test('Paw routes veterinary language variants to the provider', () => {
   assert.equal(isVeterinaryQuestion('¿Qué debo hacer para bañar a mi perro?'), true);
   assert.equal(isVeterinaryQuestion('Mi perro no está comiendo bien'), true);
