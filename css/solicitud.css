@@ -94,7 +94,7 @@
     display: block;
     margin: 0 0 7px;
     color: var(--primary-dark);
-    font-size: .73rem;
+    font-size: .75rem;
     font-weight: 800;
     letter-spacing: .09em;
     line-height: 1.4;
@@ -201,7 +201,7 @@
 
 .application-page .application-pet-content .pet-species {
     color: var(--text-soft);
-    font-size: .72rem;
+    font-size: .75rem;
     font-weight: 800;
     letter-spacing: .08em;
 }
@@ -312,7 +312,7 @@
     display: block;
     margin-bottom: 6px;
     color: var(--primary-dark);
-    font-size: .73rem;
+    font-size: .75rem;
     font-weight: 800;
     letter-spacing: .09em;
 }

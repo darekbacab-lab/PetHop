@@ -237,7 +237,7 @@ onBeforeUnmount(() => Object.values(reportMediaSources.value).forEach(url => URL
 .visit-list article > div { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .visit-list p { margin: 8px 0 0; color: var(--text-soft); white-space: pre-line; }
 .visit-list small { display: block; margin-top: 8px; color: var(--text-soft); }
-.visit-status { padding: 4px 8px; border-radius: 99px; font-size: .72rem; font-weight: 800; }
+.visit-status { padding: 4px 8px; border-radius: 99px; font-size: .75rem; font-weight: 800; }
 .visit-status.is-planned { background: var(--warning-bg); color: var(--warning); }
 .visit-status.is-completed { background: var(--success-bg); color: var(--success); }
 .visit-status.is-cancelled { background: var(--danger-bg); color: var(--danger); }

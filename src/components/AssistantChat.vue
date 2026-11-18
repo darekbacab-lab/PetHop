@@ -199,7 +199,7 @@ onBeforeUnmount(() => { document.body.style.overflow = previousOverflow; });
 .assistant-avatar,.assistant-welcome-icon { display:grid; width:42px; height:42px; flex:0 0 42px; place-items:center; border-radius: var(--radius-sm); background:var(--tint); color:var(--primary-strong); }
 .assistant-heading { min-width:0; flex:1; }
 .assistant-heading h2 { color:var(--text); font:700 1rem/1.3 "Poppins",sans-serif; }
-.assistant-heading p { margin-top:3px; color:var(--text-soft); font-size:.72rem; }
+.assistant-heading p { margin-top:3px; color:var(--text-soft); font-size:.75rem; }
 .assistant-close { display:grid; width:38px; height:38px; flex:0 0 38px; place-items:center; border:1px solid var(--border); border-radius:50%; background:var(--white); color:var(--text-soft); cursor:pointer; transition:background .18s ease,color .18s ease; }
 .assistant-close:hover { background:var(--primary-soft); color:var(--primary-strong); }
 .assistant-transcript { display:flex; min-height:0; flex:1; flex-direction:column; gap:18px; overflow-y:auto; padding:22px 18px; background-color:var(--background); background-image:radial-gradient(rgba(22,127,135,.055) .7px,transparent .7px); background-size:18px 18px; }
@@ -207,17 +207,17 @@ onBeforeUnmount(() => { document.body.style.overflow = previousOverflow; });
 .assistant-welcome-icon { width:34px; height:34px; flex-basis:34px; border-radius: var(--radius-sm); }
 .assistant-welcome p { padding:11px 13px; border:1px solid var(--tint); border-radius:4px 14px 14px 14px; background:var(--white); color:var(--text); font-size:.8rem; line-height:1.55; box-shadow:0 3px 10px rgba(18,63,75,.04); }
 .assistant-quick-questions { display:flex; flex-direction:column; gap:9px; padding-left:44px; }
-.assistant-quick-questions > p { margin-bottom:1px; color:var(--text-soft); font-size:.71rem; font-weight:700; }
-.assistant-quick-questions button { padding:10px 12px; border:1px solid var(--tint); border-radius: var(--radius-sm); background:var(--white); color:var(--primary-strong); cursor:pointer; font:600 .74rem/1.4 "Montserrat",sans-serif; text-align:left; transition:border-color .18s ease,background .18s ease,transform .18s ease; }
+.assistant-quick-questions > p { margin-bottom:1px; color:var(--text-soft); font-size:.75rem; font-weight:700; }
+.assistant-quick-questions button { padding:10px 12px; border:1px solid var(--tint); border-radius: var(--radius-sm); background:var(--white); color:var(--primary-strong); cursor:pointer; font:600.75rem/1.4 "Montserrat",sans-serif; text-align:left; transition:border-color .18s ease,background .18s ease,transform .18s ease; }
 .assistant-quick-questions button:hover { transform:translateX(2px); border-color:var(--primary-strong); background:var(--primary-soft); }
 .assistant-user-message { max-width:84%; align-self:flex-end; padding:10px 13px; border:1px solid var(--primary-strong); border-radius:14px 14px 4px 14px; background:var(--primary-strong); box-shadow:0 3px 10px rgba(18,63,75,.08); }
 .assistant-user-message p { color:var(--white); font-size:.8rem; line-height:1.5; overflow-wrap:anywhere; white-space:pre-wrap; }
 .assistant-general-message { max-width:92%; align-self:flex-start; padding:11px 13px; border:1px solid var(--tint); border-radius:4px 14px 14px 14px; background:var(--white); box-shadow:0 3px 10px rgba(18,63,75,.04); }
 .assistant-general-message p { color:var(--text); font-size:.8rem; line-height:1.5; }
 .assistant-ai-message { max-width:92%; align-self:flex-start; padding:11px 13px; border:1px solid var(--tint); border-radius:4px 14px 14px 14px; background:var(--white); color:var(--text); font-size:.78rem; line-height:1.5; box-shadow:0 3px 10px rgba(18,63,75,.04); }
-.assistant-ai-message strong { font-size:.72rem; }.assistant-ai-message ul { margin:5px 0 10px 18px; }.assistant-ai-message li { margin:3px 0; }.assistant-ai-summary { margin:10px 0; }.assistant-ai-disclaimer { display:block; margin-top:10px; color:var(--text-soft); font-size:.66rem; line-height:1.45; }
-.assistant-urgency { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:7px 9px; border-radius: var(--radius-xs); font-size:.7rem; }.assistant-urgency span { font-weight:800; }.urgency-green { background:var(--success-bg); color:var(--success); }.urgency-yellow { background:var(--warning-bg); color:var(--warning); }.urgency-red { background:var(--danger-bg); color:var(--danger); }
-.assistant-status,.assistant-error { align-self:flex-start; max-width:92%; color:var(--text-soft); font-size:.74rem; }.assistant-error { color:var(--danger); }.assistant-error button { margin-left:5px; border:0; background:transparent; color:inherit; cursor:pointer; text-decoration:underline; }
+.assistant-ai-message strong { font-size:.75rem; }.assistant-ai-message ul { margin:5px 0 10px 18px; }.assistant-ai-message li { margin:3px 0; }.assistant-ai-summary { margin:10px 0; }.assistant-ai-disclaimer { display:block; margin-top:10px; color:var(--text-soft); font-size:.75rem; line-height:1.45; }
+.assistant-urgency { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:7px 9px; border-radius: var(--radius-xs); font-size:.75rem; }.assistant-urgency span { font-weight:800; }.urgency-green { background:var(--success-bg); color:var(--success); }.urgency-yellow { background:var(--warning-bg); color:var(--warning); }.urgency-red { background:var(--danger-bg); color:var(--danger); }
+.assistant-status,.assistant-error { align-self:flex-start; max-width:92%; color:var(--text-soft); font-size:.75rem; }.assistant-error { color:var(--danger); }.assistant-error button { margin-left:5px; border:0; background:transparent; color:inherit; cursor:pointer; text-decoration:underline; }
 .assistant-composer { display:flex; align-items:flex-end; gap:10px; padding:14px; border-top:1px solid var(--border); background:var(--white); }
 .assistant-composer textarea { min-height:44px; max-height:120px; flex:1; resize:vertical; padding:12px 13px; border:1px solid var(--tint); border-radius: var(--radius-sm);  background:var(--background); color:var(--text); font:500 .8rem/1.4 "Montserrat",sans-serif; }
 .assistant-composer textarea:focus { border-color:var(--primary-strong); box-shadow:0 0 0 3px rgba(22,127,135,.1); }

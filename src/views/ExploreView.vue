@@ -5,6 +5,7 @@ import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 import Icon from '../components/Icon.vue';
 import PetCard from '../components/PetCard.vue';
+import DarkBand from '../components/DarkBand.vue';
 import { addFavorite, listFavorites, listPets, removeFavorite } from '../services/petApi.js';
 
 const route = useRoute();
@@ -79,7 +80,7 @@ onMounted(refresh);
 <template>
   <div class="catalog-page"><SiteHeader />
     <main id="main-content" tabindex="-1">
-      <section class="catalog-header"><div class="catalog-header-container"><div class="catalog-header-copy"><h1>Encuentra una mascota <span>que conecte contigo.</span></h1></div></div></section>
+      <section class="catalog-header"><div class="catalog-header-container"><div class="catalog-header-copy"><h1>Encuentra una mascota <span>que conecte contigo.</span></h1><p>Explora las mascotas publicadas por refugios y encuentra a tu próximo compañero.</p></div><div class="catalog-header-visual" aria-hidden="true"><img src="/img/mascotas-hero-v2.png" alt=""></div></div></section>
       <section class="catalog-section"><div class="catalog-container">
         <form class="catalog-search" @submit.prevent="applyFilters">
           <div class="catalog-search-input"><span class="search-symbol" aria-hidden="true"><Icon name="search" /></span><label class="sr-only" for="catalogSearch">Buscar mascotas</label><input id="catalogSearch" v-model="query" name="search" type="search" placeholder="Buscar por nombre, especie o ubicación" autocomplete="off"></div>
@@ -106,6 +107,7 @@ onMounted(refresh);
           </div>
         </div>
       </div></section>
+      <DarkBand title="¿Tienes un refugio?" text="Publica mascotas, organiza solicitudes y centraliza tus adopciones." cta-label="Registrar refugio" cta-to="/acceso.html?mode=register&role=shelter" />
     </main><SiteFooter />
   </div>
 </template>
@@ -118,7 +120,7 @@ onMounted(refresh);
 .catalog-filterbar { position:static; margin-bottom:18px; padding:12px 16px; border-color:var(--primary); background-color:var(--background); }
 .catalog-filter-controls { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)) minmax(130px,1.2fr) minmax(168px,1.55fr) repeat(2,minmax(140px,1.2fr)); gap:10px; align-items:end; }
 .catalog-filter-controls .catalog-filter-group { min-width:0; margin:0; display:block; width:auto; }
-.catalog-filter-group label { margin-bottom:4px; font-size:.7rem; }
+.catalog-filter-group label { margin-bottom:4px; font-size:.75rem; }
 .catalog-filter-controls .catalog-filter-group select { min-width:0; min-height:40px; width:100%; padding:7px 26px 7px 10px; border-color:var(--primary); background-color:var(--white); font-size:.8rem; }
 .catalog-filter-controls .filter-actions { display:contents; }
 .catalog-filter-controls .filter-actions > button { width:100%; min-width:0; min-height:40px; padding:8px 10px; white-space:nowrap; }
@@ -140,8 +142,8 @@ onMounted(refresh);
   .catalog-search .search-button { flex:0 0 25%; min-width:78px; min-height:44px; padding:0 10px; }
   .catalog-filterbar { margin-bottom:10px; padding:10px; }
   .catalog-filter-controls { grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px 8px; }
-  .catalog-filter-group label { margin-bottom:3px; font-size:.65rem; }
-  .catalog-filter-controls .catalog-filter-group select { min-height:40px; padding:6px 24px 6px 8px; font-size:.74rem; }
+  .catalog-filter-group label { margin-bottom:3px; font-size:.75rem; }
+  .catalog-filter-controls .catalog-filter-group select { min-height:40px; padding:6px 24px 6px 8px; font-size:.75rem; }
   .catalog-filter-controls .filter-actions { grid-column:1 / -1; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin-top:4px; }
   .catalog-filter-controls .filter-actions > button { width:100%; min-height:42px; padding:7px 5px; white-space:normal; }
   .catalog-results { margin-top:0; }

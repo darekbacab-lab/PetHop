@@ -1077,3 +1077,83 @@ test('audit P1: one button system, token radii, one h1 scale, collapsed palette,
     assert.match(css, /--danger-bg: #FFE5E3;/);
     assert.match(css, /--warning-border: #F0C9A8;/);
 });
+
+test('audit P2: login language everywhere, dark rhythm, min text 0.75rem, style guide', () => {
+    const styles = fs.readFileSync(path.join(projectRoot, 'css/styles.css'), 'utf8');
+    const acceso = fs.readFileSync(path.join(projectRoot, 'css/acceso.css'), 'utf8');
+    const solicitud = fs.readFileSync(path.join(projectRoot, 'css/solicitud.css'), 'utf8');
+    const explore = fs.readFileSync(path.join(projectRoot, 'src/views/ExploreView.vue'), 'utf8');
+    const affiliates = fs.readFileSync(path.join(projectRoot, 'src/views/AffiliatesView.vue'), 'utf8');
+    const health = fs.readFileSync(path.join(projectRoot, 'src/views/HealthRecordsView.vue'), 'utf8');
+    const pet = fs.readFileSync(path.join(projectRoot, 'src/views/PetView.vue'), 'utf8');
+    const band = fs.readFileSync(path.join(projectRoot, 'src/components/DarkBand.vue'), 'utf8');
+    const guide = fs.readFileSync(path.join(projectRoot, 'docs/guia-de-estilos.md'), 'utf8');
+    const chat = fs.readFileSync(path.join(projectRoot, 'src/components/AssistantChat.vue'), 'utf8');
+    const header = fs.readFileSync(path.join(projectRoot, 'src/components/SiteHeader.vue'), 'utf8');
+    const admin = fs.readFileSync(path.join(projectRoot, 'src/views/AdminView.vue'), 'utf8');
+    const messages = fs.readFileSync(path.join(projectRoot, 'src/views/AdopterMessagesView.vue'), 'utf8');
+    const profile = fs.readFileSync(path.join(projectRoot, 'src/views/AdopterProfileView.vue'), 'utf8');
+    const followUp = fs.readFileSync(path.join(projectRoot, 'src/views/FollowUpView.vue'), 'utf8');
+    const home = fs.readFileSync(path.join(projectRoot, 'src/views/HomeView.vue'), 'utf8');
+    const shelter = fs.readFileSync(path.join(projectRoot, 'src/views/ShelterView.vue'), 'utf8');
+
+    // 16. Explorar tiene el aire del login: banda con foto + titular con palabra turquesa
+    assert.match(explore, /catalog-header-visual/);
+    assert.match(explore, /src="\/img\/mascotas-hero-v2\.png"/);
+    assert.match(explore, /Encuentra una mascota <span>que conecte contigo\.<\/span>/);
+    assert.match(styles, /\.catalog-header-visual \{[^}]*border-radius: var\(--radius-lg\);/);
+    assert.match(styles, /\.catalog-header-visual \{[^}]*box-shadow: var\(--shadow-md\);/);
+    assert.match(styles, /\.catalog-header-container \{[^}]*display: grid;/);
+    // La regla tardía del h1 de Explorar ya no contradice la escala única (agujero del P1)
+    assert.match(styles, /\.catalog-header h1 \{[^}]*font-size: clamp\(2rem, 4vw, 3\.3rem\);[^}]*letter-spacing: -0\.045em;/);
+    // El detalle ya tenía foto (galería) y titular canónico con aire
+    assert.match(pet, /pet-gallery/);
+    assert.match(styles, /\.pet-profile-heading \{[^}]*margin-bottom: 24px;/);
+    assert.match(styles, /\.pet-profile-heading h1 \{[^}]*font-size: clamp\(2rem, 4vw, 3\.3rem\);/);
+
+    // 17. Afiliados y Salud tienen imagen (antes solo listas con iconos)
+    assert.match(affiliates, /affiliate-hero-visual/);
+    assert.match(affiliates, /src="\/img\/como-funciona-acompana\.jpg"/);
+    assert.match(health, /health-pet-photo/);
+    assert.match(health, /pet\?\.photos\?\.\[0\]/);
+
+    // 18. Banda oscura en las 4 vistas, con el componente compartido
+    assert.match(band, /background:var\(--primary-dark\)/);
+    assert.match(band, /color:var\(--white\)/);
+    assert.match(band, /background:var\(--white\);color:var\(--primary-strong\)/);
+    for (const [name, source] of [['ExploreView', explore], ['PetView', pet], ['AffiliatesView', affiliates], ['HealthRecordsView', health]]) {
+        assert.match(source, /<DarkBand /, `${name} no usa DarkBand`);
+        assert.match(source, /import DarkBand from '\.\.\/components\/DarkBand\.vue';/, `${name} no importa DarkBand`);
+    }
+    // Contraste de la banda: texto #DDE8EB sobre #2C5357 y #167F87 sobre blanco, >= 4.5:1
+    const luminance = hex => {
+        const [r, g, b] = [0, 2, 4].map(i => parseInt(hex.slice(1 + i, 3 + i), 16) / 255);
+        const f = c => c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+        return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+    };
+    const contrast = (a, b) => {
+        const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+        return (hi + 0.05) / (lo + 0.05);
+    };
+    assert.ok(contrast('#DDE8EB', '#2C5357') >= 4.5, `band text ${contrast('#DDE8EB', '#2C5357').toFixed(2)}:1`);
+    assert.ok(contrast('#167F87', '#FFFFFF') >= 4.5, `band CTA ${contrast('#167F87', '#FFFFFF').toFixed(2)}:1`);
+
+    // 19. Sin texto menor de 0.75rem en CSS ni en vistas (rem, em y shorthand)
+    const smallSize = /font-size:\s*0?\.(?:[0-6][0-9]?|7[0-4]?)rem/;
+    const smallEm = /font-size:\s*0?\.(?:[0-6][0-9]?|7[0-4]?)em/;
+    const smallShorthand = /font:\s*[^\s;}]*\s+0?\.(?:[0-6][0-9]?|7[0-4]?)rem/;
+    for (const [name, source] of [['styles.css', styles], ['acceso.css', acceso], ['solicitud.css', solicitud], ['AssistantChat', chat], ['SiteHeader', header], ['AdminView', admin], ['AdopterMessagesView', messages], ['AdopterProfileView', profile], ['AffiliatesView', affiliates], ['ExploreView', explore], ['FollowUpView', followUp], ['HealthRecordsView', health], ['HomeView', home], ['PetView', pet], ['ShelterView', shelter]]) {
+        assert.doesNotMatch(source, smallSize, `${name} tiene font-size < 0.75rem`);
+        assert.doesNotMatch(source, smallEm, `${name} tiene font-size < 0.75em`);
+        assert.doesNotMatch(source, smallShorthand, `${name} tiene font shorthand < 0.75rem`);
+    }
+
+    // 20. La guía existe y documenta tokens + 3 ejemplos
+    assert.match(guide, /# Guía de estilos de Pethop/);
+    assert.match(guide, /--primary-strong/);
+    assert.match(guide, /--radius-lg/);
+    assert.match(guide, /--shadow-sm/);
+    assert.match(guide, /Inicio de sesión/);
+    assert.match(guide, /Tarjeta de mascota/);
+    assert.match(guide, /Botón primario/);
+});
