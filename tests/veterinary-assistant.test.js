@@ -60,6 +60,13 @@ test('Paw asks the real AI for general questions and keeps the saved answer only
   assert.match(generalBranch, /catch \(requestError\) \{[\s\S]*?generalAnswer\(text\)/);
 });
 
+test('Paw answers greetings with a short greeting instead of a veterinary lecture', () => {
+  assert.match(assistant, /function smallTalkAnswer/);
+  assert.match(assistant, /¡Hola! ¿En qué te ayudo\?/);
+  const body = assistant.slice(assistant.indexOf('async function submitMessage'), assistant.indexOf('function sendMessage'));
+  assert.ok(body.indexOf('smallTalkAnswer(text)') < body.indexOf('isVeterinaryQuestion(text)'), 'greetings are handled before the AI routing');
+});
+
 test('Paw routes veterinary language variants to the provider', () => {
   assert.equal(isVeterinaryQuestion('¿Qué debo hacer para bañar a mi perro?'), true);
   assert.equal(isVeterinaryQuestion('Mi perro no está comiendo bien'), true);

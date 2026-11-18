@@ -43,9 +43,32 @@ function generalAnswer(text) {
     || 'Puedo ayudarte con el proceso de adopción, el cuidado responsable y dudas veterinarias generales. Cuéntame qué necesitas saber.';
 }
 
+// Saludos y despedidas: un saludo no es una pregunta, así que no va a la
+// IA; si fuera, la IA le contestaría con la charla veterinaria completa
+// (eso pasó con un simple "hola"). Solo entra si el mensaje es solo eso.
+const smallTalk = [
+  { match: /^(hola|buenas|buenos dias|buenas tardes|buenas noches|hey|que tal|que onda)\s*[!¡.,]*$/, text: '¡Hola! ¿En qué te ayudo? Pregúntame por una mascota, una solicitud o cómo adoptar.' },
+  { match: /^(gracias|muchas gracias|te lo agradezco)\s*[!¡.,]*$/, text: '¡De nada! Si tienes otra duda sobre adopción o cuidado, aquí estoy.' },
+  { match: /^(adios|chao|hasta luego|nos vemos)\s*[!¡.,]*$/, text: '¡Hasta luego! Mucha suerte con tu adopción.' }
+];
+
+function smallTalkAnswer(text) {
+  const normalized = String(text || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+  return smallTalk.find(answer => answer.match.test(normalized))?.text || '';
+}
+
 async function submitMessage(value, { recordUser = true } = {}) {
   const text = value.trim();
   if (!text || isSending.value) return;
+  const smallTalkReply = smallTalkAnswer(text);
+  if (smallTalkReply) {
+    if (recordUser) messages.value.push({ id: `${Date.now()}-${messages.value.length}`, role: 'user', text });
+    messages.value.push({ id: `${Date.now()}-${messages.value.length + 1}`, role: 'assistant', text: smallTalkReply });
+    if (recordUser) draft.value = '';
+    error.value = '';
+    scrollToLatest();
+    return;
+  }
   if (!isVeterinaryQuestion(text)) {
     // Las preguntas generales también van a la IA real; si la IA no está
     // configurada o falla, se usa la respuesta guardada de antes para no
