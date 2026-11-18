@@ -2583,7 +2583,7 @@ ol {
 .organization-container > div > span {
     display: inline-block;
     margin-bottom: 12px;
-    color: var(--primary-strong);
+    color: var(--text);
     font-size: 0.75rem;
     font-weight: 850;
     letter-spacing: 0.08em;
@@ -2638,7 +2638,7 @@ ol {
 .process-intro > span {
     display: inline-block;
     margin-bottom: 12px;
-    color: var(--primary-strong);
+    color: var(--text);
     font-size: 0.75rem;
     font-weight: 850;
     letter-spacing: 0.08em;

@@ -1391,12 +1391,12 @@ test('admin menu selection uses the same tint as the shelter menu', () => {
   assert.doesNotMatch(admin, /\.admin-nav-item\.active \{ background:var\(--background\);/);
 });
 
-test('section labels are plain teal text, not highlighted pills', () => {
+test('section labels are plain dark text, not highlighted pills', () => {
   const css = fs.readFileSync(path.join(projectRoot, 'css/styles.css'), 'utf8');
   assert.doesNotMatch(css, /\.organization-container > div > span \{[^}]*background:/);
-  assert.match(css, /\.organization-container > div > span \{[^}]*color: var\(--primary-strong\);/);
+  assert.match(css, /\.organization-container > div > span \{[^}]*color: var\(--text\);/);
   assert.doesNotMatch(css, /\.process-intro > span \{[^}]*background:/);
-  assert.match(css, /\.process-intro > span \{[^}]*color: var\(--primary-strong\);/);
+  assert.match(css, /\.process-intro > span \{[^}]*color: var\(--text\);/);
 });
 
 test('catalog pet photos fill the card frame, gallery keeps the full photo', () => {
