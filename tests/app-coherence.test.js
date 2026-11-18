@@ -1375,3 +1375,13 @@ test('profile has a touch of color: teal avatar ring, panel top accent, tint ico
   // Panel icons sit in soft-tint circles instead of bare teal glyphs.
   assert.match(profile, /\.adopter-panel-heading > div > :deep\(svg\) \{[^}]*background:var\(--tint\);/);
 });
+
+test('admin menu selection uses the same tint as the shelter menu', () => {
+  // The admin active item used var(--background), which is white since the
+  // logo color system, so the selection was invisible on the white sidebar.
+  // The shelter menu marks its active item with the tint background.
+  const admin = fs.readFileSync(path.join(projectRoot, 'src/views/AdminView.vue'), 'utf8');
+  assert.match(admin, /\.admin-nav-item\.active \{ background:var\(--tint\); color:var\(--primary-strong\); \}/);
+  assert.match(admin, /\.admin-bottombar-item\.active \{ background:var\(--tint\); color:var\(--primary-strong\); \}/);
+  assert.doesNotMatch(admin, /\.admin-nav-item\.active \{ background:var\(--background\);/);
+});
