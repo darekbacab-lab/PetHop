@@ -25,7 +25,7 @@ const wideLayout = ref(true);
 function syncLayout() { wideLayout.value = window.matchMedia('(min-width: 761px)').matches; }
 const conversations = computed(() => {
   const search = searchText.value.trim().toLocaleLowerCase('es-MX');
-  return allConversations.value.filter(thread => !search || `${thread.petName} ${thread.pet?.location || ''} ${thread.pet?.shelterName || ''} ${thread.otherParticipant || ''}`.toLocaleLowerCase('es-MX').includes(search)).slice().sort((a, b) => Number(Boolean(b.pinned)) - Number(Boolean(a.pinned)));
+  return allConversations.value.filter(thread => !search || `${thread.petName} ${thread.pet?.location || ''} ${thread.pet?.shelterName || ''} ${thread.otherParticipant || ''}`.toLocaleLowerCase('es-MX').includes(search)).toSorted((a, b) => Number(Boolean(b.pinned)) - Number(Boolean(a.pinned)));
 });
 const activeConversation = computed(() => conversations.value.find(thread => thread.id === selectedThreadId.value) || (wideLayout.value ? conversations.value[0] : null) || null);
 const groupedMessages = computed(() => {

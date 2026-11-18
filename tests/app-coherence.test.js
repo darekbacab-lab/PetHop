@@ -970,3 +970,19 @@ test('audit batch B3: clickable admin metrics, shelter in profile activity, heal
     assert.doesNotMatch(explore, /Senior/);
     assert.match(explore, /Mayor/);
 });
+
+test('modern web guidance: skill installed for codex and no legacy slice-sort remains', () => {
+    const skill = fs.readFileSync(path.join(projectRoot, '.agents/skills/modern-web-guidance/SKILL.md'), 'utf8');
+    const lock = JSON.parse(fs.readFileSync(path.join(projectRoot, 'skills-lock.json'), 'utf8'));
+    const messages = fs.readFileSync(path.join(projectRoot, 'src/views/AdopterMessagesView.vue'), 'utf8');
+    assert.match(skill, /name: modern-web-guidance/);
+    assert.equal(lock.skills['modern-web-guidance'].source, 'GoogleChrome/modern-web-guidance');
+    assert.match(messages, /\.toSorted\(\(a, b\) => Number\(Boolean\(b\.pinned\)\) - Number\(Boolean\(a\.pinned\)\)\)/);
+    assert.doesNotMatch(messages, /\.slice\(\)\.sort\(/);
+    for (const dir of ['src/views', 'src/services', 'src/components']) {
+        for (const file of fs.readdirSync(path.join(projectRoot, dir))) {
+            const text = fs.readFileSync(path.join(projectRoot, dir, file), 'utf8');
+            assert.doesNotMatch(text, /\.slice\(\)\.sort\(/, `${dir}/${file} still uses legacy slice().sort()`);
+        }
+    }
+});
