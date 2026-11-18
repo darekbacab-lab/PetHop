@@ -367,7 +367,7 @@ test('auth redesign keeps real session flows, role payloads, validation and resp
     assert.match(shelter, /api\('\/users\/me\/password'/);
     assert.match(shelter, /Cambiar contraseña/);
     assert.match(access, /:disabled="loading"/);
-    assert.match(access, /mascotas-hero-v2\.png/);
+    assert.match(access, /mascotas-hero-v2\.webp/);
     assert.doesNotMatch(access, /google|facebook|apple/i);
     assert.match(css, /grid-template-columns/);
     assert.match(css, /@media \(max-width:780px\)/);
@@ -965,7 +965,7 @@ test('audit batch B3: clickable admin metrics, shelter in profile activity, heal
     assert.match(profile, /\{\{ item\.shelterName \|\| 'Refugio no disponible' \}\} · \{\{ item\.adoptionDate/);
     assert.match(health, /Historial de \{\{ pet\.name \}\}\.<template v-if="canEdit"> Mantén sus cuidados documentados y sus próximas fechas visibles\.<\/template>/);
     assert.match(assistant, /Pregúntame por una mascota, una solicitud o cómo adoptar/);
-    assert.match(footer, /<div class="footer-column"><h2>Ayuda<\/h2><RouterLink to="\/aliados\.html">Aliados<\/RouterLink><RouterLink to="\/acceso\.html">Ingresar<\/RouterLink><a href="mailto:pethop13@gmail\.com">Escríbenos: pethop13@gmail\.com<\/a>/);
+    assert.match(footer, /<div class="footer-column"><h2>Ayuda<\/h2><RouterLink to="\/aliados\.html">Aliados<\/RouterLink><RouterLink to="\/acceso\.html">Ingresar<\/RouterLink><RouterLink to="\/privacidad\.html">Aviso de privacidad<\/RouterLink><RouterLink to="\/terminos\.html">Términos y condiciones<\/RouterLink><a href="mailto:pethop13@gmail\.com">Escríbenos: pethop13@gmail\.com<\/a>/);
     assert.doesNotMatch(footer, /Organizaciones<\/h2><RouterLink to="\/acceso\.html"/);
     assert.doesNotMatch(explore, /Senior/);
     assert.match(explore, /Mayor/);
@@ -1103,7 +1103,7 @@ test('audit P2: login language everywhere, dark rhythm, min text 0.75rem, style 
 
     // 16. Explorar tiene el aire del login: banda con foto + titular con palabra turquesa
     assert.match(explore, /catalog-header-visual/);
-    assert.match(explore, /src="\/img\/mascotas-hero-v2\.png"/);
+    assert.match(explore, /src="\/img\/mascotas-hero-v2\.webp"/);
     assert.match(explore, /Encuentra una mascota <span>que conecte contigo\.<\/span>/);
     assert.match(styles, /\.catalog-header-visual \{[^}]*border-radius: var\(--radius-lg\);/);
     assert.match(styles, /\.catalog-header-visual \{[^}]*box-shadow: var\(--shadow-md\);/);
@@ -1195,4 +1195,139 @@ test('audit fix: titles use the logo system, white surfaces, secondary stroke', 
     // Especie en caja normal, como en la referencia.
     assert.doesNotMatch(petCard, /toLocaleUpperCase/);
     assert.doesNotMatch(home, /toLocaleUpperCase/);
+});
+
+test('prelaunch A: legal pages and cookie banner', () => {
+    const router = fs.readFileSync(path.join(projectRoot, 'src/router/index.js'), 'utf8');
+    const privacy = fs.readFileSync(path.join(projectRoot, 'src/views/PrivacyView.vue'), 'utf8');
+    const terms = fs.readFileSync(path.join(projectRoot, 'src/views/TermsView.vue'), 'utf8');
+    const app = fs.readFileSync(path.join(projectRoot, 'src/App.vue'), 'utf8');
+    const banner = fs.readFileSync(path.join(projectRoot, 'src/components/CookieBanner.vue'), 'utf8');
+    const footer = fs.readFileSync(path.join(projectRoot, 'src/components/SiteFooter.vue'), 'utf8');
+    const server = fs.readFileSync(path.join(projectRoot, 'server.mjs'), 'utf8');
+    assert.match(router, /path: '\/privacidad\.html'[^}]*title: 'Aviso de privacidad \| PetHop'[^}]*description: /);
+    assert.match(router, /path: '\/terminos\.html'[^}]*title: 'Términos y condiciones \| PetHop'[^}]*description: /);
+    assert.match(router, /meta\.description/);
+    assert.match(privacy, /Ley Federal de Protección de Datos Personales en Posesión de los Particulares/);
+    assert.match(privacy, /derechos de Acceso, Rectificación, Cancelación y Oposición \(ARCO\)/);
+    assert.match(privacy, /pethop13@gmail\.com/);
+    assert.match(terms, /refugios verificados/);
+    assert.match(terms, /PetHop no garantiza que una solicitud sea aprobada/);
+    assert.match(terms, /proyecto universitario/);
+    assert.match(footer, /to="\/privacidad\.html">Aviso de privacidad</);
+    assert.match(footer, /to="\/terminos\.html">Términos y condiciones</);
+    assert.match(app, /import CookieBanner from '\.\/components\/CookieBanner\.vue';/);
+    assert.match(app, /<CookieBanner \/>/);
+    assert.match(banner, /pethop-cookie-consent/);
+    assert.match(banner, />Aceptar</);
+    assert.match(banner, />Rechazar</);
+    assert.match(server, /'privacidad\.html', 'refugio\.html'/);
+    assert.match(server, /'solicitud\.html', 'terminos\.html'/);
+});
+
+test('prelaunch B: meta, Open Graph, sitemap and robots', () => {
+    const index = fs.readFileSync(path.join(projectRoot, 'index.html'), 'utf8');
+    const router = fs.readFileSync(path.join(projectRoot, 'src/router/index.js'), 'utf8');
+    const sitemap = fs.readFileSync(path.join(projectRoot, 'public/sitemap.xml'), 'utf8');
+    const robots = fs.readFileSync(path.join(projectRoot, 'public/robots.txt'), 'utf8');
+    assert.match(index, /<meta name="description" content="PetHop conecta adoptantes/);
+    assert.match(index, /<meta name="theme-color" content="#FFFFFF">/);
+    assert.match(index, /<meta property="og:title" content="PetHop \| Adopta, conecta, cambia vidas">/);
+    assert.match(index, /<meta property="og:image" content="https:\/\/pethop-production\.up\.railway\.app\/img\/mascotas-hero-og\.jpg">/);
+    assert.match(index, /<meta property="og:url" content="https:\/\/pethop-production\.up\.railway\.app\/">/);
+    assert.match(index, /<meta name="twitter:card" content="summary_large_image">/);
+    const titles = router.match(/title: '/g).length;
+    const descriptions = router.match(/description: '/g).length;
+    assert.equal(titles, descriptions, `every route title needs a description (${titles} titles, ${descriptions} descriptions)`);
+    for (const page of ['inicio.html', 'explorar.html', 'aliados.html', 'acceso.html', 'privacidad.html', 'terminos.html']) {
+        assert.ok(sitemap.includes(`<loc>https://pethop-production.up.railway.app/${page}</loc>`), `sitemap lacks ${page}`);
+    }
+    assert.doesNotMatch(sitemap, /admin\.html/);
+    assert.match(robots, /Sitemap: https:\/\/pethop-production\.up\.railway\.app\/sitemap\.xml/);
+    assert.match(robots, /Disallow: \/admin\.html/);
+});
+
+test('prelaunch C: custom 404 page', () => {
+    const router = fs.readFileSync(path.join(projectRoot, 'src/router/index.js'), 'utf8');
+    const view = fs.readFileSync(path.join(projectRoot, 'src/views/NotFoundView.vue'), 'utf8');
+    const server = fs.readFileSync(path.join(projectRoot, 'server.mjs'), 'utf8');
+    const css = fs.readFileSync(path.join(projectRoot, 'css/styles.css'), 'utf8');
+    assert.doesNotMatch(router, /pathMatch\(\.\*\)\*', redirect: '\/inicio\.html'/);
+    assert.match(router, /path: '\/:pathMatch\(\.\*\)\*', name: 'not-found', meta: \{ title: 'Página no encontrada \| PetHop', description: /);
+    assert.match(router, /component: \(\) => import\('\.\.\/views\/NotFoundView\.vue'\)/);
+    assert.match(view, /404/);
+    assert.match(view, /se escapó\./);
+    assert.match(view, /to="\/inicio\.html"[^>]*>Volver al inicio</);
+    assert.match(view, /to="\/explorar\.html"[^>]*>Explorar mascotas</);
+    assert.match(server, /toLowerCase\(\) !== '\.html'/);
+    assert.match(css, /\.not-found-code \{[^}]*color: var\(--primary-dark\);/);
+});
+
+test('prelaunch D: compressed images, no dead favicons', () => {
+    const webp = path.join(projectRoot, 'img/mascotas-hero-v2.webp');
+    const og = path.join(projectRoot, 'img/mascotas-hero-og.jpg');
+    const favicon = path.join(projectRoot, 'img/favicon.png');
+    assert.ok(fs.existsSync(webp), 'hero WebP missing');
+    assert.ok(fs.statSync(webp).size < 400 * 1024, `hero WebP too big: ${fs.statSync(webp).size} bytes`);
+    assert.ok(fs.existsSync(og), 'OG image missing');
+    assert.ok(fs.statSync(og).size < 200 * 1024, `OG image too big: ${fs.statSync(og).size} bytes`);
+    assert.ok(fs.statSync(favicon).size < 150 * 1024, `favicon too big: ${fs.statSync(favicon).size} bytes`);
+    for (const dead of ['img/favicon2.png', 'img/favicaon.png', 'img/favicoaan.png', 'img/favicon3.png', 'img/mascotas-hero-v2.png']) {
+        assert.ok(!fs.existsSync(path.join(projectRoot, dead)), `${dead} still present`);
+    }
+    const home = fs.readFileSync(path.join(projectRoot, 'src/views/HomeView.vue'), 'utf8');
+    const access = fs.readFileSync(path.join(projectRoot, 'src/views/AccessView.vue'), 'utf8');
+    const explore = fs.readFileSync(path.join(projectRoot, 'src/views/ExploreView.vue'), 'utf8');
+    for (const [name, source] of [['HomeView', home], ['AccessView', access], ['ExploreView', explore]]) {
+        assert.doesNotMatch(source, /mascotas-hero-v2\.png/, `${name} still references the PNG hero`);
+        assert.match(source, /mascotas-hero-v2\.webp/, `${name} does not use the WebP hero`);
+    }
+});
+
+test('prelaunch E: HTTPS redirect, HSTS, sitemap/robots content types', () => {
+    const server = fs.readFileSync(path.join(projectRoot, 'server.mjs'), 'utf8');
+    assert.match(server, /x-forwarded-proto/);
+    assert.match(server, /writeHead\(301, \{ Location: `https:\/\/\$\{request\.headers\.host\}/);
+    assert.match(server, /Strict-Transport-Security': 'max-age=31536000; includeSubDomains'/);
+    assert.match(server, /'\.xml': 'application\/xml; charset=utf-8'/);
+    assert.match(server, /'\.txt': 'text\/plain; charset=utf-8'/);
+});
+
+test('prelaunch F: honeypot antispam on public auth forms', () => {
+    const access = fs.readFileSync(path.join(projectRoot, 'src/views/AccessView.vue'), 'utf8');
+    const auth = fs.readFileSync(path.join(projectRoot, 'src/services/auth.js'), 'utf8');
+    const registerRequest = fs.readFileSync(path.join(projectRoot, 'backend/src/main/java/com/pethop/security/dto/RegisterRequest.java'), 'utf8');
+    const resetRequest = fs.readFileSync(path.join(projectRoot, 'backend/src/main/java/com/pethop/security/dto/PasswordResetRequest.java'), 'utf8');
+    const controller = fs.readFileSync(path.join(projectRoot, 'backend/src/main/java/com/pethop/security/AuthController.java'), 'utf8');
+    const acceso = fs.readFileSync(path.join(projectRoot, 'css/acceso.css'), 'utf8');
+    for (const id of ['register-website', 'reset-website', 'resend-website']) {
+        assert.match(access, new RegExp(`id="${id}" v-model="\\w+\\.website"`), `missing honeypot ${id}`);
+    }
+    assert.match(access, /website: registration\.value\.website \|\| null/);
+    assert.match(auth, /requestPasswordReset\(email, website\)/);
+    assert.match(auth, /resendEmailVerification\(email, website\)/);
+    assert.match(registerRequest, /String website\)/);
+    assert.match(resetRequest, /String website\)/);
+    assert.match(controller, /request\.website\(\) != null && !request\.website\(\)\.isBlank\(\)/);
+    assert.match(controller, /if \(request\.website\(\) == null \|\| request\.website\(\)\.isBlank\(\)\) passwordReset\.request/);
+    assert.match(controller, /if \(request\.website\(\) == null \|\| request\.website\(\)\.isBlank\(\)\) emailVerification\.resend/);
+    assert.match(acceso, /\.honeypot-field \{[^}]*left: -9999px;/);
+});
+
+test('prelaunch G: GA4 loads only with ID and cookie consent', () => {
+    const analytics = fs.readFileSync(path.join(projectRoot, 'src/services/analytics.js'), 'utf8');
+    const main = fs.readFileSync(path.join(projectRoot, 'src/main.js'), 'utf8');
+    const router = fs.readFileSync(path.join(projectRoot, 'src/router/index.js'), 'utf8');
+    const banner = fs.readFileSync(path.join(projectRoot, 'src/components/CookieBanner.vue'), 'utf8');
+    assert.match(analytics, /VITE_GA_MEASUREMENT_ID/);
+    assert.match(analytics, /pethop-cookie-consent'\) === 'accepted'/);
+    assert.match(analytics, /anonymize_ip: true/);
+    assert.match(analytics, /googletagmanager\.com\/gtag\/js\?id=/);
+    assert.match(analytics, /export function initAnalytics/);
+    assert.match(analytics, /export function trackPageView/);
+    assert.match(main, /import \{ initAnalytics \} from '\.\/services\/analytics\.js';/);
+    assert.match(main, /initAnalytics\(\);/);
+    assert.match(router, /import \{ trackPageView \} from '\.\.\/services\/analytics\.js';/);
+    assert.match(router, /trackPageView\(to\.fullPath\);/);
+    assert.match(banner, /if \(value === 'accepted'\) initAnalytics\(\);/);
 });

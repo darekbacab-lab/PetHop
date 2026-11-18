@@ -35,7 +35,7 @@ class AuthServiceTest {
         when(users.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         User created = service.register(new RegisterRequest(" Ana López ", " ANA@EXAMPLE.COM ",
-                "una-clave-larga-123", "+52 999 123 4567", UserRole.ADOPTER));
+                "una-clave-larga-123", "+52 999 123 4567", UserRole.ADOPTER, null));
 
         assertEquals("ana@example.com", created.getEmail());
         assertEquals("Ana López", created.getFullName());
@@ -47,7 +47,7 @@ class AuthServiceTest {
     void publicRegistrationRejectsAdministratorRole() {
         when(users.existsByEmail("ana@example.com")).thenReturn(false);
         ApiException error = assertThrows(ApiException.class, () -> service.register(new RegisterRequest(
-                "Ana", "ana@example.com", "una-clave-larga-123", null, UserRole.ADMIN)));
+                "Ana", "ana@example.com", "una-clave-larga-123", null, UserRole.ADMIN, null)));
         assertEquals(HttpStatus.FORBIDDEN, error.status());
     }
 
@@ -55,7 +55,7 @@ class AuthServiceTest {
     void duplicateEmailIsRejected() {
         when(users.existsByEmail("ana@example.com")).thenReturn(true);
         ApiException error = assertThrows(ApiException.class, () -> service.register(new RegisterRequest(
-                "Ana", "ana@example.com", "una-clave-larga-123", null, UserRole.ADOPTER)));
+                "Ana", "ana@example.com", "una-clave-larga-123", null, UserRole.ADOPTER, null)));
         assertEquals(HttpStatus.CONFLICT, error.status());
     }
 

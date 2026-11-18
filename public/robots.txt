@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /mensajes.html
+Disallow: /perfil.html
+Disallow: /salud.html
+Disallow: /seguimiento.html
+Disallow: /solicitud.html
+Disallow: /refugio.html
+
+Sitemap: https://pethop-production.up.railway.app/sitemap.xml

@@ -18,13 +18,15 @@ const contentTypes = {
   '.json': 'application/json; charset=utf-8',
   '.png': 'image/png',
   '.svg': 'image/svg+xml',
+  '.txt': 'text/plain; charset=utf-8',
   '.webp': 'image/webp',
+  '.xml': 'application/xml; charset=utf-8',
   '.woff': 'font/woff',
   '.woff2': 'font/woff2'
 };
 const spaHtmlRoutes = new Set([
   'acceso.html', 'admin.html', 'explorar.html', 'index.html', 'inicio.html',
-  'mascota.html', 'mensajes.html', 'perfil.html', 'refugio.html', 'seguimiento.html', 'solicitud.html'
+  'mascota.html', 'mensajes.html', 'perfil.html', 'privacidad.html', 'refugio.html', 'seguimiento.html', 'solicitud.html', 'terminos.html'
 ]);
 
 function safePath(urlPath) {
@@ -42,7 +44,7 @@ async function resolveFile(urlPath) {
   } catch {
     // The SPA fallback below handles known Vue routes when their shell file is absent.
   }
-  if (path.extname(requested) && !spaHtmlRoutes.has(path.basename(requested).toLowerCase())) return null;
+  if (path.extname(requested) && path.extname(requested).toLowerCase() !== '.html' && !spaHtmlRoutes.has(path.basename(requested).toLowerCase())) return null;
   const fallback = path.join(root, 'index.html');
   try {
     await access(fallback);
@@ -58,6 +60,12 @@ const server = http.createServer(async (request, response) => {
     return;
   }
 
+  // Railway termina TLS y marca el protocolo original; forzar HTTPS.
+  if (request.headers['x-forwarded-proto'] === 'http' && request.headers.host) {
+    response.writeHead(301, { Location: `https://${request.headers.host}${request.url || '/'}` }).end();
+    return;
+  }
+
   let file;
   try {
     file = await resolveFile(request.url || '/');
@@ -70,7 +78,10 @@ const server = http.createServer(async (request, response) => {
     return;
   }
 
-  const headers = { 'Content-Type': contentTypes[path.extname(file).toLowerCase()] || 'application/octet-stream' };
+  const headers = {
+    'Content-Type': contentTypes[path.extname(file).toLowerCase()] || 'application/octet-stream',
+    'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+  };
   if (path.basename(file) === 'index.html') headers['Cache-Control'] = 'no-cache';
   if (file.includes(`${path.sep}assets${path.sep}`)) headers['Cache-Control'] = 'public, max-age=31536000, immutable';
   if (request.method === 'HEAD') {

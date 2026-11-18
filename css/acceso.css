@@ -41,3 +41,7 @@
   .auth-card:not(.is-register) .auth-panel { padding-top:26px; padding-bottom:22px; }
   .auth-card:not(.is-register) .auth-visual { padding-right:18px; padding-left:18px; padding-bottom:24px; }
 }
+
+/* Campo honeypot antispam: invisible para las personas, visible para los bots. */
+.honeypot-field { position: absolute; left: -9999px; top: auto; width: 1px; height: 1px; overflow: hidden; }
+.honeypot-field input { width: 1px; }

@@ -67,7 +67,7 @@ La sombra va en cada botón y tarjeta, nunca en todo el bloque o sección.
 
 ### 1. Inicio de sesión (la referencia)
 
-Tarjeta partida: a un lado la foto (`/img/mascotas-hero-v2.png`) en un
+Tarjeta partida: a un lado la foto (`/img/mascotas-hero-v2.webp`) en un
 panel con radio `--radius-lg`, sombra `--shadow-md` y círculos decorativos
 turquesa; al otro, titular enorme con la palabra clave en
 `--hero-title-light`, inputs con radio `--radius-sm` y anillo de foco
@@ -109,6 +109,9 @@ vistas con el sistema de botones). No hay más sistemas de botón primario.
    palabra de acento del titular usa `--primary` (`#3EB2BA`, 2,54:1 sobre
    blanco): queda por debajo de WCAG AA incluso para texto grande; es
    decisión de marca (secundario del logo).
+7. **Páginas legales y cookies.** Privacidad y términos existen y se
+   enlazan en el pie de página; el banner pide el consentimiento una
+   vez y la analítica solo carga si se acepta.
 
 ## Al añadir una vista nueva
 

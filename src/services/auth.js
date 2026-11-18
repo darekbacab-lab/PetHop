@@ -35,8 +35,8 @@ export async function register(account) {
   return api('/auth/register', { method: 'POST', body: account });
 }
 
-export async function requestPasswordReset(email) {
-  return api('/auth/password-reset/request', { method: 'POST', body: { email } });
+export async function requestPasswordReset(email, website) {
+  return api('/auth/password-reset/request', { method: 'POST', body: { email, website: website || null } });
 }
 
 export async function confirmPasswordReset(token, newPassword) {
@@ -47,8 +47,8 @@ export async function confirmEmailVerification(token) {
   return api('/auth/email-verification/confirm', { method: 'POST', body: { token } });
 }
 
-export async function resendEmailVerification(email) {
-  return api('/auth/email-verification/resend', { method: 'POST', body: { email } });
+export async function resendEmailVerification(email, website) {
+  return api('/auth/email-verification/resend', { method: 'POST', body: { email, website: website || null } });
 }
 
 

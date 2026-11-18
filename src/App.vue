@@ -4,6 +4,7 @@ import { RouterView, useRoute } from 'vue-router';
 import { routeLoading } from './router/index.js';
 import PageLoadingSkeleton from './components/PageLoadingSkeleton.vue';
 import AssistantChat from './components/AssistantChat.vue';
+import CookieBanner from './components/CookieBanner.vue';
 const route = useRoute();
 const progress = ref(0);
 function updateProgress() {
@@ -30,7 +31,7 @@ onUnmounted(() => { window.removeEventListener('scroll', updateProgress); window
 watch(() => route.fullPath, async () => { await nextTick(); updateProgress(); });
 </script>
 
-<template><div class="scroll-progress" :style="{ width: `${progress}%` }" aria-hidden="true"></div><div @focusout.capture="validateField" @input.capture="validateField"><Transition name="page" mode="out-in"><PageLoadingSkeleton v-if="routeLoading" /><RouterView v-else /></Transition></div><AssistantChat v-if="!routeLoading" /></template>
+<template><div class="scroll-progress" :style="{ width: `${progress}%` }" aria-hidden="true"></div><div @focusout.capture="validateField" @input.capture="validateField"><Transition name="page" mode="out-in"><PageLoadingSkeleton v-if="routeLoading" /><RouterView v-else /></Transition></div><AssistantChat v-if="!routeLoading" /><CookieBanner /></template>
 
 <style>
 .page-enter-active,

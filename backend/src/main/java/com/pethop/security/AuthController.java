@@ -54,6 +54,9 @@ public class AuthController {
 
     @PostMapping("/register")
     ResponseEntity<UserResponse> register(@Valid @RequestBody RegisterRequest request) {
+        // Honeypot antispam: el campo "website" va oculto en el formulario; un bot lo rellena.
+        if (request.website() != null && !request.website().isBlank())
+            throw ApiException.badRequest("No se pudo completar el registro.");
         var created = authService.register(request);
         emailVerification.issue(created);
         var location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/v1/users/me").build().toUri();
@@ -82,7 +85,8 @@ public class AuthController {
 
     @PostMapping("/password-reset/request")
     ResponseEntity<Void> requestPasswordReset(@Valid @RequestBody PasswordResetRequest request) {
-        passwordReset.request(request.email());
+        // Honeypot antispam: si el campo oculto viene relleno, se ignora en silencio (misma respuesta).
+        if (request.website() == null || request.website().isBlank()) passwordReset.request(request.email());
         return ResponseEntity.accepted().build();
     }
 
@@ -97,7 +101,7 @@ public class AuthController {
 
     @PostMapping("/email-verification/resend")
     ResponseEntity<Void> resendEmailVerification(@Valid @RequestBody PasswordResetRequest request) {
-        emailVerification.resend(request.email());
+        if (request.website() == null || request.website().isBlank()) emailVerification.resend(request.email());
         return ResponseEntity.accepted().build();
     }
 

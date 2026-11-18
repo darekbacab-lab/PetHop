@@ -8,9 +8,9 @@ const router = useRouter();
 const route = useRoute();
 const mode = ref(route.query.mode === 'register' ? 'register' : route.query.mode === 'reset' ? 'reset' : route.query.mode === 'verify' ? 'verify' : 'login');
 const loginForm = ref({ email: '', password: '' });
-const registration = ref({ profile: route.query.role === 'shelter' ? 'shelter' : '', fullName: '', phone: '', email: '', password: '', confirm: '' });
-const resetForm = ref({ email: '', newPassword: '', confirm: '' });
-const resendForm = ref({ email: '' });
+const registration = ref({ profile: route.query.role === 'shelter' ? 'shelter' : '', fullName: '', phone: '', email: '', password: '', confirm: '', website: '' });
+const resetForm = ref({ email: '', newPassword: '', confirm: '', website: '' });
+const resendForm = ref({ email: '', website: '' });
 const resetToken = computed(() => String(route.query.token || ''));
 const resetLinkFailed = ref(false);
 const verifyLinkFailed = ref(false);
@@ -34,7 +34,7 @@ async function submitPasswordResetRequest(event) {
   feedback.value = { login: '', loginError: false, register: '', registerError: false, resend: '', resendError: false };
   if (!event.currentTarget.reportValidity()) return;
   loading.value = true;
-  try { await requestPasswordReset(resetForm.value.email.trim()); feedback.value.login = 'Si existe una cuenta con ese correo, recibirás instrucciones para continuar. Revisa también tu carpeta de spam.'; feedback.value.loginError = false; }
+  try { await requestPasswordReset(resetForm.value.email.trim(), resetForm.value.website); feedback.value.login = 'Si existe una cuenta con ese correo, recibirás instrucciones para continuar. Revisa también tu carpeta de spam.'; feedback.value.loginError = false; }
   catch (error) { feedback.value.login = error.message || 'No se pudo solicitar la recuperación.'; feedback.value.loginError = true; }
   finally { loading.value = false; }
 }
@@ -64,7 +64,7 @@ async function submitEmailVerificationResend(event) {
   feedback.value = { login: '', loginError: false, register: '', registerError: false, resend: '', resendError: false };
   if (!event.currentTarget.reportValidity()) return;
   loading.value = true;
-  try { await resendEmailVerification(resendForm.value.email.trim()); feedback.value.resend = 'Si existe una cuenta con ese correo, recibirás un nuevo enlace de verificación. Revisa también tu carpeta de spam.'; feedback.value.resendError = false; }
+  try { await resendEmailVerification(resendForm.value.email.trim(), resendForm.value.website); feedback.value.resend = 'Si existe una cuenta con ese correo, recibirás un nuevo enlace de verificación. Revisa también tu carpeta de spam.'; feedback.value.resendError = false; }
   catch (error) { feedback.value.resend = error.message || 'No se pudo reenviar el correo.'; feedback.value.resendError = true; }
   finally { loading.value = false; }
 }
@@ -100,7 +100,7 @@ async function submitRegistration(event) {
   loading.value = true;
   const role = registration.value.profile === 'shelter' ? 'SHELTER' : 'ADOPTER';
   try {
-    await register({ fullName: registration.value.fullName.trim(), email: registration.value.email.trim(), password: registration.value.password, phone: registration.value.phone.trim() || null, role });
+    await register({ fullName: registration.value.fullName.trim(), email: registration.value.email.trim(), password: registration.value.password, phone: registration.value.phone.trim() || null, role, website: registration.value.website || null });
     mode.value = 'login';
     feedback.value.login = 'Cuenta creada. Te enviamos un correo de confirmación: revisa tu bandeja de entrada y la carpeta de spam, y abre el enlace para activar tu cuenta.';
     feedback.value.loginError = false;
@@ -135,12 +135,14 @@ async function submitRegistration(event) {
           <h2 class="auth-form-subtitle">¿No te llegó el correo?</h2>
           <label for="resend-email">Correo electrónico <span class="auth-required">* Obligatorio</span></label>
           <div class="auth-input-wrap"><Icon name="message-circle" /><input id="resend-email" v-model="resendForm.email" type="email" autocomplete="email" placeholder="nombre@correo.com" required></div>
+          <div class="honeypot-field" aria-hidden="true"><label for="resend-website">Sitio web</label><input id="resend-website" v-model="resendForm.website" name="website" type="text" autocomplete="off" tabindex="-1"></div>
           <button class="auth-submit" type="submit" :disabled="loading">{{ loading ? 'Enviando…' : 'Reenviar correo de verificación' }}</button>
           <p class="auth-feedback" :class="{ 'is-error': feedback.resendError, 'is-success': feedback.resend && !feedback.resendError }" :role="feedback.resendError ? 'alert' : 'status'" aria-live="polite">{{ feedback.resend }}</p>
         </form>
         <form v-else-if="mode === 'reset' && !resetToken" class="auth-form" novalidate @submit.prevent="submitPasswordResetRequest">
           <label for="reset-email">Correo electrónico <span class="auth-required">* Obligatorio</span></label>
           <div class="auth-input-wrap"><Icon name="message-circle" /><input id="reset-email" v-model="resetForm.email" type="email" autocomplete="email" placeholder="nombre@correo.com" required></div>
+          <div class="honeypot-field" aria-hidden="true"><label for="reset-website">Sitio web</label><input id="reset-website" v-model="resetForm.website" name="website" type="text" autocomplete="off" tabindex="-1"></div>
           <button class="auth-submit" type="submit" :disabled="loading">{{ loading ? 'Enviando…' : 'Enviar instrucciones' }}</button>
           <p class="auth-feedback" :class="{ 'is-error': feedback.loginError, 'is-success': feedback.login && !feedback.loginError }" :role="feedback.loginError ? 'alert' : 'status'" aria-live="polite">{{ feedback.login }}</p>
           <p class="auth-switch-copy"><button type="button" class="auth-text-button" @click="switchMode('login')">Volver a iniciar sesión</button></p>
@@ -177,13 +179,14 @@ async function submitRegistration(event) {
           <label for="register-password">Contraseña <span class="auth-required">* Obligatorio</span></label><div class="auth-input-wrap"><Icon name="shield-check" /><input id="register-password" v-model="registration.password" name="password" :type="showRegisterPassword ? 'text' : 'password'" autocomplete="new-password" placeholder="Al menos 12 caracteres" minlength="12" maxlength="72" required :aria-invalid="feedback.registerError && feedback.register === 'Las contraseñas no coinciden.'" :aria-describedby="feedback.registerError ? 'register-feedback' : undefined"><button class="auth-password-toggle" type="button" :aria-label="showRegisterPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'" :aria-pressed="showRegisterPassword" @click="showRegisterPassword = !showRegisterPassword"><svg class="auth-eye-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/><path v-if="showRegisterPassword" d="m4 4 16 16"/></svg></button></div>
           <label for="register-confirm">Confirmar contraseña <span class="auth-required">* Obligatorio</span></label><div class="auth-input-wrap"><Icon name="shield-check" /><input id="register-confirm" v-model="registration.confirm" name="confirm" :type="showRegisterConfirm ? 'text' : 'password'" autocomplete="new-password" placeholder="Repite tu contraseña" minlength="12" maxlength="72" required :aria-invalid="feedback.registerError && feedback.register === 'Las contraseñas no coinciden.'" :aria-describedby="feedback.registerError ? 'register-feedback' : undefined"><button class="auth-password-toggle" type="button" :aria-label="showRegisterConfirm ? 'Ocultar confirmación' : 'Mostrar confirmación'" :aria-pressed="showRegisterConfirm" @click="showRegisterConfirm = !showRegisterConfirm"><svg class="auth-eye-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/><path v-if="showRegisterConfirm" d="m4 4 16 16"/></svg></button></div>
           <p class="auth-requirement">Tu contraseña debe tener entre 12 y 72 caracteres.</p>
+          <div class="honeypot-field" aria-hidden="true"><label for="register-website">Sitio web</label><input id="register-website" v-model="registration.website" name="website" type="text" autocomplete="off" tabindex="-1"></div>
           <button class="auth-submit" type="submit" :disabled="loading"><span v-if="loading" class="auth-spinner" aria-hidden="true"></span>{{ loading ? 'Creando cuenta…' : 'Crear cuenta' }}</button>
           <p id="register-feedback" class="auth-feedback" :class="{ 'is-error': feedback.registerError }" :role="feedback.registerError ? 'alert' : 'status'" aria-live="polite">{{ feedback.register }}</p>
           <p class="auth-switch-copy">¿Ya tienes una cuenta? <button type="button" class="auth-text-button" @click="switchMode('login')">Ingresar</button></p>
         </form>
       </section>
       <aside class="auth-visual" aria-label="Mascotas que esperan un hogar responsable">
-        <div class="auth-visual-image"><img src="/img/mascotas-hero-v2.png" alt="Perro y gato juntos"></div>
+        <div class="auth-visual-image"><img src="/img/mascotas-hero-v2.webp" alt="Perro y gato juntos"></div>
         <template v-if="isRegistering"><h2>Un buen encuentro empieza con <span>información clara.</span></h2><p>PetHop reúne perfiles de mascotas, solicitudes y seguimiento para acompañar cada adopción con responsabilidad.</p></template>
       </aside>
     </main>

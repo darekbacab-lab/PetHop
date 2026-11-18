@@ -11,4 +11,5 @@ public record RegisterRequest(
         @NotBlank @Email @Size(max = 254) String email,
         @NotBlank @Size(min = 12, max = 72) String password,
         @Pattern(regexp = "^$|^[+()0-9 .-]{7,32}$", message = "El teléfono no tiene un formato válido. Usa solo dígitos y, si quieres, + ( ) - . , entre 7 y 32 caracteres.") String phone,
-        UserRole role) { }
+        UserRole role,
+        String website) { }
