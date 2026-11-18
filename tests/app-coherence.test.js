@@ -1365,3 +1365,13 @@ test('audit fix: hero title is bigger and higher, third action card is teal with
     };
     assert.ok(contrast('#FFFFFF', '#167F87') >= 4.5, `card 3 text ${contrast('#FFFFFF', '#167F87').toFixed(2)}:1`);
 });
+
+test('profile has a touch of color: teal avatar ring, panel top accent, tint icon chips', () => {
+  const profile = fs.readFileSync(path.join(projectRoot, 'src/views/AdopterProfileView.vue'), 'utf8');
+  // Avatar ring in the logo secondary teal (was --primary-soft, invisible on white).
+  assert.match(profile, /\.adopter-avatar \{[^}]*border:4px solid var\(--primary\);/);
+  // Personal and activity panels carry a 3px secondary-teal top line.
+  assert.match(profile, /:deep\(\.adopter-activity-panel\) \{[^}]*border-top:3px solid var\(--primary\);/);
+  // Panel icons sit in soft-tint circles instead of bare teal glyphs.
+  assert.match(profile, /\.adopter-panel-heading > div > :deep\(svg\) \{[^}]*background:var\(--tint\);/);
+});
