@@ -1109,13 +1109,13 @@ test('audit P2: login language everywhere, dark rhythm, min text 0.75rem, style 
     const home = fs.readFileSync(path.join(projectRoot, 'src/views/HomeView.vue'), 'utf8');
     const shelter = fs.readFileSync(path.join(projectRoot, 'src/views/ShelterView.vue'), 'utf8');
 
-    // 16. Explorar tiene el aire del login: banda con foto + titular con palabra turquesa
-    assert.match(explore, /catalog-header-visual/);
-    assert.match(explore, /src="\/img\/mascotas-hero-v2\.webp"/);
+    // 16. Explorar: encabezado solo con el título, sin foto (Ruisu: la foto
+    // no tenía nada que ver ahí); el titular con palabra turquesa se queda
+    assert.doesNotMatch(explore, /catalog-header-visual/);
+    assert.doesNotMatch(explore, /src="\/img\/mascotas-hero-v2\.webp"/);
     assert.match(explore, /Encuentra una mascota <span>que conecte contigo\.<\/span>/);
-    assert.match(styles, /\.catalog-header-visual \{[^}]*border-radius: var\(--radius-lg\);/);
-    assert.match(styles, /\.catalog-header-visual \{[^}]*box-shadow: var\(--shadow-md\);/);
-    assert.match(styles, /\.catalog-header-container \{[^}]*display: grid;/);
+    assert.doesNotMatch(styles, /\.catalog-header-visual \{/);
+    assert.match(styles, /\.catalog-header-container \{[^}]*grid-template-columns: minmax\(0, 1fr\);/);
     // La regla tardía del h1 de Explorar ya no contradice la escala única (agujero del P1)
     assert.match(styles, /\.catalog-header h1 \{[^}]*font-size: clamp\(2rem, 4vw, 3\.3rem\);[^}]*letter-spacing: -0\.045em;/);
     // El detalle ya tenía foto (galería) y titular canónico con aire
@@ -1293,8 +1293,13 @@ test('prelaunch D: compressed images, no dead favicons', () => {
     const explore = fs.readFileSync(path.join(projectRoot, 'src/views/ExploreView.vue'), 'utf8');
     for (const [name, source] of [['HomeView', home], ['AccessView', access], ['ExploreView', explore]]) {
         assert.doesNotMatch(source, /mascotas-hero-v2\.png/, `${name} still references the PNG hero`);
+    }
+    // El WebP sigue en el inicio y en el acceso; Explorar ya no lo usa
+    // (su encabezado quedó solo con el título, sin foto).
+    for (const [name, source] of [['HomeView', home], ['AccessView', access]]) {
         assert.match(source, /mascotas-hero-v2\.webp/, `${name} does not use the WebP hero`);
     }
+    assert.doesNotMatch(explore, /mascotas-hero-v2\.webp/, 'ExploreView still uses the hero photo');
 });
 
 test('prelaunch E: HTTPS redirect, HSTS, sitemap/robots content types', () => {

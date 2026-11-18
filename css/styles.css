@@ -1224,49 +1224,9 @@ ol {
 
 .catalog-header-container {
     display: grid;
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
+    grid-template-columns: minmax(0, 1fr);
     align-items: center;
     gap: 40px;
-}
-
-.catalog-header-visual {
-    position: relative;
-    overflow: hidden;
-    border-radius: var(--radius-lg);
-    background: var(--primary-soft);
-    box-shadow: var(--shadow-md);
-}
-
-.catalog-header-visual::before {
-    position: absolute;
-    z-index: 1;
-    top: -40px;
-    left: -45px;
-    width: 145px;
-    height: 110px;
-    border-radius: 50%;
-    background: rgba(22,127,135,.35);
-    content: '';
-}
-
-.catalog-header-visual::after {
-    position: absolute;
-    z-index: 1;
-    right: 22px;
-    top: 20px;
-    width: 58px;
-    height: 58px;
-    border-radius: 50%;
-    background: rgba(22,127,135,.18);
-    box-shadow: 22px 10px 0 -11px rgba(22,127,135,.18), -20px 17px 0 -11px rgba(22,127,135,.18);
-    content: '';
-}
-
-.catalog-header-visual img {
-    display: block;
-    width: 100%;
-    aspect-ratio: 16/10;
-    object-fit: cover;
 }
 
 .catalog-header h1 {

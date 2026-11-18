@@ -79,7 +79,7 @@ onMounted(refresh);
 <template>
   <div class="catalog-page"><SiteHeader />
     <main id="main-content" tabindex="-1">
-      <section class="catalog-header"><div class="catalog-header-container"><div class="catalog-header-copy"><h1>Encuentra una mascota <span>que conecte contigo.</span></h1><p>Explora las mascotas publicadas por refugios y encuentra a tu próximo compañero.</p></div><div class="catalog-header-visual" aria-hidden="true"><img src="/img/mascotas-hero-v2.webp" alt=""></div></div></section>
+      <section class="catalog-header"><div class="catalog-header-container"><div class="catalog-header-copy"><h1>Encuentra una mascota <span>que conecte contigo.</span></h1><p>Explora las mascotas publicadas por refugios y encuentra a tu próximo compañero.</p></div></div></section>
       <section class="catalog-section"><div class="catalog-container">
         <form class="catalog-search" @submit.prevent="applyFilters">
           <div class="catalog-search-input"><span class="search-symbol" aria-hidden="true"><Icon name="search" /></span><label class="sr-only" for="catalogSearch">Buscar mascotas</label><input id="catalogSearch" v-model="query" name="search" type="search" placeholder="Buscar por nombre, especie o ubicación" autocomplete="off"></div>
