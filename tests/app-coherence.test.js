@@ -1021,7 +1021,7 @@ test('audit P0: role actions are hidden, not explained, and interactive contrast
     // Action cards: card 2 strong bg, white text; card 3 keeps dark text on its pale bg; hover keeps each card's bg
     assert.match(css, /\.action-card:nth-child\(2\) \{\s*background: var\(--primary-strong\);/);
     assert.match(css, /\.action-card \.action-content strong \{\s*color: var\(--white\);/);
-    assert.match(css, /\.action-card:nth-child\(3\) \.action-content strong \{\s*color: var\(--text\);/);
+    assert.match(css, /\.action-card:nth-child\(3\) \.action-content strong \{\s*color: var\(--white\);/);
     assert.doesNotMatch(css, /\.action-card:hover \{[^}]*background: var\(--primary-hover\)/);
     // Borders: strong token on form controls, >= 3:1 vs white
     const token = css.match(/--border-strong:\s*(#[0-9A-Fa-f]{6});/);
@@ -1333,21 +1333,20 @@ test('prelaunch G: GA4 loads only with ID and cookie consent', () => {
     assert.match(banner, /if \(value === 'accepted'\) initAnalytics\(\);/);
 });
 
-test('audit fix: hero title is bigger and higher, third action card is white with a secondary stroke', () => {
+test('audit fix: hero title is bigger and higher, third action card is teal with white text', () => {
     const css = fs.readFileSync(path.join(projectRoot, 'css/styles.css'), 'utf8');
     // Hero: the late rule used to cap the title at 3.3rem (the 4.7rem design size
     // never rendered) and the 570px hero left empty space above it.
     assert.match(css, /\.hero h1 \{[^}]*font-size: clamp\(2\.5rem, 5vw, 4\.25rem\);/);
     assert.match(css, /\.hero \{[^}]*min-height: 500px;/);
     assert.match(css, /\.hero-container \{[^}]*min-height: 500px;/);
-    // Third card: the late rule flattened all three cards to --primary-strong,
-    // leaving its dark text on teal; now it is white with a secondary stroke.
-    assert.match(css, /\.action-card:nth-child\(3\) \{[^}]*background: var\(--white\);/);
-    assert.match(css, /\.action-card:nth-child\(3\) \{[^}]*border: 1px solid var\(--primary\);/);
-    assert.match(css, /\.action-card:nth-child\(3\):hover \{[^}]*background: var\(--white\);/);
-    // The other two cards keep their dark/main backgrounds with white text.
-    assert.match(css, /\.action-card:nth-child\(2\) \{\s*background: var\(--primary-strong\);/);
-    // Dark text on the white third card passes AA.
+    // Third card: the late rule puts all three cards on --primary-strong, so
+    // its text must be white like the other two (dark text on teal was the bug);
+    // the card itself stays teal, never white.
+    assert.match(css, /\.action-card:nth-child\(3\) \{\s*background: var\(--primary-strong\);/);
+    assert.match(css, /\.action-card:nth-child\(3\) \.action-content strong \{\s*color: var\(--white\);/);
+    assert.doesNotMatch(css, /\.action-card:nth-child\(3\) \{[^}]*background: var\(--white\);/);
+    // White text on the teal third card passes AA.
     const luminance = hex => {
         const [r, g, b] = [0, 2, 4].map(i => parseInt(hex.slice(1 + i, 3 + i), 16) / 255);
         const f = c => c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
@@ -1357,5 +1356,5 @@ test('audit fix: hero title is bigger and higher, third action card is white wit
         const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
         return (hi + 0.05) / (lo + 0.05);
     };
-    assert.ok(contrast('#313434', '#FFFFFF') >= 4.5, `card 3 text ${contrast('#313434', '#FFFFFF').toFixed(2)}:1`);
+    assert.ok(contrast('#FFFFFF', '#167F87') >= 4.5, `card 3 text ${contrast('#FFFFFF', '#167F87').toFixed(2)}:1`);
 });

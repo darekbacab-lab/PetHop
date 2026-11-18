@@ -805,12 +805,15 @@ ol {
     color: var(--white);
 }
 
+/* La tercera tarjeta lleva texto blanco como las otras dos: la regla
+   tardía de :4119 pone a las tres en --primary-strong, así que el texto
+   oscuro de antes quedaba sobre turquesa. */
 .action-card:nth-child(3) .action-number,
 .action-card:nth-child(3) .action-content > span,
 .action-card:nth-child(3) .action-content h2,
 .action-card:nth-child(3) .action-content p,
 .action-card:nth-child(3) .action-content strong {
-    color: var(--text);
+    color: var(--white);
 }
 
 .action-content strong span {
@@ -4135,23 +4138,6 @@ h1, h2, h3, h4,
 .action-card:nth-child(2):hover,
 .action-card:nth-child(3):hover {
     background: var(--primary-strong);
-    background-image: none;
-}
-
-/* La tercera tarjeta (Acompañar) es blanca con stroke secundario: la regla
-   tardía de arriba la dejaba con el mismo fondo turquesa que las otras dos
-   y su texto oscuro (regla de :808) quedaba sobre turquesa, sin contraste
-   entre tarjetas. En blanco el texto oscuro sí pasa (12,22:1). */
-.action-card:nth-child(3) {
-    border: 1px solid var(--primary);
-    background: var(--white);
-    color: var(--text);
-    background-image: none;
-}
-
-.action-card:nth-child(3):hover {
-    border-color: var(--primary);
-    background: var(--white);
     background-image: none;
 }
 

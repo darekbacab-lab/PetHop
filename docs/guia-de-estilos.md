@@ -114,13 +114,11 @@ vistas con el sistema de botones). No hay más sistemas de botón primario.
 7. **Páginas legales y cookies.** Privacidad y términos existen y se
    enlazan en el pie de página; el banner pide el consentimiento una
    vez y la analítica solo carga si se acepta.
-8. **Tarjetas de acción del inicio.** Las tres no comparten fondo: Adoptar
-   en `--primary-dark` y Registrar refugio en `--primary-strong`, ambas
-   con texto blanco; Acompañar es blanca con stroke de 1 px en
-   `--primary` y texto oscuro. Una regla tardía las igualaba a todas en
-   `--primary-strong` y dejaba el texto oscuro de la tercera sobre
-   turquesa; la corrección vive después del bloque `:hover` de las
-   tarjetas en `css/styles.css`.
+8. **Tarjetas de acción del inicio.** Las tres van en turquesa con texto
+   blanco: la regla tardía de `css/styles.css` las iguala a todas en
+   `--primary-strong`, así que la tercera (`Acompañar`) también lleva
+   texto blanco, nunca oscuro y nunca fondo blanco. El texto oscuro de
+   la tercera sobre turquesa era el fallo que se corrigió.
 
 ## Al añadir una vista nueva
 
