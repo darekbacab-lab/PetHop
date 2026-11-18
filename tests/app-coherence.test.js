@@ -302,7 +302,10 @@ test('flat home sections keep only the floating shadow and most buttons share it
     assert.match(css, /\.primary-button,\s*\.search-button,\s*\.filter-button,\s*\.catalog-apply,\s*\.login-button,\s*\.pet-apply-button,\s*\.application-submit,\s*\.organization-button,\s*\.message-shelter-button,\s*\.dynamic-modal button\[type="submit"\] \{[^}]*box-shadow: var\(--shadow-sm\);/);
     assert.match(css, /\.secondary-button \{[^}]*box-shadow: var\(--shadow-sm\);/);
     assert.match(css, /\.button \{[^}]*box-shadow:var\(--shadow-sm\);/);
-    assert.doesNotMatch(css, /\.organization-button \{[^}]*min-width: 300px;/); // M1 (P2-1.4.10): sin ancho mínimo fijo, a 320 px no debe sobresalir.
+    // El botón "Registrar refugio" mide 300 px mínimo en escritorio; a 320 px
+    // no sobresale porque la media query de 700 px lo pone a ancho completo.
+    assert.match(css, /\.organization-button \{[^}]*min-width: 300px;/);
+    assert.match(css, /\.organization-button \{\s*min-width: 0;\s*width: 100%;\s*\}/);
     assert.match(css, /\.organization-button \{[^}]*min-height: 54px;/);
     assert.match(css, /\.organization-button \{[^}]*padding: 0 40px;/);
 });
@@ -703,7 +706,11 @@ test('audit batch M1: contrast, wrapping, 320px, accessible names, nav, live rol
     assert.match(styles, /\.progress-stage small \{ max-width:112px; color:var\(--text-soft\); font-size:\.75rem;/);
     assert.match(styles, /\.formalized-badge \{ font-size:\.75rem!important; \}/);
     assert.doesNotMatch(styles, /overflow-x: clip;/);
-    assert.doesNotMatch(styles, /min-width: 300px;/);
+    // Sin anchos mínimos fijos que rompan el reflow a 320 px: el único
+    // `min-width: 300px` permitido es el del botón "Registrar refugio",
+    // que la media query de 700 px pone a ancho completo.
+    assert.equal((styles.match(/min-width: 300px;/g) || []).length, 1, 'only the organization button may use a 300px min-width');
+    assert.match(styles, /\.organization-button \{[^}]*min-width: 300px;/);
     assert.match(styles, /\.shelter-toast-close/);
     assert.match(admin, /\.admin-breadcrumb strong \{ color:var\(--text-soft\); \}/);
     assert.match(admin, /import SiteHeader from '\.\.\/components\/SiteHeader\.vue';/);

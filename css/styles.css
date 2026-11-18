@@ -2608,6 +2608,7 @@ ol {
 }
 
 .organization-button {
+    min-width: 300px;
     min-height: 54px;
     display: inline-flex;
     align-items: center;
