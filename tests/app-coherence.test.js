@@ -1385,3 +1385,9 @@ test('admin menu selection uses the same tint as the shelter menu', () => {
   assert.match(admin, /\.admin-bottombar-item\.active \{ background:var\(--tint\); color:var\(--primary-strong\); \}/);
   assert.doesNotMatch(admin, /\.admin-nav-item\.active \{ background:var\(--background\);/);
 });
+
+test('organization section label is plain teal text, not a highlighted pill', () => {
+  const css = fs.readFileSync(path.join(projectRoot, 'css/styles.css'), 'utf8');
+  assert.doesNotMatch(css, /\.organization-container > div > span \{[^}]*background:/);
+  assert.match(css, /\.organization-container > div > span \{[^}]*color: var\(--primary-strong\);/);
+});

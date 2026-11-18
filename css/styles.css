@@ -2583,9 +2583,6 @@ ol {
 .organization-container > div > span {
     display: inline-block;
     margin-bottom: 12px;
-    padding: 6px 13px;
-    border-radius: 999px;
-    background: rgba(22, 127, 135, .10);
     color: var(--primary-strong);
     font-size: 0.75rem;
     font-weight: 850;
