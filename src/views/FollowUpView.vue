@@ -208,7 +208,7 @@ onBeforeUnmount(() => Object.values(reportMediaSources.value).forEach(url => URL
         <div v-else-if="!applications.length" class="follow-up-state"><Icon name="paw-print" /><h2>Aún no tienes solicitudes</h2><p>Explora las mascotas disponibles y encuentra una historia que pueda comenzar contigo.</p><RouterLink class="button button-primary" to="/explorar.html">Explorar mascotas</RouterLink></div>
         <template v-else>
           <p v-if="notice" class="follow-up-notice" role="status"><span>{{ notice }}</span><button type="button" @click="notice = ''">Entendido</button></p>
-          <section class="follow-up-summary-grid" aria-label="Resumen de adopciones"><article><span class="summary-icon"><Icon name="clipboard-list" /></span><div><strong>{{ summary.sent }}</strong><span>Solicitudes enviadas</span></div></article><article><span class="summary-icon is-amber"><Icon name="refresh-cw" /></span><div><strong>{{ summary.review }}</strong><span>En revisión</span></div></article><article><span class="summary-icon is-green"><Icon name="check-circle-2" /></span><div><strong>{{ summary.approved }}</strong><span>Aprobadas</span></div></article><article><span class="summary-icon is-blue"><Icon name="heart" /></span><div><strong>{{ summary.formalized }}</strong><span>Adopciones formalizadas</span></div></article><article><span class="summary-icon is-purple"><Icon name="route" /></span><div><strong>{{ summary.reports }}</strong><span>Reportes de esta solicitud</span></div></article></section>
+          <section class="follow-up-summary-grid" aria-label="Resumen de adopciones"><article><span class="summary-icon"><Icon name="clipboard-list" /></span><div><strong>{{ summary.sent }}</strong><span>Solicitudes enviadas</span></div></article><article><span class="summary-icon is-amber"><Icon name="refresh-cw" /></span><div><strong>{{ summary.review }}</strong><span>En revisión</span></div></article><article><span class="summary-icon is-green"><Icon name="check-circle-2" /></span><div><strong>{{ summary.approved }}</strong><span>Aprobadas</span></div></article><article><span class="summary-icon is-green"><Icon name="heart" /></span><div><strong>{{ summary.formalized }}</strong><span>Adopciones formalizadas</span></div></article><article><span class="summary-icon"><Icon name="route" /></span><div><strong>{{ summary.reports }}</strong><span>Reportes de esta solicitud</span></div></article></section>
           <div class="follow-up-content-grid">
             <section class="follow-up-primary">
               <section class="follow-up-card application-selector"><div class="follow-up-card-heading"><div><span class="eyebrow">TUS PROCESOS</span><h2>Selecciona una solicitud</h2></div><span>{{ applications.length }} registradas</span></div><div class="application-list"><button v-for="item in applications" :key="item.id" type="button" class="application-item" :class="{ 'is-selected': item.id === selectedId }" @click="selectApplication(item.id)"><span class="application-thumb"><img v-if="petSnapshots[item.petId]?.photos?.[0]" :src="petSnapshots[item.petId].photos[0]" :alt="`Imagen de ${item.petName}`"><Icon v-else name="paw-print" /></span><span class="application-item-copy"><strong>{{ item.petName }}</strong><small>{{ item.shelterName || 'Refugio no disponible' }} · {{ formatDate(item.submittedAt) }}</small></span><span class="status-pill" :class="`is-${applicationTone(item)}`">{{ applicationLabel(item) }}</span></button></div></section>
@@ -233,12 +233,12 @@ onBeforeUnmount(() => Object.values(reportMediaSources.value).forEach(url => URL
 .visits-card { margin-top: 18px; }
 .visits-count { color: var(--text-soft); font-size: .85rem; }
 .visit-list { display: grid; gap: 10px; margin-bottom: 20px; }
-.visit-list article { padding: 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--background); }
+.visit-list article { padding: 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--background); }
 .visit-list article > div { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .visit-list p { margin: 8px 0 0; color: var(--text-soft); white-space: pre-line; }
 .visit-list small { display: block; margin-top: 8px; color: var(--text-soft); }
 .visit-status { padding: 4px 8px; border-radius: 99px; font-size: .72rem; font-weight: 800; }
-.visit-status.is-planned { background: #fff4d9; color: #8a5b12; }
-.visit-status.is-completed { background: #e6f5ec; color: #287451; }
-.visit-status.is-cancelled { background: #fbe9e9; color: #a13232; }
+.visit-status.is-planned { background: var(--warning-bg); color: var(--warning); }
+.visit-status.is-completed { background: var(--success-bg); color: var(--success); }
+.visit-status.is-cancelled { background: var(--danger-bg); color: var(--danger); }
 </style>

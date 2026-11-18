@@ -112,17 +112,17 @@ onMounted(refresh);
 
 <style scoped>
 .catalog-header { margin-bottom:24px; padding-top:26px; }
-.catalog-header h1 { max-width:970px; color:#14545c; font-size:clamp(2.8rem,5.4vw,4.7rem); font-weight:850; line-height:.99; letter-spacing:-.055em; }
-.catalog-header h1 span { color:#39b0b9; }
+.catalog-header h1 { max-width:970px; color:var(--hero-title-dark); font-size:clamp(2rem,4vw,3.3rem); font-weight:800; line-height:.99; letter-spacing:-.045em; }
+.catalog-header h1 span { color:var(--hero-title-light); }
 .catalog-layout { display:block; }
-.catalog-filterbar { position:static; margin-bottom:18px; padding:12px 16px; border-color:#5eaeb4; background-color:var(--background); }
+.catalog-filterbar { position:static; margin-bottom:18px; padding:12px 16px; border-color:var(--primary); background-color:var(--background); }
 .catalog-filter-controls { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)) minmax(130px,1.2fr) minmax(168px,1.55fr) repeat(2,minmax(140px,1.2fr)); gap:10px; align-items:end; }
 .catalog-filter-controls .catalog-filter-group { min-width:0; margin:0; display:block; width:auto; }
 .catalog-filter-group label { margin-bottom:4px; font-size:.7rem; }
-.catalog-filter-controls .catalog-filter-group select { min-width:0; min-height:40px; width:100%; padding:7px 26px 7px 10px; border-color:#5eaeb4; background-color:var(--white); font-size:.8rem; }
+.catalog-filter-controls .catalog-filter-group select { min-width:0; min-height:40px; width:100%; padding:7px 26px 7px 10px; border-color:var(--primary); background-color:var(--white); font-size:.8rem; }
 .catalog-filter-controls .filter-actions { display:contents; }
 .catalog-filter-controls .filter-actions > button { width:100%; min-width:0; min-height:40px; padding:8px 10px; white-space:nowrap; }
-.results-header > div:first-child h2 { color:#14545c; font-size:1.7rem; font-weight:800; }
+.results-header > div:first-child h2 { color:var(--hero-title-dark); font-size:1.7rem; font-weight:800; }
 .results-count { display:flex; align-items:baseline; gap:7px; }
 .catalog-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
 @media (max-width:1000px) {

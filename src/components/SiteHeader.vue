@@ -158,14 +158,14 @@ onUnmounted(() => window.removeEventListener('pethop:shelter-updated', onShelter
 
 <style scoped>
 .brand-logo-mono { display:none!important; }
-.account-trigger { position:relative; display:grid; width:48px; height:48px; place-items:center; padding:0; border:1px solid var(--border); border-radius:14px; background:var(--white); color:var(--primary-strong); text-decoration:none; }
+.account-trigger { position:relative; display:grid; width:48px; height:48px; place-items:center; padding:0; border:1px solid var(--border); border-radius: var(--radius-sm); background:var(--white); color:var(--primary-strong); text-decoration:none; }
 .account-trigger:hover { border-color:var(--primary); background:var(--background); }
 .account-trigger:focus-visible { outline:3px solid color-mix(in srgb,var(--primary) 45%,transparent); outline-offset:2px; }
-.account-avatar { display:grid; width:31px; height:31px; place-items:center; border-radius:50%; background:#e7f5f5; }
+.account-avatar { display:grid; width:31px; height:31px; place-items:center; border-radius:50%; background:var(--tint); }
 .account-avatar :deep(svg) { width:18px; height:18px; }
-.account-presence { position:absolute; right:3px; bottom:3px; width:10px; height:10px; border:2px solid var(--white); border-radius:50%; background:#3dba7c; }
+.account-presence { position:absolute; right:3px; bottom:3px; width:10px; height:10px; border:2px solid var(--white); border-radius:50%; background:var(--success); }
 .account-display-name { max-width:170px; color:var(--text); font-size:.78rem; font-weight:750; }
-.notification-trigger { position:relative; display:grid; width:48px; height:48px; place-items:center; border:1px solid var(--border); border-radius:14px; background:var(--white); color:var(--primary-strong); cursor:pointer; }.notification-trigger:hover { border-color:var(--primary); background:var(--background); }.notification-trigger :deep(svg) { width:18px; height:18px; }.notification-badge { position:absolute; top:-5px; right:-5px; display:grid; min-width:18px; height:18px; place-items:center; padding:0 4px; border:2px solid var(--white); border-radius:99px; background:var(--danger); color:#fff; font-size:.58rem; font-weight:800; }
+.notification-trigger { position:relative; display:grid; width:48px; height:48px; place-items:center; border:1px solid var(--border); border-radius: var(--radius-sm); background:var(--white); color:var(--primary-strong); cursor:pointer; }.notification-trigger:hover { border-color:var(--primary); background:var(--background); }.notification-trigger :deep(svg) { width:18px; height:18px; }.notification-badge { position:absolute; top:-5px; right:-5px; display:grid; min-width:18px; height:18px; place-items:center; padding:0 4px; border:2px solid var(--white); border-radius:99px; background:var(--danger); color:var(--white); font-size:.58rem; font-weight:800; }
 .side-panel-shell { align-items:stretch; justify-content:flex-end; padding:0; overflow:hidden; }
 .side-panel-content { width:min(420px,92vw); height:100dvh; max-height:none; overflow-y:auto; padding:32px; border-top:0; border-right:0; border-bottom:0; border-radius:20px 0 0 20px; box-shadow:-12px 0 30px rgba(0,0,0,.25); transform:translateX(100%); transition:transform .25s ease-out; }
 .dynamic-modal.open .side-panel-content { transform:translateX(0); }
@@ -173,27 +173,27 @@ onUnmounted(() => window.removeEventListener('pethop:shelter-updated', onShelter
 .side-panel-enter-from,.side-panel-leave-to { opacity:0; }
 .side-panel-shell.side-panel-enter-from .side-panel-content,.side-panel-shell.side-panel-leave-active .side-panel-content { transform:translateX(100%); }
 .side-panel-enter-active .side-panel-content,.side-panel-leave-active .side-panel-content { transition:transform .25s ease-out; }
-.main-nav .account-nav-signout { width:100%; min-height:44px; display:flex; align-items:center; gap:10px; padding:10px 14px; border:0; border-radius:10px; background:transparent; color:var(--danger); cursor:pointer; font:750 .82rem "Montserrat",Arial,sans-serif; text-align:left; transition:var(--transition); }
+.main-nav .account-nav-signout { width:100%; min-height:44px; display:flex; align-items:center; gap:10px; padding:10px 14px; border:0; border-radius: var(--radius-sm); background:transparent; color:var(--danger); cursor:pointer; font:750 .82rem "Montserrat",Arial,sans-serif; text-align:left; transition:var(--transition); }
 .main-nav .account-nav-signout:hover { background:var(--primary-soft); color:var(--danger); }
 .main-nav .account-nav-signout:focus-visible { outline:3px solid color-mix(in srgb,var(--primary) 45%,transparent); outline-offset:2px; }
 .main-nav .account-nav-signout .nav-item-icon { width:19px; height:19px; flex:0 0 auto; }
 .favorites-modal-content { width:min(560px,100%); padding:32px; }
 .favorites-modal-eyebrow { display:block; margin-bottom:5px; color:var(--primary-strong); font-size:.68rem; font-weight:800; letter-spacing:.09em; }
 .favorites-modal h2 { display:flex; align-items:center; gap:10px; margin-bottom:5px; font-size:1.75rem; }
-.favorites-modal-count { display:grid; place-items:center; min-width:27px; height:27px; padding:0 7px; border-radius:20px; background:var(--primary-soft); color:var(--primary-strong); font-size:.76rem; }
- .favorites-modal-count { background:var(--button-primary-bg); color:#fff; }
+.favorites-modal-count { display:grid; place-items:center; min-width:27px; height:27px; padding:0 7px; border-radius: var(--radius-md); background:var(--primary-soft); color:var(--primary-strong); font-size:.76rem; }
+ .favorites-modal-count { background:var(--button-primary-bg); color:var(--white); }
 .favorites-modal .favorites-modal-intro { margin-bottom:18px; font-size:.82rem; }
 .favorites-modal-list { max-height:min(440px,55vh); overflow-y:auto; gap:10px; padding:1px 3px 1px 1px; }
-.favorites-modal-item { display:grid; grid-template-columns:62px minmax(0,1fr) auto; gap:13px; min-height:82px; padding:10px; border-radius:13px; background:var(--white); }
-.favorites-pet-thumbnail { width:62px; height:62px; border-radius:9px; object-fit:cover; background:var(--background); }
+.favorites-modal-item { display:grid; grid-template-columns:62px minmax(0,1fr) auto; gap:13px; min-height:82px; padding:10px; border-radius: var(--radius-sm); background:var(--white); }
+.favorites-pet-thumbnail { width:62px; height:62px; border-radius: var(--radius-xs); object-fit:cover; background:var(--background); }
 .favorites-pet-thumbnail-empty { display:grid; place-items:center; color:var(--primary-strong); }
 .favorites-pet-copy { display:flex; min-width:0; flex-direction:column; justify-content:center; gap:3px; }
 .favorites-pet-copy strong { font-size:.98rem; line-height:1.3; }
 .favorites-pet-copy span { overflow:hidden; color:var(--text-soft); font-size:.72rem; text-overflow:ellipsis; white-space:nowrap; }
 .favorites-pet-actions { display:flex; align-items:center; justify-content:flex-end; gap:8px; }
-.favorites-profile-link { display:inline-flex; min-height:38px; align-items:center; justify-content:center; padding:0 12px; border-radius:9px; background:var(--primary-strong); color:var(--white); font-size:.72rem; font-weight:800; text-decoration:none; white-space:nowrap; }
+.favorites-profile-link { display:inline-flex; min-height:38px; align-items:center; justify-content:center; padding:0 12px; border-radius: var(--radius-xs); background:var(--primary-strong); color:var(--white); font-size:.72rem; font-weight:800; text-decoration:none; white-space:nowrap; }
 .favorites-profile-link:hover { background:var(--primary-strong-hover); }
-.favorites-remove-button { display:inline-flex; min-height:38px; align-items:center; justify-content:center; gap:5px; padding:0 10px; border:1px solid var(--border); border-radius:9px; background:var(--white); color:var(--text-soft); cursor:pointer; font:700 .7rem "Montserrat",Arial,sans-serif; white-space:nowrap; }
+.favorites-remove-button { display:inline-flex; min-height:38px; align-items:center; justify-content:center; gap:5px; padding:0 10px; border:1px solid var(--border); border-radius: var(--radius-xs); background:var(--white); color:var(--text-soft); cursor:pointer; font:700 .7rem "Montserrat",Arial,sans-serif; white-space:nowrap; }
 .favorites-remove-button:hover { border-color:var(--danger); color:var(--danger); }
 .favorites-remove-button :deep(svg) { width:15px; height:15px; }
 .favorites-empty-copy { margin:12px 0 0!important; font-size:.84rem!important; line-height:1.6; }
@@ -201,7 +201,7 @@ onUnmounted(() => window.removeEventListener('pethop:shelter-updated', onShelter
 .favorites-empty-state { display:grid; justify-items:center; gap:14px; padding:22px 0 3px; }
 .favorites-empty-icon { display:grid; width:58px; height:58px; place-items:center; border-radius:50%; background:var(--primary-soft); color:var(--primary-strong); }
 .favorites-explore-link { display:inline-flex; align-items:center; justify-content:center; gap:9px; text-decoration:none; }
-.notification-list { display:grid; max-height:min(480px,58vh); overflow:auto; gap:7px; margin-top:14px; }.notification-item { display:grid; grid-template-columns:34px minmax(0,1fr); gap:10px; width:100%; padding:12px; border:1px solid transparent; border-radius:12px; background:var(--background); color:var(--text); text-align:left; cursor:pointer; }.notification-item:hover,.notification-item.is-unread { border-color:var(--border); background:#f0faf9; }.notification-icon { display:grid; width:32px; height:32px; place-items:center; border-radius:10px; background:var(--primary-soft); color:var(--primary-strong); }.notification-item > span:last-child { display:grid; gap:3px; min-width:0; }.notification-item strong { font-size:.76rem; }.notification-item small { color:var(--text-soft); font-size:.68rem; line-height:1.45; }.notification-item time { color:var(--text-soft); font-size:.61rem; }
+.notification-list { display:grid; max-height:min(480px,58vh); overflow:auto; gap:7px; margin-top:14px; }.notification-item { display:grid; grid-template-columns:34px minmax(0,1fr); gap:10px; width:100%; padding:12px; border:1px solid transparent; border-radius: var(--radius-sm); background:var(--background); color:var(--text); text-align:left; cursor:pointer; }.notification-item:hover,.notification-item.is-unread { border-color:var(--border); background:var(--background); }.notification-icon { display:grid; width:32px; height:32px; place-items:center; border-radius: var(--radius-sm); background:var(--primary-soft); color:var(--primary-strong); }.notification-item > span:last-child { display:grid; gap:3px; min-width:0; }.notification-item strong { font-size:.76rem; }.notification-item small { color:var(--text-soft); font-size:.68rem; line-height:1.45; }.notification-item time { color:var(--text-soft); font-size:.61rem; }
 @media(max-width:520px) {
   .account-display-name { max-width:105px; }
   .side-panel-content { width:min(420px,96vw); padding:26px 18px 20px; border-radius:16px 0 0 16px; }
@@ -211,5 +211,5 @@ onUnmounted(() => window.removeEventListener('pethop:shelter-updated', onShelter
   .favorites-profile-link,.favorites-remove-button { flex:1; }
   .favorites-modal-list { max-height:50dvh; }
 }
-@media(max-width:380px) { .header-right { gap:5px; } .account-display-name { max-width:55px; } .account-trigger,.notification-trigger { width:44px; height:44px; border-radius:12px; } }
+@media(max-width:380px) { .header-right { gap:5px; } .account-display-name { max-width:55px; } .account-trigger,.notification-trigger { width:44px; height:44px; border-radius: var(--radius-sm); } }
 </style>

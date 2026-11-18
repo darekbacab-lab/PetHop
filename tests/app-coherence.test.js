@@ -269,7 +269,7 @@ test('how-it-works carousel shows exactly three cards with dots instead of a tex
     assert.match(home, /grid-template-rows:68% 32%; grid-template-areas:"art" "copy"/);
     assert.doesNotMatch(home, /grid-template-rows:70% 30%/);
     assert.doesNotMatch(home, /grid-template-rows:64% 36%/);
-    assert.match(home, /\.process-steps \.process-step \{[^}]*border-radius:24px;/);
+    assert.match(home, /\.process-steps \.process-step \{[^}]*border-radius: var\(--radius-lg\);/);
     assert.match(home, /\.process-steps \.process-step \{[^}]*box-shadow:var\(--shadow-sm\);/);
     assert.match(home, /\.process-step-copy::before \{[^}]*data:image\/svg\+xml/);
     assert.doesNotMatch(home, /linear-gradient\(180deg, #17848c/);
@@ -299,7 +299,7 @@ test('flat home sections keep only the floating shadow and most buttons share it
     assert.doesNotMatch(css, /\.organization-container \{[^}]*box-shadow/);
     assert.doesNotMatch(css, /\.organization-container \{[^}]*background:/);
     // La mayoría de botones comparte la sombra flotante (sombra suave, más fuerte al pasar el mouse).
-    assert.match(css, /\.btn-primary,\s*\.primary-button,\s*\.search-button,\s*\.filter-button,\s*\.catalog-apply,\s*\.login-button,\s*\.pet-apply-button,\s*\.application-submit,\s*\.organization-button,\s*\.message-shelter-button,\s*\.dynamic-modal button\[type="submit"\] \{[^}]*box-shadow: var\(--shadow-sm\);/);
+    assert.match(css, /\.primary-button,\s*\.search-button,\s*\.filter-button,\s*\.catalog-apply,\s*\.login-button,\s*\.pet-apply-button,\s*\.application-submit,\s*\.organization-button,\s*\.message-shelter-button,\s*\.dynamic-modal button\[type="submit"\] \{[^}]*box-shadow: var\(--shadow-sm\);/);
     assert.match(css, /\.secondary-button \{[^}]*box-shadow: var\(--shadow-sm\);/);
     assert.match(css, /\.button \{[^}]*box-shadow:var\(--shadow-sm\);/);
     assert.doesNotMatch(css, /\.organization-button \{[^}]*min-width: 300px;/); // M1 (P2-1.4.10): sin ancho mínimo fijo, a 320 px no debe sobresalir.
@@ -337,10 +337,10 @@ test('reference login aesthetic is the site-wide design language', () => {
     assert.match(css, /\.organization-container \{\s*width: min\(var\(--max-width\), calc\(100% - 40px\)\);\s*margin: 0 auto;\s*display: grid;\s*grid-template-columns: 1fr 0\.8fr;\s*gap: 55px;\s*align-items: center;\s*\}/);
     assert.match(css, /\.button \{[^}]*box-shadow:var\(--shadow-sm\);/);
     const access = fs.readFileSync(path.join(projectRoot, 'css/acceso.css'), 'utf8');
-    assert.match(access, /\.auth-card \{[^}]*border-radius:26px;/);
+    assert.match(access, /\.auth-card \{[^}]*border-radius: var\(--radius-lg\);/);
     assert.match(access, /\.auth-card \{[^}]*box-shadow:var\(--shadow-lg\);/);
     assert.match(access, /\.auth-submit \{[^}]*box-shadow:0 8px 11px rgba\(0,0,0,\.25\);/);
-    assert.match(access, /\.auth-input-wrap input \{[^}]*border-radius:12px;/);
+    assert.match(access, /\.auth-input-wrap input \{[^}]*border-radius: var\(--radius-sm\);/);
     assert.doesNotMatch(access, /box-shadow:0 2px 3px rgba\(18,63,75,\.12\)/);
     // Las vistas usan los tokens, no hex sueltos, para bordes y superficies pálidas.
     for (const view of ['HomeView.vue', 'ShelterView.vue', 'AdopterMessagesView.vue', 'AdopterProfileView.vue', 'HealthRecordsView.vue']) {
@@ -480,7 +480,7 @@ test('audit batch 1: failed images keep their name, focus is solid, links are un
     const admin = fs.readFileSync(path.join(projectRoot, 'src/views/AdminView.vue'), 'utf8');
     assert.match(skeleton, /:role="role \|\| \(failed \? 'img' : undefined\)"/);
     assert.match(skeleton, /:aria-label="role === 'img' \|\| failed \? alt : undefined"/);
-    assert.match(css, /outline: 3px solid #167F87;/);
+    assert.match(css, /outline: 3px solid var\(--primary-strong\);/);
     assert.match(css, /\[tabindex\]:focus-visible/);
     assert.doesNotMatch(css, /outline: ?0;/);
     assert.match(css, /p a,[\s\S]*?\.footer-column a \{[\s\S]*?text-decoration: underline;/);
@@ -696,8 +696,8 @@ test('audit batch M1: contrast, wrapping, 320px, accessible names, nav, live rol
     const home = fs.readFileSync(path.join(projectRoot, 'src/views/HomeView.vue'), 'utf8');
     const messages = fs.readFileSync(path.join(projectRoot, 'src/views/AdopterMessagesView.vue'), 'utf8');
     assert.match(styles, /--hero-title-light: #167F87;/);
-    assert.match(styles, /\.progress-stage\.is-future,\.progress-stage\.is-future strong \{ color:#4A5556; \}/);
-    assert.match(styles, /\.progress-stage\.is-future small \{ color:#4A5556; \}/);
+    assert.match(styles, /\.progress-stage\.is-future,\.progress-stage\.is-future strong \{ color:var\(--text-soft\); \}/);
+    assert.match(styles, /\.progress-stage\.is-future small \{ color:var\(--text-soft\); \}/);
     assert.match(styles, /\.application-item-copy strong \{ font-size:\.8rem; \}/);
     assert.match(styles, /\.pet-follow-facts dd \{ margin-top:3px; color:var\(--text\); font-size:\.75rem; font-weight:700; \}/);
     assert.match(styles, /\.progress-stage small \{ max-width:112px; color:var\(--text-soft\); font-size:\.75rem;/);
@@ -705,7 +705,7 @@ test('audit batch M1: contrast, wrapping, 320px, accessible names, nav, live rol
     assert.doesNotMatch(styles, /overflow-x: clip;/);
     assert.doesNotMatch(styles, /min-width: 300px;/);
     assert.match(styles, /\.shelter-toast-close/);
-    assert.match(admin, /\.admin-breadcrumb strong \{ color:#4A5556; \}/);
+    assert.match(admin, /\.admin-breadcrumb strong \{ color:var\(--text-soft\); \}/);
     assert.match(admin, /import SiteHeader from '\.\.\/components\/SiteHeader\.vue';/);
     assert.match(admin, /<SiteHeader \/>/);
     assert.match(admin, /\.admin-topbar \{ position:static;/);
@@ -1016,7 +1016,7 @@ test('audit P0: role actions are hidden, not explained, and interactive contrast
     assert.match(shelter, /<button v-if="selectedRequestThread" class="button button-outline" @click="requestAction\('contact'\)">Contactar<\/button>/);
 
     // Contrast: the only primary button that actually failed was .catalog-apply
-    assert.match(css, /\.catalog-apply,\.catalog-apply:hover,\.catalog-apply:focus-visible \{ border-color:var\(--primary-strong\); background:var\(--primary-strong\); color:#fff; \}/);
+    assert.match(css, /\.catalog-apply,\.catalog-apply:hover,\.catalog-apply:focus-visible \{ border-color:var\(--primary-strong\); background:var\(--primary-strong\); color:var\(--white\); \}/);
     assert.match(css, /\.favorite\.active,[\s\S]*?color:\s*var\(--primary-strong\)/);
     // Action cards: card 2 strong bg, white text; card 3 keeps dark text on its pale bg; hover keeps each card's bg
     assert.match(css, /\.action-card:nth-child\(2\) \{\s*background: var\(--primary-strong\);/);
@@ -1040,4 +1040,40 @@ test('audit P0: role actions are hidden, not explained, and interactive contrast
     // Selection and completed step marker also use the strong tone now
     assert.match(css, /::selection \{\s*background: var\(--primary-strong\);/);
     assert.match(css, /\.status-step\.completed \.status-step-marker,[\s\S]*?background: var\(--primary-strong\);/);
+});
+
+test('audit P1: one button system, token radii, one h1 scale, collapsed palette, no name-based photos', () => {
+    const css = fs.readFileSync(path.join(projectRoot, 'css/styles.css'), 'utf8');
+    const acceso = fs.readFileSync(path.join(projectRoot, 'css/acceso.css'), 'utf8');
+    const solicitud = fs.readFileSync(path.join(projectRoot, 'css/solicitud.css'), 'utf8');
+    const explore = fs.readFileSync(path.join(projectRoot, 'src/views/ExploreView.vue'), 'utf8');
+    const followUp = fs.readFileSync(path.join(projectRoot, 'src/views/FollowUpView.vue'), 'utf8');
+
+    // Buttons: early definitions use the strong tone; the dead .btn-primary is gone
+    assert.doesNotMatch(css, /border: 1px solid var\(--primary\);/);
+    assert.doesNotMatch(css, /\.btn-primary/);
+    assert.match(css, /\.primary-button \{[\s\S]*?border: 1px solid var\(--primary-strong\);[\s\S]*?color: var\(--white\);/);
+    assert.match(css, /\.login-button:hover \{[\s\S]*?background: var\(--primary-strong-hover\);/);
+    assert.match(css, /\.filter-button:hover \{[\s\S]*?background: var\(--primary-strong-hover\);/);
+    // Radii: tokens exist and no hardcoded single-value px radii remain (except pills 99/999)
+    assert.match(css, /--radius-xs: 8px;/);
+    const radiusRe = /border-radius:\s*(?!999px|99px|var\()(\d+)px\s*[;}]/g;
+    for (const [name, source] of [['styles.css', css], ['acceso.css', acceso], ['solicitud.css', solicitud]]) {
+        assert.ok(!radiusRe.test(source), `${name} still has hardcoded radii`);
+        radiusRe.lastIndex = 0;
+    }
+    // H1: one scale (hero, catalog, explore scoped override, login)
+    assert.match(css, /\.hero h1 \{[\s\S]*?font-size: clamp\(2rem, 4vw, 3\.3rem\);/);
+    assert.match(css, /\.catalog-header h1 \{[\s\S]*?font-size: clamp\(2rem, 4vw, 3\.3rem\);/);
+    assert.match(explore, /\.catalog-header h1 \{ max-width:970px; color:var\(--hero-title-dark\); font-size:clamp\(2rem,4vw,3\.3rem\);/);
+    assert.match(acceso, /font:800 clamp\(2rem,4vw,3\.3rem\)\/1\.12 "Poppins",sans-serif;/);
+    // Palette: no stray blue/purple/amber/green/red hex, no name-based photo rules
+    assert.doesNotMatch(css, /#28628a|#6652a6|#825e09|#754600|#9c2525|#3dba7c|#14545c/i);
+    assert.doesNotMatch(css, /data-name=/);
+    assert.doesNotMatch(followUp, /is-blue|is-purple/);
+    assert.match(css, /--tint: #EAF5F4;/);
+    assert.match(css, /--success-bg: #E6F5EC;/);
+    assert.match(css, /--warning-bg: #FFF4D9;/);
+    assert.match(css, /--danger-bg: #FFE5E3;/);
+    assert.match(css, /--warning-border: #F0C9A8;/);
 });

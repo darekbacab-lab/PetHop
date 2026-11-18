@@ -675,7 +675,7 @@ watch(() => state.step, () => persist());
 </template>
 
 <style scoped>
-.shelter-pet-details-modal { width:min(820px,100%); padding:34px; border:1px solid var(--border); border-radius:24px; }
+.shelter-pet-details-modal { width:min(820px,100%); padding:34px; border:1px solid var(--border); border-radius: var(--radius-lg); }
 .shelter-pet-edit-backdrop { display:flex; align-items:flex-start; justify-content:center; overflow-y:auto; padding:20px; }
 .shelter-pet-edit-backdrop .shelter-pet-details-modal { flex:0 0 auto; max-height:calc(100dvh - 40px); margin:0 auto; }
 .shelter-pet-modal-title { display:flex; align-items:center; justify-content:space-between; gap:14px; margin:9px 42px 2px 0; }
@@ -683,10 +683,10 @@ watch(() => state.step, () => persist());
 .shelter-pet-modal-title .shelter-status { flex:0 0 auto; }
 .shelter-pet-details-modal .shelter-request-lead { margin-top:5px; }
 .shelter-pet-details-modal .shelter-applicant-grid { margin:20px 0; }
-.shelter-unread-badge { flex:0 0 auto; min-width:20px; height:20px; padding:0 6px; display:inline-grid; place-items:center; border-radius:999px; background:var(--primary-strong); color:#fff; font-size:.75rem; font-weight:800; }
-.shelter-pet-details-modal .shelter-applicant-grid article { padding:15px; border-color:var(--border); background:#f7fcfc; }
+.shelter-unread-badge { flex:0 0 auto; min-width:20px; height:20px; padding:0 6px; display:inline-grid; place-items:center; border-radius:999px; background:var(--primary-strong); color:var(--white); font-size:.75rem; font-weight:800; }
+.shelter-pet-details-modal .shelter-applicant-grid article { padding:15px; border-color:var(--border); background:var(--background); }
 .shelter-pet-details-modal .shelter-field { gap:7px; }
-.shelter-pet-details-modal .shelter-field :deep(input),.shelter-pet-details-modal .shelter-field :deep(select),.shelter-pet-details-modal .shelter-field :deep(textarea) { min-height:44px; border-color:#c5e1e4; background:#fbfefe; color:var(--text); font:500 .88rem "Montserrat",Arial,sans-serif; }
+.shelter-pet-details-modal .shelter-field :deep(input),.shelter-pet-details-modal .shelter-field :deep(select),.shelter-pet-details-modal .shelter-field :deep(textarea) { min-height:44px; border-color:var(--tint); background:var(--background); color:var(--text); font:500 .88rem "Montserrat",Arial,sans-serif; }
 .shelter-pet-edit-form { margin-top:19px; }
 .shelter-pet-edit-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
 .shelter-pet-edit-wide { grid-column:1/-1; }
@@ -699,42 +699,42 @@ watch(() => state.step, () => persist());
 .shelter-edit-photos-heading span { color:var(--text-soft);font-size:.78rem;font-weight:600; }
 .shelter-edit-photos > .shelter-modal-note { margin:0; }
 .shelter-edit-photo-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:10px; }
-.shelter-edit-photo { position:relative;overflow:hidden;aspect-ratio:1;border:1px solid var(--border);border-radius:12px;background:#eaf5f4; }
+.shelter-edit-photo { position:relative;overflow:hidden;aspect-ratio:1;border:1px solid var(--border);border-radius: var(--radius-sm);background:var(--tint); }
 .shelter-edit-photo img { width:100%;height:100%;object-fit:cover; }
-.shelter-edit-photo button { position:absolute;right:5px;bottom:5px;display:flex;align-items:center;gap:4px;padding:5px 8px;border:0;border-radius:20px;background:rgba(24,55,61,.9);color:white;font-size:.75rem;font-weight:700;cursor:pointer; }
+.shelter-edit-photo button { position:absolute;right:5px;bottom:5px;display:flex;align-items:center;gap:4px;padding:5px 8px;border:0;border-radius: var(--radius-md);background:rgba(24,55,61,.9);color:white;font-size:.75rem;font-weight:700;cursor:pointer; }
 .shelter-edit-photo button :deep(svg) { width:13px;height:13px; }
 .shelter-edit-photo-input { margin-top:3px; }
-.shelter-edit-photo-input :deep(input[type="file"]) { width:100%;min-height:48px;padding:6px;border:1px solid var(--border-strong);border-radius:11px;background:#f7fbfb;color:var(--text-soft);font:500 .8rem "Montserrat",Arial,sans-serif; }
-.shelter-edit-photo-input :deep(input[type="file"]::file-selector-button) { margin-right:12px;padding:9px 14px;border:0;border-radius:8px;background:var(--primary-strong);color:#fff;font:700 .78rem "Montserrat",Arial,sans-serif;cursor:pointer;transition:background .18s ease,transform .18s ease; }
+.shelter-edit-photo-input :deep(input[type="file"]) { width:100%;min-height:48px;padding:6px;border:1px solid var(--border-strong);border-radius: var(--radius-sm);background:var(--background);color:var(--text-soft);font:500 .8rem "Montserrat",Arial,sans-serif; }
+.shelter-edit-photo-input :deep(input[type="file"]::file-selector-button) { margin-right:12px;padding:9px 14px;border:0;border-radius: var(--radius-xs);background:var(--primary-strong);color:var(--white);font:700 .78rem "Montserrat",Arial,sans-serif;cursor:pointer;transition:background .18s ease,transform .18s ease; }
 .shelter-edit-photo-input :deep(input[type="file"]::file-selector-button:hover) { background:var(--primary);transform:translateY(-1px); }
 .shelter-edit-photo-input :deep(input[type="file"]:focus-visible) { outline:3px solid color-mix(in srgb,var(--primary) 28%,transparent);outline-offset:2px; }
 .shelter-edit-photo-input :deep(input[type="file"]:disabled) { opacity:.55;cursor:not-allowed; }
 .shelter-pet-edit-actions { justify-content:flex-end; margin-top:18px; }
 .shelter-pet-details-actions { align-items:center; margin-top:18px; }
 .shelter-pet-details-actions .button:nth-child(2) { margin-right:auto; }
-.shelter-pet-details-actions .button-danger-outline { border-color:#d88b8b;color:#a53c3c;background:#fff; }
-.shelter-pet-details-actions .button-danger-outline:hover { border-color:#a53c3c;background:#fff4f4; }
+.shelter-pet-details-actions .button-danger-outline { border-color:var(--danger-bg);color:var(--danger);background:var(--white); }
+.shelter-pet-details-actions .button-danger-outline:hover { border-color:var(--danger);background:var(--danger-bg); }
 .shelter-pet-review-note { display:flex; align-items:flex-start; gap:7px; margin-top:12px; }
 .shelter-pet-review-note :deep(svg) { flex:0 0 17px; width:17px; height:17px; color:var(--primary-strong); }
 .shelter-profile-layout { grid-template-columns:minmax(0,1fr) 270px; }
 .shelter-profile-card { padding:0!important; overflow:hidden; }
-.shelter-org-identity { display:flex; align-items:center; gap:14px; padding:22px; border-bottom:1px solid var(--border); background:linear-gradient(110deg,#edf9f8, var(--white) 72%); }
-.shelter-org-avatar { display:grid; width:58px; height:58px; flex:0 0 58px; place-items:center; border-radius:16px; background:var(--primary-strong); color:#fff; }
+.shelter-org-identity { display:flex; align-items:center; gap:14px; padding:22px; border-bottom:1px solid var(--border); background:linear-gradient(110deg,var(--background), var(--white) 72%); }
+.shelter-org-avatar { display:grid; width:58px; height:58px; flex:0 0 58px; place-items:center; border-radius: var(--radius-md); background:var(--primary-strong); color:var(--white); }
 .shelter-org-avatar :deep(svg) { width:27px; height:27px; }
 .shelter-org-identity > div { min-width:0; flex:1; }
 .shelter-org-identity .eyebrow { margin:0 0 3px; color:var(--primary-strong); font-size:.75rem; }
 .shelter-org-identity h2 { overflow-wrap:anywhere; margin:0; color:var(--text); font:750 1.22rem "Poppins",sans-serif; }
 .shelter-org-identity p { margin:4px 0 0; color:var(--text-soft); font-size:.76rem; }
 .shelter-profile-logout { flex:0 0 auto; }
-.shelter-org-verification { display:inline-flex; flex:0 0 auto; align-items:center; gap:6px; padding:7px 10px; border:1px solid #e7d5a4; border-radius:999px; background:#fff8e5; color:#705719; font-size:.75rem; font-weight:800; }
-.shelter-org-verification.is-verified { border-color:#b9ddc8; background:#eaf7ef; color:#287451; }
+.shelter-org-verification { display:inline-flex; flex:0 0 auto; align-items:center; gap:6px; padding:7px 10px; border:1px solid var(--warning-border); border-radius:999px; background:var(--warning-bg); color:var(--warning); font-size:.75rem; font-weight:800; }
+.shelter-org-verification.is-verified { border-color:var(--success-bg); background:var(--success-bg); color:var(--success); }
 .shelter-org-verification :deep(svg) { width:15px; height:15px; }
 .shelter-profile-group { padding:19px 22px; border-bottom:1px solid var(--border); }
 .shelter-profile-group:last-child { border-bottom:0; }
 .shelter-profile-group-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:13px; }
 .shelter-profile-group-heading h3 { margin:0; color:var(--text); font:700 .96rem "Poppins",sans-serif; }
 .shelter-profile-group-heading p { margin:3px 0 0; color:var(--text-soft); font-size:.75rem; }
-.shelter-profile-edit { display:grid; width:35px; height:35px; flex:0 0 35px; place-items:center; border:1px solid var(--border); border-radius:10px; background:var(--white); color:var(--primary-strong); cursor:pointer; }
+.shelter-profile-edit { display:grid; width:35px; height:35px; flex:0 0 35px; place-items:center; border:1px solid var(--border); border-radius: var(--radius-sm); background:var(--white); color:var(--primary-strong); cursor:pointer; }
 .shelter-profile-edit:hover { background:var(--background); }
 .shelter-profile-edit :deep(svg) { width:16px; height:16px; }
 .shelter-profile-data { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px 20px; margin:0; }
@@ -763,7 +763,7 @@ watch(() => state.step, () => persist());
   .shelter-review-banner { align-items:flex-start; flex-wrap:wrap; gap:11px; padding:14px; }
   .shelter-review-banner > div { flex-basis:calc(100% - 56px); }
   .shelter-review-banner-status { margin-left:53px; }
-  .shelter-pet-details-modal { max-height:calc(100dvh - 24px); padding:26px 18px 20px; border-radius:18px; }
+  .shelter-pet-details-modal { max-height:calc(100dvh - 24px); padding:26px 18px 20px; border-radius: var(--radius-md); }
   .shelter-pet-modal-title { align-items:flex-start; flex-direction:column; gap:7px; margin-right:38px; }
   .shelter-pet-edit-grid { grid-template-columns:1fr; gap:11px; }
   .shelter-pet-edit-wide { grid-column:auto; }
@@ -784,17 +784,17 @@ watch(() => state.step, () => persist());
   .shelter-profile-setup { padding:18px; }
   .shelter-profile-setup > .shelter-form-grid { grid-template-columns:1fr; }
 }
-.shelter-health-records { grid-column:1/-1; display:grid; gap:12px; padding:18px; border:1px solid var(--border); border-radius:14px; background:#f7fcfc; }
+.shelter-health-records { grid-column:1/-1; display:grid; gap:12px; padding:18px; border:1px solid var(--border); border-radius: var(--radius-sm); background:var(--background); }
 .shelter-health-records h3 { margin:0; color:var(--text); font:750 1rem "Poppins",sans-serif; }
 .shelter-health-records h3 small { color:var(--primary-strong); font:800 .62rem "Montserrat",sans-serif; letter-spacing:.08em; }
 .shelter-health-records > p { margin:0; color:var(--text-soft); font-size:.78rem; line-height:1.55; }
 .shelter-health-record-list { display:grid; gap:8px; margin:0; padding:0; list-style:none; }
-.shelter-health-record-list li { display:grid; gap:3px; padding:11px 12px; border:1px solid var(--border); border-radius:11px; background:var(--white); }
+.shelter-health-record-list li { display:grid; gap:3px; padding:11px 12px; border:1px solid var(--border); border-radius: var(--radius-sm); background:var(--white); }
 .shelter-health-record-list li > div { display:flex; align-items:center; justify-content:space-between; gap:10px; }
 .shelter-health-record-list strong { color:var(--text); font-size:.86rem; }
 .shelter-health-record-list span { color:var(--primary-strong); font-size:.75rem; font-weight:800; }
 .shelter-health-record-list small { color:var(--text-soft); font-size:.75rem; }
-.shelter-health-record-remove { display:inline-flex; align-items:center; gap:4px; justify-self:start; margin-top:4px; padding:5px 9px; border:1px solid var(--border); border-radius:8px; background:var(--white); color:var(--text-soft); cursor:pointer; font:700 .68rem "Montserrat",sans-serif; }
+.shelter-health-record-remove { display:inline-flex; align-items:center; gap:4px; justify-self:start; margin-top:4px; padding:5px 9px; border:1px solid var(--border); border-radius: var(--radius-xs); background:var(--white); color:var(--text-soft); cursor:pointer; font:700 .68rem "Montserrat",sans-serif; }
 .shelter-health-record-remove:hover { border-color:var(--danger); color:var(--danger); }
 .shelter-health-record-remove :deep(svg) { width:13px; height:13px; }
 .shelter-health-record-form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
