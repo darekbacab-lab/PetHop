@@ -124,7 +124,7 @@ onMounted(refresh);
 .catalog-filter-controls .catalog-filter-group select { min-width:0; min-height:40px; width:100%; padding:7px 26px 7px 10px; border-color:var(--primary); background-color:var(--white); font-size:.8rem; }
 .catalog-filter-controls .filter-actions { display:contents; }
 .catalog-filter-controls .filter-actions > button { width:100%; min-width:0; min-height:40px; padding:8px 10px; white-space:nowrap; }
-.results-header > div:first-child h2 { color:var(--hero-title-dark); font-size:1.7rem; font-weight:800; }
+.results-header > div:first-child h2 { color:var(--text); font-size:1.7rem; font-weight:800; }
 .results-count { display:flex; align-items:baseline; gap:7px; }
 .catalog-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
 @media (max-width:1000px) {

@@ -229,7 +229,7 @@ onUnmounted(() => { window.removeEventListener('resize', syncLayout); document.r
 .adopter-inbox-heading { display:flex; align-items:center; justify-content:space-between; padding:20px 19px 15px; }
 .adopter-inbox-heading h2 { color:var(--text); font:700 1.08rem/1.3 "Poppins",sans-serif; }
 .adopter-inbox-heading p { margin-top:2px; color:var(--text-soft); font-size:.75rem; }
-.adopter-inbox-icon { display:grid; width:37px; height:37px; place-items:center; border-radius: var(--radius-sm); background:var(--primary-soft); color:var(--primary-strong); }
+.adopter-inbox-icon { display:grid; width:37px; height:37px; place-items:center; border-radius: var(--radius-sm); border:1px solid var(--primary); background:var(--primary-soft); color:var(--primary-strong); }
 .adopter-search { display:flex; height:40px; align-items:center; gap:9px; margin:0 14px 12px; padding:0 11px; border:1px solid var(--border); border-radius: var(--radius-sm); background:var(--background); color:var(--text-soft); }
 .adopter-search input { width:100%; min-width:0; border:0;  background:transparent; color:var(--text); font:500 .78rem "Montserrat",sans-serif; }
 .adopter-search input::placeholder { color:#7e8b8c; }
@@ -237,7 +237,7 @@ onUnmounted(() => { window.removeEventListener('resize', syncLayout); document.r
 .adopter-action-error { margin:0; padding:8px 15px; color:var(--danger); font-size:.75rem; }
 .adopter-conversation-item { position:relative; display:flex; width:100%; align-items:center; gap:5px; padding:5px 8px 5px 15px; border-bottom:1px solid var(--tint); background:var(--white); color:var(--text); transition:background .18s ease; }
 .adopter-conversation-item:hover { background:var(--background); }
-.adopter-conversation-item.is-selected { background:var(--primary-soft); }
+.adopter-conversation-item.is-selected { background:var(--white); box-shadow:inset 3px 0 0 var(--primary); }
 .adopter-conversation-item.is-pinned .adopter-conversation-top strong::before { content:'Fijada · '; color:var(--primary-strong); font-size:.75em; }
 .adopter-conversation-select { display:flex; min-width:0; flex:1; align-items:center; gap:11px; padding:8px 0; border:0; background:transparent; color:inherit; cursor:pointer; text-align:left; }
 .adopter-conversation-select:focus-visible,.adopter-conversation-menu-trigger:focus-visible,.adopter-conversation-menu button:focus-visible { outline:2px solid var(--primary-strong); outline-offset:2px; }
@@ -249,7 +249,7 @@ onUnmounted(() => { window.removeEventListener('resize', syncLayout); document.r
 .adopter-conversation-menu button { padding:10px 11px; border:0; border-radius: var(--radius-xs); background:transparent; color:var(--text); cursor:pointer; font:600 .76rem "Montserrat",sans-serif; text-align:left; }
 .adopter-conversation-menu button:hover { background:var(--background); }
 .adopter-conversation-menu button.is-danger { color:var(--danger); }
-.adopter-pet-avatar { display:grid; width:48px; height:48px; flex:0 0 48px; overflow:hidden; place-items:center; border:1px solid var(--tint); border-radius:50%; background:var(--primary-soft); color:var(--primary-strong); }
+.adopter-pet-avatar { display:grid; width:48px; height:48px; flex:0 0 48px; overflow:hidden; place-items:center; border:1px solid var(--primary); border-radius:50%; background:var(--primary-soft); color:var(--primary-strong); }
 .adopter-pet-avatar img { width:100%; height:100%; object-fit:cover; }
 .adopter-conversation-copy { display:flex; min-width:0; flex:1; flex-direction:column; gap:5px; }
 .adopter-conversation-top,.adopter-conversation-bottom { display:flex; min-width:0; align-items:center; justify-content:space-between; gap:9px; }
@@ -289,7 +289,7 @@ onUnmounted(() => { window.removeEventListener('resize', syncLayout); document.r
 .messages-empty-state { display:grid; min-height:400px; align-content:center; justify-items:center; padding:35px; border:1px solid var(--border); border-radius: var(--radius-md); background:var(--white); box-shadow:var(--shadow-sm); text-align:center; }
 .adopter-no-conversation { display:grid; align-content:center; justify-items:center; gap:10px; color:var(--text-soft); text-align:center; }
 .adopter-no-conversation :deep(svg) { color:var(--primary-strong); }
-.messages-empty-icon { display:grid; width:68px; height:68px; place-items:center; border-radius: var(--radius-md); background:var(--primary-soft); color:var(--primary-strong); }
+.messages-empty-icon { display:grid; width:68px; height:68px; place-items:center; border-radius: var(--radius-md); border:1px solid var(--primary); background:var(--primary-soft); color:var(--primary-strong); }
 .messages-empty-state h2 { margin-top:18px; color:var(--text); font:700 1.25rem "Poppins",sans-serif; }
 .messages-empty-state p { max-width:450px; margin:7px 0 19px; color:var(--text-soft); font-size:.85rem; }
 .messages-login-link { display:inline-flex; min-height:42px; align-items:center; padding:0 16px; border-radius: var(--radius-sm); background:var(--primary-strong); color:var(--white); font-size:.78rem; font-weight:800; text-decoration:none; }

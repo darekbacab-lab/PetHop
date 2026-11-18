@@ -291,7 +291,7 @@ async function favorite(id) {
           <div class="home-pets-viewport" aria-live="polite" aria-atomic="true">
             <Transition :name="petTransitionName" @after-enter="finishPetPageMove">
               <section v-if="petPages[currentPetPage]" :key="currentPetPage" class="home-pets-page" :style="{ '--home-pet-count': visiblePetCount }" role="group" :aria-label="`Grupo ${currentPetPage + 1} de ${petPages.length}`">
-                <article v-for="pet in petPages[currentPetPage]" :key="pet.id" class="pet-card"><ImageWithSkeleton frame-class="pet-image" :src="petImage(pet)" :alt="`Imagen de ${pet.name}`"><RouterLink class="pet-image-link" :to="{ path: '/mascota.html', query: { pet: pet.id } }" :aria-label="`Ver información de ${pet.name}`"><span class="sr-only">Ver información de {{ pet.name }}</span></RouterLink><button v-if="canFavorite" class="favorite" :class="{ active: favorites.includes(String(pet.id).toLowerCase()) }" type="button" :aria-pressed="favorites.includes(String(pet.id).toLowerCase())" :aria-label="favorites.includes(String(pet.id).toLowerCase()) ? `Quitar ${pet.name} de favoritos` : `Agregar ${pet.name} a favoritos`" @click="favorite(pet.id)"><Icon name="heart" :filled="favorites.includes(String(pet.id).toLowerCase())" /></button></ImageWithSkeleton><RouterLink class="pet-info" :to="{ path: '/mascota.html', query: { pet: pet.id } }"><div class="pet-title"><div><span class="pet-species">{{ pet.species.toLocaleUpperCase('es-MX') }}</span><h3>{{ pet.name }}</h3></div><span class="available">Disponible</span></div><div class="pet-details"><span>{{ pet.age }}</span><span>{{ pet.gender }}</span><span>{{ pet.size }}</span></div><div class="pet-location">{{ pet.location }}</div></RouterLink></article>
+                <article v-for="pet in petPages[currentPetPage]" :key="pet.id" class="pet-card"><ImageWithSkeleton frame-class="pet-image" :src="petImage(pet)" :alt="`Imagen de ${pet.name}`"><RouterLink class="pet-image-link" :to="{ path: '/mascota.html', query: { pet: pet.id } }" :aria-label="`Ver información de ${pet.name}`"><span class="sr-only">Ver información de {{ pet.name }}</span></RouterLink><button v-if="canFavorite" class="favorite" :class="{ active: favorites.includes(String(pet.id).toLowerCase()) }" type="button" :aria-pressed="favorites.includes(String(pet.id).toLowerCase())" :aria-label="favorites.includes(String(pet.id).toLowerCase()) ? `Quitar ${pet.name} de favoritos` : `Agregar ${pet.name} a favoritos`" @click="favorite(pet.id)"><Icon name="heart" :filled="favorites.includes(String(pet.id).toLowerCase())" /></button></ImageWithSkeleton><RouterLink class="pet-info" :to="{ path: '/mascota.html', query: { pet: pet.id } }"><div class="pet-title"><div><span class="pet-species">{{ pet.species }}</span><h3>{{ pet.name }}</h3></div><span class="available">Disponible</span></div><div class="pet-details"><span>{{ pet.age }}</span><span>{{ pet.gender }}</span><span>{{ pet.size }}</span></div><div class="pet-location">{{ pet.location }}</div></RouterLink></article>
               </section>
             </Transition>
           </div>
@@ -420,13 +420,13 @@ async function favorite(id) {
   transform: translateY(-50%);
 }
 
-.home-pets-arrow:hover { background: var(--primary-soft); }
+.home-pets-arrow:hover { border-color: var(--primary); background: var(--white); }
 .home-pets-arrow:focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
 .home-pets-arrow :deep(svg) { width: 19px; height: 19px; }
 .home-pets-arrow-previous { left: -42px; }
 .home-pets-arrow-next { right: -42px; }
 .home-pets-pause { display:block; margin:12px auto 0; min-height:34px; padding:0 16px; border:1px solid var(--border); border-radius:999px; background:var(--white); color:var(--primary-dark); font-weight:800; font-size:.75rem; cursor:pointer; }
-.home-pets-pause:hover { background:var(--primary-soft); }
+.home-pets-pause:hover { border-color:var(--primary); background:var(--white); }
 .home-pets-pause:focus-visible { outline:3px solid var(--primary); outline-offset:3px; }
 .home-pets-loading { display:grid; grid-template-columns:repeat(var(--home-pet-count, 3), minmax(0,1fr)); gap:18px; }
 .home-pets-counter { margin:8px 0 0; text-align:center; color:var(--text-soft); font-size:.75rem; font-weight:700; }
@@ -540,7 +540,7 @@ async function favorite(id) {
 .process-step-4 .process-step-number,
 .process-step-5 .process-step-number { color:var(--tint); }
 .process-step-copy { position:relative; z-index:2; grid-area:copy; align-self:start; min-width:0; }
-.process-steps .process-step h3 { margin:0 0 8px; color:var(--hero-title-dark); font-size:clamp(1.65rem,2.2vw,2.1rem); line-height:1.02; letter-spacing:-.045em; }
+.process-steps .process-step h3 { margin:0 0 8px; color:var(--text); font-size:clamp(1.65rem,2.2vw,2.1rem); line-height:1.02; letter-spacing:-.045em; }
 .process-step-2 h3,.process-step-4 h3,.process-step-5 h3 { color:var(--white)!important; }
 .process-steps .process-step p { max-width:390px; margin:0; color:#315f64; font-size:.94rem; line-height:1.55; }
 .process-step-2 p,.process-step-4 p,.process-step-5 p { color:var(--tint)!important; }

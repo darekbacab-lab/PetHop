@@ -44,7 +44,7 @@ const canFavorite = computed(() => !currentUser.value || currentUser.value.role 
             <Icon v-if="speciesKey === 'gato'" name="cat" class="pet-species-icon" />
             <Icon v-else-if="speciesKey === 'perro'" name="dog" class="pet-species-icon" />
             <Icon v-else name="paw-print" class="pet-species-icon" />
-            {{ pet.species ? String(pet.species).toLocaleUpperCase('es-MX') : 'Mascota' }}
+            {{ pet.species || 'Mascota' }}
           </span>
           <h3>{{ pet.name }}</h3>
         </div>

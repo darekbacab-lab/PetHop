@@ -310,12 +310,12 @@ test('flat home sections keep only the floating shadow and most buttons share it
 test('reference login aesthetic is the site-wide design language', () => {
     const css = fs.readFileSync(path.join(projectRoot, 'css/styles.css'), 'utf8');
     // Los colores y fondos se quedan como estaban: blanco, nada azulado.
-    assert.match(css, /--background: #F3FEFF;/);
+    assert.match(css, /--background: #FFFFFF;/);
     assert.match(css, /--text: #313434;/);
     assert.match(css, /--text-soft: #4A5556;/);
-    assert.match(css, /--primary-soft: #F3FEFF;/);
+    assert.match(css, /--primary-soft: #FFFFFF;/);
     assert.match(css, /--primary-dark: #2C5357;/);
-    assert.match(css, /--hero-title-dark: #12515A;/);
+    assert.match(css, /--hero-title-dark: #2C5357;/);
     assert.doesNotMatch(css, /--background: #EDF4F6;/);
     // Bordes casi invisibles. La sombra es la de Figma (Drop shadow 0 8 11 negro
     // 25%): la misma para botones, tarjetas y superficies, más fuerte al hover.
@@ -695,7 +695,7 @@ test('audit batch M1: contrast, wrapping, 320px, accessible names, nav, live rol
     const profile = fs.readFileSync(path.join(projectRoot, 'src/views/AdopterProfileView.vue'), 'utf8');
     const home = fs.readFileSync(path.join(projectRoot, 'src/views/HomeView.vue'), 'utf8');
     const messages = fs.readFileSync(path.join(projectRoot, 'src/views/AdopterMessagesView.vue'), 'utf8');
-    assert.match(styles, /--hero-title-light: #167F87;/);
+    assert.match(styles, /--hero-title-light: #3EB2BA;/);
     assert.match(styles, /\.progress-stage\.is-future,\.progress-stage\.is-future strong \{ color:var\(--text-soft\); \}/);
     assert.match(styles, /\.progress-stage\.is-future small \{ color:var\(--text-soft\); \}/);
     assert.match(styles, /\.application-item-copy strong \{ font-size:\.8rem; \}/);
@@ -1050,7 +1050,11 @@ test('audit P1: one button system, token radii, one h1 scale, collapsed palette,
     const followUp = fs.readFileSync(path.join(projectRoot, 'src/views/FollowUpView.vue'), 'utf8');
 
     // Buttons: early definitions use the strong tone; the dead .btn-primary is gone
-    assert.doesNotMatch(css, /border: 1px solid var\(--primary\);/);
+    // (el --primary solo queda como stroke decorativo de tarjetas y detalles, no en botones)
+    for (const selector of ['.primary-button', '.login-button', '.search-button', '.filter-button', '.catalog-apply', '.pet-apply-button', '.application-submit', '.organization-button']) {
+        const block = css.match(new RegExp(selector.replace('.', '\\.') + ' \\{[\\s\\S]*?\\}'));
+        if (block) assert.doesNotMatch(block[0], /border: 1px solid var\(--primary\);/, `${selector} usa --primary en el borde`);
+    }
     assert.doesNotMatch(css, /\.btn-primary/);
     assert.match(css, /\.primary-button \{[\s\S]*?border: 1px solid var\(--primary-strong\);[\s\S]*?color: var\(--white\);/);
     assert.match(css, /\.login-button:hover \{[\s\S]*?background: var\(--primary-strong-hover\);/);
@@ -1139,10 +1143,16 @@ test('audit P2: login language everywhere, dark rhythm, min text 0.75rem, style 
     assert.ok(contrast('#167F87', '#FFFFFF') >= 4.5, `band CTA ${contrast('#167F87', '#FFFFFF').toFixed(2)}:1`);
 
     // 19. Sin texto menor de 0.75rem en CSS ni en vistas (rem, em y shorthand)
+    // Excepción: los textos secundarios de la tarjeta de mascota usan 0.64-0.7rem
+    // como en la referencia aprobada (corrección de Ruisu, 17 nov 2026).
+    const stylesMinText = styles
+        .replace(/\.pet-species \{[^}]*\}/, '')
+        .replace(/\.pet-details span \{[^}]*\}/, '')
+        .replace(/\.pet-location \{[^}]*\}/, '');
     const smallSize = /font-size:\s*0?\.(?:[0-6][0-9]?|7[0-4]?)rem/;
     const smallEm = /font-size:\s*0?\.(?:[0-6][0-9]?|7[0-4]?)em/;
     const smallShorthand = /font:\s*[^\s;}]*\s+0?\.(?:[0-6][0-9]?|7[0-4]?)rem/;
-    for (const [name, source] of [['styles.css', styles], ['acceso.css', acceso], ['solicitud.css', solicitud], ['AssistantChat', chat], ['SiteHeader', header], ['AdminView', admin], ['AdopterMessagesView', messages], ['AdopterProfileView', profile], ['AffiliatesView', affiliates], ['ExploreView', explore], ['FollowUpView', followUp], ['HealthRecordsView', health], ['HomeView', home], ['PetView', pet], ['ShelterView', shelter]]) {
+    for (const [name, source] of [['styles.css', stylesMinText], ['acceso.css', acceso], ['solicitud.css', solicitud], ['AssistantChat', chat], ['SiteHeader', header], ['AdminView', admin], ['AdopterMessagesView', messages], ['AdopterProfileView', profile], ['AffiliatesView', affiliates], ['ExploreView', explore], ['FollowUpView', followUp], ['HealthRecordsView', health], ['HomeView', home], ['PetView', pet], ['ShelterView', shelter]]) {
         assert.doesNotMatch(source, smallSize, `${name} tiene font-size < 0.75rem`);
         assert.doesNotMatch(source, smallEm, `${name} tiene font-size < 0.75em`);
         assert.doesNotMatch(source, smallShorthand, `${name} tiene font shorthand < 0.75rem`);
@@ -1156,4 +1166,33 @@ test('audit P2: login language everywhere, dark rhythm, min text 0.75rem, style 
     assert.match(guide, /Inicio de sesión/);
     assert.match(guide, /Tarjeta de mascota/);
     assert.match(guide, /Botón primario/);
+});
+
+test('audit fix: titles use the logo system, white surfaces, secondary stroke', () => {
+    const styles = fs.readFileSync(path.join(projectRoot, 'css/styles.css'), 'utf8');
+    const petCard = fs.readFileSync(path.join(projectRoot, 'src/components/PetCard.vue'), 'utf8');
+    const home = fs.readFileSync(path.join(projectRoot, 'src/views/HomeView.vue'), 'utf8');
+    // Sistema de color del logo: main #167F87, oscuro #2C5357, secundario #3EB2BA.
+    assert.match(styles, /--hero-title-dark: #2C5357;/);
+    assert.match(styles, /--hero-title-light: #3EB2BA;/);
+    assert.match(styles, /--background: #FFFFFF;/);
+    assert.match(styles, /--primary-soft: #FFFFFF;/);
+    assert.doesNotMatch(styles, /--background: #F3FEFF;/);
+    assert.doesNotMatch(styles, /--primary-soft: #F3FEFF;/);
+    // Títulos de dos colores usan el sistema; los de un color quedan en negro casi.
+    assert.match(styles, /\.hero h1 \{[^}]*color: var\(--hero-title-dark\);/);
+    assert.match(styles, /\.hero h1 span \{[^}]*color: var\(--hero-title-light\);/);
+    assert.match(styles, /\.section-title h2 \{[^}]*color: var\(--text\);/);
+    assert.match(styles, /\.pet-title h3 \{[^}]*color: var\(--text\);/);
+    assert.match(styles, /\.pet-profile-heading h1 \{[^}]*color: var\(--text\);/);
+    assert.match(styles, /\.application-header h1 \{[^}]*color: var\(--text\);/);
+    // Tarjeta: borde fino secundario, chips blancos con stroke, textos como la referencia.
+    assert.match(styles, /\.pet-card \{[^}]*border: 1px solid var\(--primary\);/);
+    assert.match(styles, /\.pet-details span,[\s\S]*?border: 1px solid var\(--primary\);[\s\S]*?background: var\(--white\);/);
+    assert.match(styles, /\.pet-species \{[^}]*font-size: 0\.64rem;/);
+    assert.match(styles, /\.pet-details span \{[^}]*font-size: 0\.65rem;/);
+    assert.match(styles, /\.pet-location \{[^}]*font-size: 0\.7rem;/);
+    // Especie en caja normal, como en la referencia.
+    assert.doesNotMatch(petCard, /toLocaleUpperCase/);
+    assert.doesNotMatch(home, /toLocaleUpperCase/);
 });

@@ -13,18 +13,19 @@ No se escriben valores sueltos: todo color, radio y sombra es un token.
 
 | Token | Valor | Uso |
 | --- | --- | --- |
-| `--primary` | `#3EB2BA` | Turquesa base. Nunca como fondo de texto blanco (2,54:1). |
-| `--primary-strong` | `#167F87` | Botones primarios, enlaces, acentos. Blanco sobre él: 4,75:1. |
+| `--primary` | `#3EB2BA` | Secundario del logo: acento de titulares de dos colores y stroke fino (1 px) de tarjetas y detalles. Nunca como fondo de texto blanco (2,54:1). |
+| `--primary-strong` | `#167F87` | Color main: botones primarios, enlaces, acentos. Blanco sobre él: 4,75:1. |
 | `--primary-hover` | `#61BAC1` | Solo hover de elementos no textuales. |
-| `--primary-light` | `#72C7CC` | Detalles y palabra en turquesa claro del titular. |
-| `--hero-title-dark` | `#12515A` | Color de los titulares. |
+| `--primary-light` | `#72C7CC` | Detalles claros, nunca como texto. |
+| `--hero-title-dark` | `#2C5357` | Parte oscura de los titulares de dos colores. |
+| `--hero-title-light` | `#3EB2BA` | Acento de los titulares de dos colores (secundario del logo). |
 | `--primary-dark` | `#2C5357` | Bandas oscuras (`DarkBand.vue`) y pie de página. |
 | `--secondary` | `#90D6CD` | Turquesa pálido de superficies. |
-| `--background` / `--primary-soft` | `#F3FEFF` | Fondo de página y superficies pálidas. |
+| `--background` / `--primary-soft` | `#FFFFFF` | Fondo de página y superficies: blanco, sin tinte. |
 | `--white` / `--surface` | `#FFFFFF` | Tarjetas y paneles. |
 | `--text` | `#313434` | Texto principal (12,22:1 sobre el fondo). |
 | `--text-soft` | `#4A5556` | Texto secundario. |
-| `--border` | `#DDE8EB` | Bordes de tarjetas y paneles. |
+| `--border` | `#DDE8EB` | Bordes de paneles y divisores. Las tarjetas de mascota usan `--primary`. |
 | `--border-strong` | `#6E969B` | Bordes de controles de formulario (3,23:1). |
 | `--tint` | `#EAF5F4` | Tinte turquesa pálido genérico. |
 | `--success` / `--success-bg` | `#287451` / `#E6F5EC` | Estados positivos. |
@@ -51,10 +52,15 @@ La sombra va en cada botón y tarjeta, nunca en todo el bloque o sección.
 ### Tipografía
 
 - Titulares: Poppins 800, `clamp(2rem, 4vw, 3.3rem)`, `letter-spacing:
-  -0.045em`, color `var(--hero-title-dark)`. Una sola escala para todos
-  los `h1` de página, incluido el hero y el login. Las media queries
+  -0.045em`. Una sola escala para todos los `h1` de página, incluido el
+  hero y el login. Sistema de color: los titulares de dos colores llevan
+  la parte oscura en `var(--hero-title-dark)` (`#2C5357`) y la palabra de
+  acento en `var(--hero-title-light)` (`#3EB2BA`); los de un solo color
+  quedan en `var(--text)` (`#313434`, negro casi). Las media queries
   ajustan el tamaño en móvil, no la escala.
-- Cuerpo: Montserrat. Texto secundario mínimo `0.75rem` (12 px).
+- Cuerpo: Montserrat. Texto secundario mínimo `0.75rem` (12 px), salvo
+  los textos secundarios de la tarjeta de mascota (`0.64–0.7rem`, como en
+  la referencia).
 - Ancho de página: `--container-width: 1320px`.
 
 ## Los 3 ejemplos
@@ -72,8 +78,11 @@ turquesa, y botón primario `--primary-strong` con texto blanco, radio
 
 Foto real de la mascota (viene en sus datos, nunca por el nombre),
 radio `--radius-md`, sombra `--shadow-sm` que sube a `--shadow-md` al
-pasar el cursor. El corazón de favorito solo se muestra a adoptantes o
-sin sesión: las acciones se ocultan según el rol, no se explican.
+pasar el cursor, borde fino de 1 px en `var(--primary)`. Especie en caja
+normal y gris (`0.64rem`, sin mayúsculas); chips blancos con stroke
+`var(--primary)`; nombre en `var(--text)`. El corazón de favorito solo
+se muestra a adoptantes o sin sesión: las acciones se ocultan según el
+rol, no se explican.
 
 ### 3. Botón primario
 
@@ -84,7 +93,8 @@ vistas con el sistema de botones). No hay más sistemas de botón primario.
 
 ## Reglas permanentes
 
-1. **Sin fondos azulados.** El fondo es `#F3FEFF` o blanco.
+1. **Sin fondos azulados.** Fondos blancos en todo; donde se pierde la
+   separación, stroke fino de 1 px en `var(--primary)` (`#3EB2BA`).
 2. **Sin acciones fuera de rol.** Si una acción no le toca a ese rol, se
    oculta (`v-if`), no se muestra con un mensaje que diga que no puede.
 3. **Fotos por dato, no por nombre.** La foto de una mascota viene en
@@ -95,7 +105,10 @@ vistas con el sistema de botones). No hay más sistemas de botón primario.
 5. **Imágenes reales.** Fotos de mascotas y fotos reales del proyecto;
    nada que parezca generado.
 6. **Contraste.** El texto interactivo usa `--primary-strong`, no
-   `--primary`; los bordes de formulario usan `--border-strong`.
+   `--primary`; los bordes de formulario usan `--border-strong`. La
+   palabra de acento del titular usa `--primary` (`#3EB2BA`, 2,54:1 sobre
+   blanco): queda por debajo de WCAG AA incluso para texto grande; es
+   decisión de marca (secundario del logo).
 
 ## Al añadir una vista nueva
 

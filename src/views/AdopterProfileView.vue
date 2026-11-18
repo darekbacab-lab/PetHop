@@ -241,9 +241,9 @@ onMounted(async () => {
 .adopter-avatar { display:grid; width:76px; height:76px; flex:0 0 76px; place-items:center; border:4px solid var(--primary-soft); border-radius:50%; background:var(--primary-strong); color:var(--white); font:800 1.45rem "Poppins",sans-serif; }
 .adopter-identity-copy { min-width:0; flex:1; }
 .adopter-identity-copy .eyebrow,.adopter-section-heading .eyebrow { margin:0 0 5px; color:var(--primary-strong); font-size:.75rem; }
-.adopter-identity h1 { margin:0; color:var(--hero-title-dark); font:800 clamp(2rem,4vw,3.3rem)/1.15 "Poppins",sans-serif; letter-spacing:-.045em; }
+.adopter-identity h1 { margin:0; color:var(--text); font:800 clamp(2rem,4vw,3.3rem)/1.15 "Poppins",sans-serif; letter-spacing:-.045em; }
 .adopter-identity-meta { display:flex; flex-wrap:nowrap; align-items:center; gap:8px; margin-top:9px; color:var(--text-soft); font-size:.78rem; white-space:nowrap; }
-.adopter-identity-meta span:first-child { padding:4px 9px; border-radius:999px; background:var(--primary-soft); color:var(--primary-strong); font-weight:800; }
+.adopter-identity-meta span:first-child { padding:4px 9px; border:1px solid var(--primary); border-radius:999px; background:var(--primary-soft); color:var(--primary-strong); font-weight:800; }
 .adopter-profile-page :deep(.panel) { border:1px solid var(--border); border-radius: var(--radius-md); background:var(--white); }
 .adopter-personal { padding:21px 23px; }
 .adopter-section-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; }
@@ -282,7 +282,7 @@ onMounted(async () => {
 .adopter-panel-heading > div { display:flex; align-items:center; gap:9px; }
 .adopter-panel-heading > div > :deep(svg) { width:19px; height:19px; color:var(--primary-strong); }
 .adopter-panel-heading h3 { margin:0; color:var(--text); font:700 .95rem "Poppins",sans-serif; }
-.adopter-count { display:grid; min-width:27px; height:27px; place-items:center; padding:0 7px; border-radius:99px; background:var(--primary-soft); color:var(--primary-strong); font-size:.75rem; font-weight:800; }
+.adopter-count { display:grid; min-width:27px; height:27px; place-items:center; padding:0 7px; border:1px solid var(--primary); border-radius:99px; background:var(--primary-soft); color:var(--primary-strong); font-size:.75rem; font-weight:800; }
 .adopter-empty-copy,.adopter-inline-error { margin:16px 0 3px; color:var(--text-soft); font-size:.8rem; line-height:1.55; }
 .adopter-inline-error { color:var(--danger); }
 .adopter-activity-list,.adopter-favorite-list { display:grid; }
