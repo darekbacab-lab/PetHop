@@ -151,7 +151,7 @@ onBeforeUnmount(() => { document.body.style.overflow = previousOverflow; });
       >
         <header class="assistant-header">
           <span class="assistant-avatar" aria-hidden="true"><Icon name="paw-print" :size="20" /></span>
-          <div class="assistant-heading"><h2 id="assistant-title">Asistente PetHop</h2><p>Estoy aquí para orientarte</p></div>
+          <div class="assistant-heading"><h2 id="assistant-title">Asistente PetHop</h2><p>Pregúntame por una mascota, una solicitud o cómo adoptar</p></div>
           <button class="assistant-close" type="button" aria-label="Cerrar asistente" @click="closeChat"><Icon name="x" :size="20" /></button>
         </header>
 

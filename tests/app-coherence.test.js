@@ -946,3 +946,27 @@ test('audit batch B2: health record field errors, locked shelter sections, chat 
     assert.match(follow, /El refugio no aprobó esta solicitud\. El proceso terminó aquí\./);
     assert.match(follow, /Retiraste esta solicitud\. El proceso terminó aquí\./);
 });
+
+test('audit batch B3: clickable admin metrics, shelter in profile activity, health header only for editors, assistant subtitle, already-done lows verified', () => {
+    const admin = fs.readFileSync(path.join(projectRoot, 'src/views/AdminView.vue'), 'utf8');
+    const profile = fs.readFileSync(path.join(projectRoot, 'src/views/AdopterProfileView.vue'), 'utf8');
+    const health = fs.readFileSync(path.join(projectRoot, 'src/views/HealthRecordsView.vue'), 'utf8');
+    const assistant = fs.readFileSync(path.join(projectRoot, 'src/components/AssistantChat.vue'), 'utf8');
+    const footer = fs.readFileSync(path.join(projectRoot, 'src/components/SiteFooter.vue'), 'utf8');
+    const explore = fs.readFileSync(path.join(projectRoot, 'src/views/ExploreView.vue'), 'utf8');
+    const adoption = fs.readFileSync(path.join(projectRoot, 'backend/src/main/java/com/pethop/adoption/dto/AdoptionResponse.java'), 'utf8');
+    assert.match(admin, /<button type="button" @click="activeSection = 'pets'"><strong>\{\{ metrics\.totalPets \}\}<\/strong><span>Mascotas registradas<\/span><\/button>/);
+    assert.match(admin, /@click="activeSection = 'shelters'"><strong>\{\{ metrics\.activeShelters \}\}<\/strong>/);
+    assert.match(admin, /\.admin-metrics button/);
+    assert.doesNotMatch(admin, /\.admin-metrics article \{/);
+    assert.match(adoption, /String shelterName/);
+    assert.match(adoption, /a\.getPet\(\)\.getShelter\(\)\.getOrganizationName\(\)/);
+    assert.match(profile, /\{\{ item\.shelterName \|\| 'Refugio no disponible' \}\} · \{\{ item\.submittedAt/);
+    assert.match(profile, /\{\{ item\.shelterName \|\| 'Refugio no disponible' \}\} · \{\{ item\.adoptionDate/);
+    assert.match(health, /Historial de \{\{ pet\.name \}\}\.<template v-if="canEdit"> Mantén sus cuidados documentados y sus próximas fechas visibles\.<\/template>/);
+    assert.match(assistant, /Pregúntame por una mascota, una solicitud o cómo adoptar/);
+    assert.match(footer, /<div class="footer-column"><h2>Ayuda<\/h2><RouterLink to="\/aliados\.html">Aliados<\/RouterLink><RouterLink to="\/acceso\.html">Ingresar<\/RouterLink><a href="mailto:pethop13@gmail\.com">Escríbenos: pethop13@gmail\.com<\/a>/);
+    assert.doesNotMatch(footer, /Organizaciones<\/h2><RouterLink to="\/acceso\.html"/);
+    assert.doesNotMatch(explore, /Senior/);
+    assert.match(explore, /Mayor/);
+});
