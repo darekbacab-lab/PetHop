@@ -255,18 +255,18 @@ onMounted(async () => {
 .adopter-personal-grid dd,.adopter-detail-grid dd { overflow-wrap:anywhere; margin:0; color:var(--text); font-size:.87rem; font-weight:600; }
 .adopter-role-control { display:grid; gap:8px; margin-top:22px; padding-top:20px; border-top:1px solid var(--border); }
 .adopter-role-control label { display:grid; max-width:330px; gap:6px; color:var(--text); font-size:.76rem; font-weight:750; }
-.adopter-role-control select { min-height:44px; padding:9px 12px; border:1px solid var(--border); border-radius:10px; background:var(--background); color:var(--text); font:600 .82rem "Montserrat",sans-serif; }
+.adopter-role-control select { min-height:44px; padding:9px 12px; border:1px solid var(--border-strong); border-radius:10px; background:var(--background); color:var(--text); font:600 .82rem "Montserrat",sans-serif; }
 .adopter-role-control p { max-width:720px; margin:0; color:var(--text-soft); font-size:.75rem; line-height:1.55; }
 .adopter-role-control a { color:var(--primary-strong); font-weight:750; }
 .adopter-personal-form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px 18px; }
 .adopter-personal-form label { display:grid; gap:6px; color:var(--text); font-size:.76rem; font-weight:750; }
 .adopter-required { color:var(--danger); font-weight:800; }
-.adopter-personal-form input { width:100%; min-height:44px; padding:10px 12px; border:1px solid var(--border); border-radius:10px; background:var(--background); color:var(--text); font:500 .85rem "Montserrat",sans-serif; }
+.adopter-personal-form input { width:100%; min-height:44px; padding:10px 12px; border:1px solid var(--border-strong); border-radius:10px; background:var(--background); color:var(--text); font:500 .85rem "Montserrat",sans-serif; }
 .adopter-personal-form input:disabled { opacity:.7; }
 .adopter-password-form { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px 16px; margin-top:24px; padding-top:20px; border-top:1px solid var(--border); }
 .adopter-password-form h3 { grid-column:1/-1; margin:0; color:var(--text); font:750 1rem "Poppins",sans-serif; }
 .adopter-password-form label { display:grid; gap:6px; color:var(--text); font-size:.76rem; font-weight:750; }
-.adopter-password-form input { width:100%; min-height:44px; padding:10px 12px; border:1px solid var(--border); border-radius:10px; background:var(--background); color:var(--text); font:500 .85rem "Montserrat",sans-serif; }
+.adopter-password-form input { width:100%; min-height:44px; padding:10px 12px; border:1px solid var(--border-strong); border-radius:10px; background:var(--background); color:var(--text); font:500 .85rem "Montserrat",sans-serif; }
 .adopter-password-toggle { margin-top:24px; }
 .adopter-password-actions { display:flex; align-items:end; gap:8px; grid-column:1/-1; }
 .adopter-password-form .adopter-feedback { grid-column:1/-1; }

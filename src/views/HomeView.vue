@@ -6,7 +6,7 @@ import SiteFooter from '../components/SiteFooter.vue';
 import Icon from '../components/Icon.vue';
 import ImageWithSkeleton from '../components/ImageWithSkeleton.vue';
 import { listPets, listFavorites, addFavorite, removeFavorite } from '../services/petApi.js';
-import { loadCurrentUser } from '../services/auth.js';
+import { currentUser, loadCurrentUser } from '../services/auth.js';
 
 const router = useRouter();
 const pets = ref([]);
@@ -105,6 +105,7 @@ watch(canPagePets, canPage => {
 });
 const favorites = ref([]);
 const favoriteNotice = ref('');
+const canFavorite = computed(() => !currentUser.value || currentUser.value.role === 'ADOPTER');
 const petsRetrying = ref(false);
 async function retryPets() { petsRetrying.value = true; try { await refreshPets(); } finally { petsRetrying.value = false; } }
 const search = ref('');
@@ -290,7 +291,7 @@ async function favorite(id) {
           <div class="home-pets-viewport" aria-live="polite" aria-atomic="true">
             <Transition :name="petTransitionName" @after-enter="finishPetPageMove">
               <section v-if="petPages[currentPetPage]" :key="currentPetPage" class="home-pets-page" :style="{ '--home-pet-count': visiblePetCount }" role="group" :aria-label="`Grupo ${currentPetPage + 1} de ${petPages.length}`">
-                <article v-for="pet in petPages[currentPetPage]" :key="pet.id" class="pet-card"><ImageWithSkeleton frame-class="pet-image" :src="petImage(pet)" :alt="`Imagen de ${pet.name}`"><RouterLink class="pet-image-link" :to="{ path: '/mascota.html', query: { pet: pet.id } }" :aria-label="`Ver información de ${pet.name}`"><span class="sr-only">Ver información de {{ pet.name }}</span></RouterLink><button class="favorite" :class="{ active: favorites.includes(String(pet.id).toLowerCase()) }" type="button" :aria-pressed="favorites.includes(String(pet.id).toLowerCase())" :aria-label="favorites.includes(String(pet.id).toLowerCase()) ? `Quitar ${pet.name} de favoritos` : `Agregar ${pet.name} a favoritos`" @click="favorite(pet.id)"><Icon name="heart" :filled="favorites.includes(String(pet.id).toLowerCase())" /></button></ImageWithSkeleton><RouterLink class="pet-info" :to="{ path: '/mascota.html', query: { pet: pet.id } }"><div class="pet-title"><div><span class="pet-species">{{ pet.species.toLocaleUpperCase('es-MX') }}</span><h3>{{ pet.name }}</h3></div><span class="available">Disponible</span></div><div class="pet-details"><span>{{ pet.age }}</span><span>{{ pet.gender }}</span><span>{{ pet.size }}</span></div><div class="pet-location">{{ pet.location }}</div></RouterLink></article>
+                <article v-for="pet in petPages[currentPetPage]" :key="pet.id" class="pet-card"><ImageWithSkeleton frame-class="pet-image" :src="petImage(pet)" :alt="`Imagen de ${pet.name}`"><RouterLink class="pet-image-link" :to="{ path: '/mascota.html', query: { pet: pet.id } }" :aria-label="`Ver información de ${pet.name}`"><span class="sr-only">Ver información de {{ pet.name }}</span></RouterLink><button v-if="canFavorite" class="favorite" :class="{ active: favorites.includes(String(pet.id).toLowerCase()) }" type="button" :aria-pressed="favorites.includes(String(pet.id).toLowerCase())" :aria-label="favorites.includes(String(pet.id).toLowerCase()) ? `Quitar ${pet.name} de favoritos` : `Agregar ${pet.name} a favoritos`" @click="favorite(pet.id)"><Icon name="heart" :filled="favorites.includes(String(pet.id).toLowerCase())" /></button></ImageWithSkeleton><RouterLink class="pet-info" :to="{ path: '/mascota.html', query: { pet: pet.id } }"><div class="pet-title"><div><span class="pet-species">{{ pet.species.toLocaleUpperCase('es-MX') }}</span><h3>{{ pet.name }}</h3></div><span class="available">Disponible</span></div><div class="pet-details"><span>{{ pet.age }}</span><span>{{ pet.gender }}</span><span>{{ pet.size }}</span></div><div class="pet-location">{{ pet.location }}</div></RouterLink></article>
               </section>
             </Transition>
           </div>

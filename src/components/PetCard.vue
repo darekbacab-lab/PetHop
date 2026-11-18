@@ -2,12 +2,14 @@
 import { computed } from 'vue';
 import Icon from './Icon.vue';
 import ImageWithSkeleton from './ImageWithSkeleton.vue';
+import { currentUser } from '../services/auth.js';
 
 const props = defineProps({ pet: { type: Object, required: true }, favorite: Boolean });
 const emit = defineEmits(['favorite']);
 const photo = computed(() => props.pet.photos?.[0] || props.pet.image || '');
 const speciesKey = computed(() => String(props.pet.species || '').toLocaleLowerCase('es-MX'));
 const availableStatus = computed(() => props.pet.status && props.pet.status !== 'Publicada' ? props.pet.status : 'Disponible');
+const canFavorite = computed(() => !currentUser.value || currentUser.value.role === 'ADOPTER');
 
 </script>
 
@@ -26,6 +28,7 @@ const availableStatus = computed(() => props.pet.status && props.pet.status !== 
     <ImageWithSkeleton frame-class="catalog-card-image" :src="photo" :alt="`Imagen de ${pet.name}`">
       <span v-if="!photo" class="catalog-no-photo" aria-hidden="true"><Icon name="paw-print" /></span>
       <button
+        v-if="canFavorite"
         class="favorite"
         :class="{ active: favorite }"
         type="button"

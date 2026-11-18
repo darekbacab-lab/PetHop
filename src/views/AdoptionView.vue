@@ -22,6 +22,8 @@ onMounted(async () => {
     user.value = await api('/auth/me');
     form.fullName = user.value.fullName || ''; form.email = user.value.email || ''; form.phone = user.value.phone || '';
   } catch { await router.replace({ path: '/acceso.html', query: { redirect: route.fullPath } }); return; }
+  if (user.value.role === 'SHELTER') { await router.replace({ path: '/refugio.html', query: { section: 'solicitudes' } }); return; }
+  if (user.value.role === 'ADMIN') { await router.replace({ path: '/admin.html' }); return; }
   if (!route.query.pet) { petLoadError.value = 'Selecciona una mascota desde el catálogo para iniciar una solicitud.'; return; }
   petLoading.value = true;
   try { pet.value = await getPetById(route.query.pet); }

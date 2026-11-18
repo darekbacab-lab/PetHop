@@ -455,7 +455,7 @@ test('favorite states use the requested teal Lucide heart and cannot bubble into
     assert.match(card, /@click\.stop="emit\('favorite', pet\.id\)"/);
     assert.match(home, /:class="\{ active: favorites\.includes/);
     assert.match(pet, /:class="\{ active:favorites\.includes\(pet\.id\) \}"/);
-    assert.match(css, /\.favorite\.active,[\s\S]*?color:\s*#3EB2BA/);
+    assert.match(css, /\.favorite\.active,[\s\S]*?color:\s*var\(--primary-strong\)/);
     assert.match(css, /\.favorite:not\(\.active\),[\s\S]*?color:\s*#647174/);
 });
 
@@ -985,4 +985,59 @@ test('modern web guidance: skill installed for codex and no legacy slice-sort re
             assert.doesNotMatch(text, /\.slice\(\)\.sort\(/, `${dir}/${file} still uses legacy slice().sort()`);
         }
     }
+});
+
+test('audit P0: role actions are hidden, not explained, and interactive contrast passes', () => {
+    const header = fs.readFileSync(path.join(projectRoot, 'src/components/SiteHeader.vue'), 'utf8');
+    const card = fs.readFileSync(path.join(projectRoot, 'src/components/PetCard.vue'), 'utf8');
+    const home = fs.readFileSync(path.join(projectRoot, 'src/views/HomeView.vue'), 'utf8');
+    const pet = fs.readFileSync(path.join(projectRoot, 'src/views/PetView.vue'), 'utf8');
+    const adoption = fs.readFileSync(path.join(projectRoot, 'src/views/AdoptionView.vue'), 'utf8');
+    const shelter = fs.readFileSync(path.join(projectRoot, 'src/views/ShelterView.vue'), 'utf8');
+    const css = fs.readFileSync(path.join(projectRoot, 'css/styles.css'), 'utf8');
+    const acceso = fs.readFileSync(path.join(projectRoot, 'css/acceso.css'), 'utf8');
+    const solicitud = fs.readFileSync(path.join(projectRoot, 'css/solicitud.css'), 'utf8');
+
+    // Roles: hide, don't explain
+    assert.match(header, /v-if="index === 1 && \(!currentUser \|\| currentUser\.role === 'ADOPTER'\)"/);
+    assert.match(card, /const canFavorite = computed\(\(\) => !currentUser\.value \|\| currentUser\.value\.role === 'ADOPTER'\)/);
+    assert.match(card, /v-if="canFavorite"\s+class="favorite"/);
+    assert.match(home, /const canFavorite = computed\(\(\) => !currentUser\.value \|\| currentUser\.value\.role === 'ADOPTER'\)/);
+    assert.match(home, /<button v-if="canFavorite" class="favorite"/);
+    assert.match(pet, /const canAdopt = computed\(\(\) => !currentUser\.value \|\| currentUser\.value\.role === 'ADOPTER'\)/);
+    assert.match(pet, /<button v-if="canAdopt" class="gallery-favorite"/);
+    assert.match(pet, /<button v-if="canAdopt" type="button" class="message-shelter-button"/);
+    assert.match(pet, /<RouterLink v-if="canAdopt" class="pet-apply-button login-button"/);
+    assert.match(pet, /const isOwnPet = computed\(\(\) => currentUser\.value\?\.role === 'SHELTER' && !!myShelterId\.value && !!pet\.value && String\(pet\.value\.shelterId \|\| ''\) === String\(myShelterId\.value\)\)/);
+    assert.match(pet, /<RouterLink v-if="isOwnPet" class="pet-apply-button" :to="\{ path: '\/refugio\.html', query: \{ section: 'solicitudes' \} \}">Ver solicitudes<\/RouterLink>/);
+    assert.match(adoption, /if \(user\.value\.role === 'SHELTER'\) \{ await router\.replace\(\{ path: '\/refugio\.html', query: \{ section: 'solicitudes' \} \}\)/);
+    assert.match(adoption, /if \(user\.value\.role === 'ADMIN'\) \{ await router\.replace\(\{ path: '\/admin\.html' \}\)/);
+    assert.match(shelter, /const selectedRequestThread = computed\(\(\) => selectedRequest\.value \? inbox\.value\.find/);
+    assert.match(shelter, /<button v-if="selectedRequestThread" class="button button-outline" @click="requestAction\('contact'\)">Contactar<\/button>/);
+
+    // Contrast: the only primary button that actually failed was .catalog-apply
+    assert.match(css, /\.catalog-apply,\.catalog-apply:hover,\.catalog-apply:focus-visible \{ border-color:var\(--primary-strong\); background:var\(--primary-strong\); color:#fff; \}/);
+    assert.match(css, /\.favorite\.active,[\s\S]*?color:\s*var\(--primary-strong\)/);
+    // Action cards: card 2 strong bg, white text; card 3 keeps dark text on its pale bg; hover keeps each card's bg
+    assert.match(css, /\.action-card:nth-child\(2\) \{\s*background: var\(--primary-strong\);/);
+    assert.match(css, /\.action-card \.action-content strong \{\s*color: var\(--white\);/);
+    assert.match(css, /\.action-card:nth-child\(3\) \.action-content strong \{\s*color: var\(--text\);/);
+    assert.doesNotMatch(css, /\.action-card:hover \{[^}]*background: var\(--primary-hover\)/);
+    // Borders: strong token on form controls, >= 3:1 vs white
+    const token = css.match(/--border-strong:\s*(#[0-9A-Fa-f]{6});/);
+    assert.ok(token, 'missing --border-strong token');
+    const luminance = hex => {
+        const [r, g, b] = [0, 2, 4].map(i => parseInt(hex.slice(1 + i, 3 + i), 16) / 255);
+        const f = c => c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+        return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+    };
+    const ratio = 1.05 / (luminance(token[1]) + 0.05);
+    assert.ok(ratio >= 3, `--border-strong ${token[1]} is ${ratio.toFixed(2)}:1 vs white, needs 3:1`);
+    for (const [name, source] of [['styles.css', css], ['acceso.css', acceso], ['solicitud.css', solicitud]]) {
+        assert.match(source, /var\(--border-strong\)/, `${name} never uses --border-strong`);
+    }
+    assert.match(css, /\.shelter-field input[^}]*border:1px solid var\(--border-strong\)/);
+    // Selection and completed step marker also use the strong tone now
+    assert.match(css, /::selection \{\s*background: var\(--primary-strong\);/);
+    assert.match(css, /\.status-step\.completed \.status-step-marker,[\s\S]*?background: var\(--primary-strong\);/);
 });

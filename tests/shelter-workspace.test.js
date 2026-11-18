@@ -38,7 +38,7 @@ test('shelter workspace persists only local draft and view preferences, not back
 test('request detail modal links to the pet health record', () => {
   const shelterView = fs.readFileSync(path.join(projectRoot, 'src/views/ShelterView.vue'), 'utf8');
   assert.match(shelterView, /path: '\/salud\.html', query: \{ pet: selectedRequest\.petId \}/);
-  assert.match(shelterView, /Expediente sanitario<\/RouterLink><button class="button button-outline" @click="requestAction\('contact'\)"/);
+  assert.match(shelterView, /Expediente sanitario<\/RouterLink><button v-if="selectedRequestThread" class="button button-outline" @click="requestAction\('contact'\)"/);
 });
 
 test('tracking link sends shelters to their requests instead of the adopter follow-up', () => {
