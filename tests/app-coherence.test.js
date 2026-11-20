@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
-import { createStorageService, sessionStorageService } from '../src/services/storage.js';
+import { storageService } from '../src/services/storage.js';
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -16,28 +16,31 @@ class MemoryStorage {
 
 
 test('the application storage adapter preserves existing JSON keys and handles blocked storage', () => {
+    const prior = globalThis.localStorage;
     const driver = new MemoryStorage();
-    const service = createStorageService(() => driver);
-    assert.equal(service.write('pethop_favorites', ['chino']), true);
-    assert.deepEqual(service.read('pethop_favorites', []), ['chino']);
-    assert.equal(service.remove('pethop_favorites'), true);
-    assert.deepEqual(service.read('pethop_favorites', []), []);
-
-    const blocked = createStorageService(() => { throw new Error('blocked'); });
-    assert.deepEqual(blocked.read('pethop_user', null), null);
-    assert.equal(blocked.write('pethop_user', { name: 'Prueba' }), false);
-});
-
-test('temporary selected-pet state is routed through the session storage adapter', () => {
-    const prior = globalThis.sessionStorage;
-    const driver = new MemoryStorage();
-    globalThis.sessionStorage = driver;
+    globalThis.localStorage = driver;
     try {
-        assert.equal(sessionStorageService.write('pethop_selected_pet', { id: 'chino' }), true);
-        assert.deepEqual(sessionStorageService.read('pethop_selected_pet'), { id: 'chino' });
+        assert.equal(storageService.write('pethop_favorites', ['chino']), true);
+        assert.deepEqual(storageService.read('pethop_favorites', []), ['chino']);
+        assert.equal(storageService.remove('pethop_favorites'), true);
+        assert.deepEqual(storageService.read('pethop_favorites', []), []);
     } finally {
-        if (prior === undefined) delete globalThis.sessionStorage;
-        else globalThis.sessionStorage = prior;
+        if (prior === undefined) delete globalThis.localStorage;
+        else globalThis.localStorage = prior;
+    }
+
+    const blocked = {
+        getItem() { throw new Error('blocked'); },
+        setItem() { throw new Error('blocked'); },
+        removeItem() { throw new Error('blocked'); }
+    };
+    globalThis.localStorage = blocked;
+    try {
+        assert.deepEqual(storageService.read('pethop_user', null), null);
+        assert.equal(storageService.write('pethop_user', { name: 'Prueba' }), false);
+    } finally {
+        if (prior === undefined) delete globalThis.localStorage;
+        else globalThis.localStorage = prior;
     }
 });
 
@@ -434,15 +437,12 @@ test('follow-up dashboard uses real applications, history, adoptions, reports an
     assert.doesNotMatch(source, /Math\.random|fake|mock|demo/i);
 });
 
-test('Vue icons use Lucide paths from the locally vendored library with original navigation names', () => {
+test('Vue icons use local Lucide path data with original navigation names', () => {
     const icon = fs.readFileSync(path.join(projectRoot, 'src/components/Icon.vue'), 'utf8');
     const iconNodes = fs.readFileSync(path.join(projectRoot, 'src/icons/lucide-icons.js'), 'utf8');
-    const originalVendor = fs.readFileSync(path.join(projectRoot, 'js/vendor/lucide.min.js'), 'utf8');
     const packageJson = JSON.parse(fs.readFileSync(path.join(projectRoot, 'package.json'), 'utf8'));
-    assert.ok(originalVendor.includes('lucide v1.52.0'));
-    assert.ok(originalVendor.includes('createIcons'));
     assert.ok(icon.includes("'stroke-width': props.strokeWidth") || icon.includes(':stroke-width="strokeWidth"'));
-    for (const name of ['house','search','hand-heart','paw-print','heart','layout-dashboard','clipboard-list','messages-square','route','settings-2','circle-help','building-2','user-round']) {
+    for (const name of ['house','search','hand-heart','paw-print','heart','layout-dashboard','clipboard-list','messages-square','route','settings-2','circle-help','building-2','user-round','log-out','info','circle-alert']) {
         assert.ok(iconNodes.includes(`"${name}":[`), `local Lucide data includes ${name}`);
     }
     assert.ok(!packageJson.dependencies['lucide-vue-next'], 'the app does not add a second icon dependency');
@@ -603,7 +603,7 @@ test('audit batch 4: withdraw, review context, last message, role-aware messages
     assert.match(header, /case 'HEALTH_REMINDER': return refId \? `\/salud\.html\?pet=\$\{refId\}` : '\/salud\.html';/);
     assert.match(header, /case 'ADOPTION_FORMALIZED':[\s\S]*?return refId \? `\/seguimiento\.html\?application=\$\{refId\}` : '\/seguimiento\.html';/);
     assert.match(header, /case 'NEW_MESSAGE': return currentUser\.value\?\.role === 'SHELTER' \? '\/refugio\.html\?section=mensajes'/);
-    assert.match(conversation, /String lastMessage,Instant lastMessageAt,long unreadCount/);
+    assert.match(conversation, /String lastMessage,long unreadCount/);
     assert.match(messageRepo, /findFirstByConversationIdOrderByCreatedAtDesc/);
     assert.match(messageRepo, /countByConversationIdAndReadAtIsNullAndSender_IdNot/);
     assert.match(messages, /thread\.lastMessage \|\| thread\.messages\.at\(-1\)\?\.text/);

@@ -7,7 +7,6 @@ import com.pethop.pet.PetRepository;
 import com.pethop.security.SecurityUser;
 import com.pethop.shelter.ShelterRepository;
 import com.pethop.user.UserRole;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
@@ -19,9 +18,6 @@ public class HealthRecordService {
     public HealthRecordService(HealthRecordRepository records,PetRepository pets,ShelterRepository shelters,AdoptionRepository adoptions){this.records=records;this.pets=pets;this.shelters=shelters;this.adoptions=adoptions;}
     @Transactional(readOnly=true) public List<com.pethop.health.dto.HealthRecordResponse> list(SecurityUser user,UUID petId){
         Pet pet=getPet(petId);authorize(user,pet,false);return records.findAllByPetIdOrderByPerformedAtDesc(petId).stream().map(com.pethop.health.dto.HealthRecordResponse::from).toList();
-    }
-    @Transactional(readOnly=true) public List<com.pethop.health.dto.HealthRecordResponse> upcoming(SecurityUser user,UUID petId){
-        Pet pet=getPet(petId);authorize(user,pet,false);LocalDate today=LocalDate.now();return records.findAllByPetIdAndNextDueAtBetweenOrderByNextDueAtAsc(petId,today,today.plusYears(1)).stream().map(com.pethop.health.dto.HealthRecordResponse::from).toList();
     }
     @Transactional public com.pethop.health.dto.HealthRecordResponse create(SecurityUser user,UUID petId,com.pethop.health.dto.HealthRecordRequest request){
         Pet pet=getPet(petId);authorize(user,pet,true);if(request.nextDueAt()!=null&&request.nextDueAt().isBefore(request.performedAt()))throw ApiException.badRequest("La próxima fecha no puede ser anterior a la fecha realizada.");PetHealthRecord record=new PetHealthRecord();record.setPet(pet);record.setCreatedBy(user.user());record.setRecordType(request.recordType());record.setTitle(request.title().trim());record.setDescription(request.description()==null?null:request.description().trim());record.setPerformedAt(request.performedAt());record.setNextDueAt(request.nextDueAt());record.setVeterinarianName(request.veterinarianName()==null?null:request.veterinarianName().trim());return com.pethop.health.dto.HealthRecordResponse.from(records.save(record));

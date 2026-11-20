@@ -31,7 +31,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 @ExtendWith(MockitoExtension.class)
 class ApplicationServiceApprovalTest {
     @Mock ApplicationRepository applications;
-    @Mock ApplicationAnswerRepository answers;
     @Mock ApplicationStatusHistoryRepository history;
     @Mock PetRepository pets;
     @Mock ShelterRepository shelters;
@@ -44,7 +43,7 @@ class ApplicationServiceApprovalTest {
 
     @BeforeEach
     void setUp() {
-        service = new ApplicationService(applications, answers, history, pets, shelters, notifications);
+        service = new ApplicationService(applications, history, pets, shelters, notifications);
 
         User shelterUser = user(UserRole.SHELTER);
         shelterPrincipal = new SecurityUser(shelterUser);

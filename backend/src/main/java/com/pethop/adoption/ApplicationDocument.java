@@ -1,5 +1,4 @@
 package com.pethop.adoption;
-import com.pethop.pet.storage.StoredFile;
 import com.pethop.user.User;
 import jakarta.persistence.*;
 import java.time.Instant;
@@ -18,7 +17,7 @@ public class ApplicationDocument {
  @Column(name="created_at",nullable=false,updatable=false) private Instant createdAt;
  @PrePersist void onCreate(){createdAt=Instant.now();}
  public UUID getId(){return id;} public AdoptionApplication getApplication(){return application;} public void setApplication(AdoptionApplication v){application=v;}
- public User getUploadedBy(){return uploadedBy;} public void setUploadedBy(User v){uploadedBy=v;} public String getDocumentType(){return documentType;} public void setDocumentType(String v){documentType=v;}
+ public void setUploadedBy(User v){uploadedBy=v;} public String getDocumentType(){return documentType;} public void setDocumentType(String v){documentType=v;}
  public String getStoragePath(){return storagePath;} public void setStoragePath(String v){storagePath=v;} public String getOriginalFilename(){return originalFilename;} public void setOriginalFilename(String v){originalFilename=v;}
  public String getContentType(){return contentType;} public void setContentType(String v){contentType=v;} public long getFileSize(){return fileSize;} public void setFileSize(long v){fileSize=v;} public Instant getCreatedAt(){return createdAt;}
 }

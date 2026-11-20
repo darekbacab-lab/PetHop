@@ -1,6 +1,5 @@
 package com.pethop.adoption;
 
-import com.pethop.adoption.dto.AnswerRequest;
 import com.pethop.adoption.dto.ApplicationResponse;
 import com.pethop.adoption.dto.ApplicationReviewResponse;
 import com.pethop.adoption.dto.CreateApplicationRequest;
@@ -28,14 +27,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class ApplicationService {
     private static final List<ApplicationStatus> ACTIVE = List.of(ApplicationStatus.DRAFT,ApplicationStatus.SUBMITTED,ApplicationStatus.UNDER_REVIEW,ApplicationStatus.APPROVED);
     private final ApplicationRepository applications;
-    private final ApplicationAnswerRepository answers;
     private final ApplicationStatusHistoryRepository history;
     private final PetRepository pets;
     private final ShelterRepository shelters;
     private final NotificationService notifications;
-    public ApplicationService(ApplicationRepository applications,ApplicationAnswerRepository answers,
+    public ApplicationService(ApplicationRepository applications,
             ApplicationStatusHistoryRepository history,PetRepository pets,ShelterRepository shelters,NotificationService notifications){
-        this.applications=applications;this.answers=answers;this.history=history;this.pets=pets;this.shelters=shelters;this.notifications=notifications;
+        this.applications=applications;this.history=history;this.pets=pets;this.shelters=shelters;this.notifications=notifications;
     }
     @Transactional
     public ApplicationResponse create(SecurityUser principal,CreateApplicationRequest request){
@@ -52,7 +50,6 @@ public class ApplicationService {
         application.setAdditionalInformation(request.additionalInformation());
         application=applications.save(application);
         addHistory(application,null,ApplicationStatus.SUBMITTED,principal,"Solicitud enviada.");
-        if(request.answers()!=null) for(AnswerRequest item:request.answers()) addAnswer(application,item);
         notifications.create(pet.getShelter().getUser(),"APPLICATION_SUBMITTED","Nueva solicitud de adopción",
                 principal.user().getFullName()+" envió una solicitud para "+pet.getName()+".","APPLICATION",application.getId());
         return ApplicationResponse.from(application);
@@ -112,8 +109,6 @@ public class ApplicationService {
         if(!isAdopter(principal,app)&&!isShelterOwner(principal,app))throw ApiException.notFound("Solicitud no encontrada.");
         return history.findAllByApplicationIdOrderByChangedAtAsc(id).stream().map(StatusHistoryResponse::from).toList();
     }
-    AdoptionApplication require(UUID id){return applications.findById(id).orElseThrow(()->ApiException.notFound("Solicitud no encontrada."));}
-    private void addAnswer(AdoptionApplication application,AnswerRequest request){ApplicationAnswer answer=new ApplicationAnswer();answer.setApplication(application);answer.setQuestionKey(request.questionKey().trim());answer.setQuestionText(request.questionText().trim());answer.setAnswerText(request.answerText().trim());answers.save(answer);}
     private void addHistory(AdoptionApplication app,ApplicationStatus previous,ApplicationStatus next,SecurityUser actor,String comment){ApplicationStatusHistory item=new ApplicationStatusHistory();item.setApplication(app);item.setPreviousStatus(previous);item.setNewStatus(next);item.setChangedBy(actor.user());item.setComment(comment);history.save(item);}
     private ShelterProfile ownedShelter(SecurityUser principal){if(principal.user().getRole()!=UserRole.SHELTER)throw ApiException.forbidden("Solo un refugio puede consultar sus solicitudes recibidas.");return shelters.findByUserId(principal.id()).orElseThrow(()->ApiException.notFound("Perfil de refugio no encontrado."));}
     private boolean isAdopter(SecurityUser user,AdoptionApplication app){return user.user().getRole()==UserRole.ADOPTER&&app.getAdopter().getId().equals(user.id());}

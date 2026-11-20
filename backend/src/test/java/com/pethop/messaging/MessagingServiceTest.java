@@ -3,7 +3,6 @@ package com.pethop.messaging;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import com.pethop.adoption.ApplicationRepository;
 import com.pethop.messaging.dto.ConversationResponse;
 import com.pethop.notification.NotificationService;
 import com.pethop.pet.Pet;
@@ -29,7 +28,6 @@ class MessagingServiceTest {
     @Mock ConversationParticipantRepository participants;
     @Mock MessageRepository messages;
     @Mock PetRepository pets;
-    @Mock ApplicationRepository applications;
     @Mock NotificationService notifications;
     private MessagingService service;
     private User adopter;
@@ -37,7 +35,7 @@ class MessagingServiceTest {
     private Conversation conversation;
 
     @BeforeEach void setUp() {
-        service = new MessagingService(conversations, participants, messages, pets, applications, notifications);
+        service = new MessagingService(conversations, participants, messages, pets, notifications);
         adopter = new User();
         ReflectionTestUtils.setField(adopter, "id", UUID.randomUUID());
         adopter.setFullName("Adoptante");

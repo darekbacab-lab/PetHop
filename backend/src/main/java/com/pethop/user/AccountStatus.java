@@ -1,3 +1,3 @@
 package com.pethop.user;
 
-public enum AccountStatus { ACTIVE, LOCKED, DISABLED }
+public enum AccountStatus { ACTIVE, LOCKED }

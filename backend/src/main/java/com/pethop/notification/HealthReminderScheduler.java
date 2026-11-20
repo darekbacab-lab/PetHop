@@ -3,7 +3,6 @@ package com.pethop.notification;
 import com.pethop.adoption.Adoption;
 import com.pethop.adoption.AdoptionRepository;
 import com.pethop.health.HealthRecordRepository;
-import com.pethop.health.PetHealthRecord;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;

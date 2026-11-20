@@ -24,7 +24,7 @@ class PetServiceProfileTest {
         pet.setShelter(shelter);
 
         PetRequest request = new PetRequest("Nube", PetSpecies.CAT, "Mestiza", PetSex.FEMALE,
-                null, null, PetSize.SMALL, null, "Blanco", "Descripción independiente", "Tranquila, Convive con gatos",
+                PetSize.SMALL, null, "Blanco", "Descripción independiente", "Tranquila, Convive con gatos",
                 "Observación clínica", null, true, false, "Cozumel", AdoptionStatus.AVAILABLE,
                 PetLifeStage.SENIOR, List.of("Tranquila", "Convive con gatos"), "Condición conocida",
                 "Llegó por rescate", "Antecedente separado", "Casa", "Patio seguro", "Con experiencia", "Ventanas protegidas");
@@ -35,7 +35,6 @@ class PetServiceProfileTest {
         PetResponse response = PetResponse.from(pet, List.of(), List.copyOf(pet.getPersonalityTraits()));
 
         assertThat(response.lifeStage()).isEqualTo(PetLifeStage.SENIOR);
-        assertThat(response.ageValue()).isNull();
         assertThat(response.personalityTraits()).containsExactly("Tranquila", "Convive con gatos");
         assertThat(response.location()).isEqualTo("Cozumel");
         assertThat(response.description()).isEqualTo("Descripción independiente");

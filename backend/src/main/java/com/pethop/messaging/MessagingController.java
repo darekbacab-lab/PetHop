@@ -31,7 +31,7 @@ public class MessagingController {
     private final MessagingService service;public MessagingController(MessagingService service){this.service=service;}
     @GetMapping("/conversations") List<ConversationResponse> conversations(@AuthenticationPrincipal SecurityUser user){return service.list(user);}
     @PostMapping("/conversations") @ResponseStatus(HttpStatus.CREATED)
-    ConversationResponse create(@AuthenticationPrincipal SecurityUser user,@Valid @RequestBody CreateConversationRequest request){return service.create(user,request.petId(),request.applicationId());}
+    ConversationResponse create(@AuthenticationPrincipal SecurityUser user,@Valid @RequestBody CreateConversationRequest request){return service.create(user,request.petId());}
     @PatchMapping("/conversations/{id}/pin") @ResponseStatus(HttpStatus.NO_CONTENT)
     void pin(@AuthenticationPrincipal SecurityUser user,@PathVariable UUID id,@Valid @RequestBody PinConversationRequest request){service.pin(user,id,request.pinned());}
     @DeleteMapping("/conversations/{id}") @ResponseStatus(HttpStatus.NO_CONTENT)

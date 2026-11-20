@@ -1,7 +1,5 @@
 package com.pethop.messaging;
 
-import com.pethop.adoption.AdoptionApplication;
-import com.pethop.adoption.ApplicationRepository;
 import com.pethop.common.exception.ApiException;
 import com.pethop.common.response.PageResponse;
 import com.pethop.messaging.dto.ConversationResponse;
@@ -11,7 +9,6 @@ import com.pethop.pet.AdoptionStatus;
 import com.pethop.pet.Pet;
 import com.pethop.pet.PetRepository;
 import com.pethop.security.SecurityUser;
-import com.pethop.shelter.ShelterProfile;
 import com.pethop.user.User;
 import com.pethop.user.UserRole;
 import java.util.List;
@@ -25,24 +22,19 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class MessagingService {
     private final ConversationRepository conversations;private final ConversationParticipantRepository participants;private final MessageRepository messages;
-    private final PetRepository pets;private final ApplicationRepository applications;private final NotificationService notifications;
-    public MessagingService(ConversationRepository conversations,ConversationParticipantRepository participants,MessageRepository messages,PetRepository pets,ApplicationRepository applications,NotificationService notifications){this.conversations=conversations;this.participants=participants;this.messages=messages;this.pets=pets;this.applications=applications;this.notifications=notifications;}
+    private final PetRepository pets;private final NotificationService notifications;
+    public MessagingService(ConversationRepository conversations,ConversationParticipantRepository participants,MessageRepository messages,PetRepository pets,NotificationService notifications){this.conversations=conversations;this.participants=participants;this.messages=messages;this.pets=pets;this.notifications=notifications;}
     @Transactional
-    public ConversationResponse create(SecurityUser user,UUID petId,UUID applicationId){
+    public ConversationResponse create(SecurityUser user,UUID petId){
         if(user.user().getRole()!=UserRole.ADOPTER)throw ApiException.forbidden("Solo una cuenta adoptante puede iniciar una conversación.");
         Pet pet=pets.findByIdAndDeletedAtIsNull(petId).filter(p->p.getAdoptionStatus()==AdoptionStatus.AVAILABLE||p.getAdoptionStatus()==AdoptionStatus.IN_PROCESS).orElseThrow(()->ApiException.notFound("Mascota no encontrada."));
-        AdoptionApplication app=null;
-        if(applicationId!=null){
-            app=applications.findById(applicationId).orElseThrow(()->ApiException.notFound("Solicitud no encontrada."));
-            if(!app.getPet().getId().equals(petId)||!app.getAdopter().getId().equals(user.id()))throw ApiException.notFound("Solicitud no encontrada.");
-        }
-        Conversation existing=app!=null?conversations.findByApplicationId(app.getId()).orElse(null):findExistingPetThread(user.id(),petId,pet.getShelter().getUser().getId());
+        Conversation existing=findExistingPetThread(user.id(),petId,pet.getShelter().getUser().getId());
         if(existing!=null){
             ConversationParticipant participant=requireParticipantRecord(user,existing.getId());
             if(participant.getHiddenAt()!=null){participant.setHiddenAt(null);participants.save(participant);}
             return conversationResponse(existing,user.id(),participant.isPinned());
         }
-        Conversation conversation=new Conversation();conversation.setPet(pet);conversation.setApplication(app);conversation=conversations.save(conversation);
+        Conversation conversation=new Conversation();conversation.setPet(pet);conversation=conversations.save(conversation);
         addParticipant(conversation,user.user());addParticipant(conversation,pet.getShelter().getUser());
         return conversationResponse(conversation,user.id(),false);
     }
@@ -91,6 +83,6 @@ public class MessagingService {
         String other=people.stream().map(ConversationParticipant::getUser).filter(u->!u.getId().equals(currentUserId)).map(User::getFullName).findFirst().orElse("Participante");
         Optional<Message> last=messages.findFirstByConversationIdOrderByCreatedAtDesc(c.getId());
         long unread=messages.countByConversationIdAndReadAtIsNullAndSender_IdNot(c.getId(),currentUserId);
-        return ConversationResponse.from(c,other,pinned,last.map(Message::getContent).orElse(null),last.map(Message::getCreatedAt).orElse(null),unread);
+        return ConversationResponse.from(c,other,pinned,last.map(Message::getContent).orElse(null),unread);
     }
 }

@@ -1,16 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mapPet } from '../src/services/petApi.js';
-import { healthRecordPayload, mergePhotoSelection, petPayload, togglePersonality } from '../src/services/petForm.js';
-
-test('personalidad se alterna de forma independiente y admite varias características', () => {
-  const first = togglePersonality([], 'Cariñosa');
-  const both = togglePersonality(first, 'Convive con gatos');
-  const removed = togglePersonality(both, 'Cariñosa');
-  assert.deepEqual(first, ['Cariñosa']);
-  assert.deepEqual(both, ['Cariñosa', 'Convive con gatos']);
-  assert.deepEqual(removed, ['Convive con gatos']);
-});
+import { healthRecordPayload, mergePhotoSelection, petPayload } from '../src/services/petForm.js';
 
 test('selecciones sucesivas de fotos se agregan, quitan duplicados y respetan el límite', () => {
   const first = { name: 'uno.jpg', size: 20, lastModified: 1 };
@@ -37,7 +28,6 @@ test('payload conserva ubicación, etapa y todos los apartados sin inventar edad
   });
   assert.equal(payload.location, 'Cozumel');
   assert.equal(payload.lifeStage, 'SENIOR');
-  assert.equal(payload.ageValue, null);
   assert.equal(payload.vaccinated, null);
   assert.equal(payload.sterilized, false);
   assert.equal(payload.dewormed, true);

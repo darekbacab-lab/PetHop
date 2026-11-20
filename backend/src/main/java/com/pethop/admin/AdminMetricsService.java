@@ -5,10 +5,7 @@ import com.pethop.adoption.AdoptionRepository;
 import com.pethop.adoption.ApplicationRepository;
 import com.pethop.adoption.ApplicationStatus;
 import com.pethop.pet.AdoptionStatus;
-import com.pethop.pet.ModerationStatus;
 import com.pethop.pet.PetRepository;
-import com.pethop.shelter.ShelterRepository;
-import com.pethop.shelter.VerificationStatus;
 import com.pethop.user.AccountStatus;
 import com.pethop.user.UserRepository;
 import com.pethop.user.UserRole;
@@ -18,14 +15,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class AdminMetricsService {
     private final PetRepository pets; private final ApplicationRepository applications;
-    private final AdoptionRepository adoptions; private final ShelterRepository shelters; private final UserRepository users;
+    private final AdoptionRepository adoptions; private final UserRepository users;
     public AdminMetricsService(PetRepository pets, ApplicationRepository applications, AdoptionRepository adoptions,
-            ShelterRepository shelters, UserRepository users) { this.pets=pets; this.applications=applications; this.adoptions=adoptions; this.shelters=shelters; this.users=users; }
+            UserRepository users) { this.pets=pets; this.applications=applications; this.adoptions=adoptions; this.users=users; }
     @Transactional(readOnly = true)
     public AdminMetricsResponse get() { return new AdminMetricsResponse(
-            pets.countByDeletedAtIsNull(), pets.countByDeletedAtIsNullAndModerationStatus(ModerationStatus.PENDING),
-            pets.countByDeletedAtIsNullAndAdoptionStatus(AdoptionStatus.AVAILABLE), applications.count(),
+            pets.countByDeletedAtIsNull(),
+            pets.countByDeletedAtIsNullAndAdoptionStatus(AdoptionStatus.AVAILABLE),
             applications.countByStatus(ApplicationStatus.SUBMITTED)+applications.countByStatus(ApplicationStatus.UNDER_REVIEW),
-            adoptions.count(), shelters.countByVerificationStatus(VerificationStatus.PENDING),
-            users.countByRoleAndAccountStatus(UserRole.ADOPTER, AccountStatus.ACTIVE), users.countByRoleAndAccountStatus(UserRole.SHELTER, AccountStatus.ACTIVE)); }
+            adoptions.count(), users.countByRoleAndAccountStatus(UserRole.SHELTER, AccountStatus.ACTIVE)); }
 }

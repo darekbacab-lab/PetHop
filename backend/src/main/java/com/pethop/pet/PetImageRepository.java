@@ -9,5 +9,4 @@ public interface PetImageRepository extends JpaRepository<PetImage, UUID> {
     List<PetImage> findAllByPetIdOrderByDisplayOrder(UUID petId);
     Optional<PetImage> findByIdAndPetId(UUID id, UUID petId);
     long countByPetId(UUID petId);
-    void deleteAllByPetId(UUID petId);
 }

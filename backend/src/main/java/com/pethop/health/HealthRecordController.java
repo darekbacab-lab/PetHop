@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class HealthRecordController {
     private final HealthRecordService service;public HealthRecordController(HealthRecordService service){this.service=service;}
     @GetMapping List<HealthRecordResponse> list(@AuthenticationPrincipal SecurityUser user,@PathVariable UUID petId){return service.list(user,petId);}
-    @GetMapping("/upcoming") List<HealthRecordResponse> upcoming(@AuthenticationPrincipal SecurityUser user,@PathVariable UUID petId){return service.upcoming(user,petId);}
     @PostMapping @ResponseStatus(HttpStatus.CREATED) HealthRecordResponse create(@AuthenticationPrincipal SecurityUser user,@PathVariable UUID petId,@Valid @RequestBody HealthRecordRequest request){return service.create(user,petId,request);}
     @PutMapping("/{recordId}") HealthRecordResponse update(@AuthenticationPrincipal SecurityUser user,@PathVariable UUID petId,@PathVariable UUID recordId,@Valid @RequestBody HealthRecordRequest request){return service.update(user,petId,recordId,request);}
     @DeleteMapping("/{recordId}") @ResponseStatus(HttpStatus.NO_CONTENT) void delete(@AuthenticationPrincipal SecurityUser user,@PathVariable UUID petId,@PathVariable UUID recordId){service.delete(user,petId,recordId);}

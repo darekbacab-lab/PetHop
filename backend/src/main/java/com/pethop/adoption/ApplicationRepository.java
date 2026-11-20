@@ -18,8 +18,6 @@ public interface ApplicationRepository extends JpaRepository<AdoptionApplication
     boolean existsByPetIdAndStatusIn(UUID petId,List<ApplicationStatus> statuses);
     Page<AdoptionApplication> findAllByAdopterIdOrderByCreatedAtDesc(UUID adopterId,Pageable pageable);
     Page<AdoptionApplication> findAllByShelterIdOrderByCreatedAtDesc(UUID shelterId,Pageable pageable);
-    Optional<AdoptionApplication> findByIdAndAdopterId(UUID id,UUID adopterId);
-    Optional<AdoptionApplication> findByIdAndShelterId(UUID id,UUID shelterId);
     @Lock(LockModeType.PESSIMISTIC_WRITE) @Query("select a from AdoptionApplication a where a.id=:id")
     Optional<AdoptionApplication> findByIdForUpdate(@Param("id") UUID id);
 }

@@ -1,5 +1,4 @@
 package com.pethop.admin.dto;
 
-public record AdminMetricsResponse(long totalPets, long pendingModeration, long availablePets,
-        long totalApplications, long openApplications, long formalizedAdoptions,
-        long pendingShelters, long activeAdopters, long activeShelters) { }
+public record AdminMetricsResponse(long totalPets, long availablePets,
+        long openApplications, long formalizedAdoptions, long activeShelters) { }

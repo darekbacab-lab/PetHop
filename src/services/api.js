@@ -7,7 +7,7 @@ const API_BASE = (configuredApi && !(import.meta.env?.PROD && localApi)
 let csrfToken = '';
 const REQUEST_TIMEOUT_MS = 15000;
 
-export class ApiError extends Error {
+class ApiError extends Error {
   constructor(message, status, payload) { super(message); this.name = 'ApiError'; this.status = status; this.payload = payload; }
 }
 

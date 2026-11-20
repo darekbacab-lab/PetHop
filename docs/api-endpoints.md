@@ -16,11 +16,10 @@ Base: `/api/v1`. DTOs de solicitud y respuesta separados de las entidades. Las r
 - `POST /shelters`, `GET/PATCH /shelters/me`.
 - `GET /pets` catálogo público; `GET /pets/mine` propias publicaciones. Parámetros: especie, sexo, tamaño, ubicación, búsqueda, orden, página y tamaño de página.
 - `GET /pets/{id}`, `POST /pets`, `PATCH /pets/{id}`, `PATCH /pets/{id}/status`, `DELETE /pets/{id}` (baja lógica).
-- `GET /pets/{id}/images`, `POST /pets/{id}/images`, `DELETE /pets/{id}/images/{imageId}`, `GET /pet-images/{id}`.
-- `GET/POST /pets/{petId}/health-records`; `GET /pets/{petId}/health-records/upcoming`.
+- `POST /pets/{id}/images`, `DELETE /pets/{id}/images/{imageId}`, `GET /pet-images/{id}`.
+- `GET/POST /pets/{petId}/health-records`.
 - La lectura requiere autenticación y respeta el acceso del refugio propietario o de una adopción formalizada; el alta está restringida al refugio propietario y ADMIN.
 - `GET /affiliates` catálogo público de aliados. Administración: `GET/POST /admin/affiliates`, `PATCH/DELETE /admin/affiliates/{id}`.
-- `GET /pets/{petId}/veterinary-assistant/context`; `POST /pets/{petId}/veterinary-assistant/messages` (sesión autenticada y acceso autorizado a la mascota).
 
 ## Solicitudes y adopciones
 
@@ -30,7 +29,7 @@ Base: `/api/v1`. DTOs de solicitud y respuesta separados de las entidades. Las r
 
 ## Seguimiento, favoritos, mensajes y notificaciones
 
-- `POST/GET /adoptions/{id}/follow-ups`, `PATCH /follow-ups/{id}`, `POST /follow-ups/{id}/media`, `GET /follow-up-media/{id}`.
+- `POST/GET /adoptions/{id}/follow-ups`, `POST /follow-ups/{id}/media`, `GET /follow-up-media/{id}`.
 - `GET /favorites`, `POST /favorites/{petId}`, `DELETE /favorites/{petId}`.
 - `GET/POST /conversations`, `GET/POST /conversations/{id}/messages`.
 - `GET /notifications`, `PATCH /notifications/{id}/read`.

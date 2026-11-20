@@ -12,9 +12,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 public class RateLimitFilter extends OncePerRequestFilter {
     private static final Pattern PET_UPLOAD = Pattern.compile("/api/v1/pets/[^/]+/images");
-    private static final Pattern PET_REPORT = Pattern.compile("/api/v1/pets/[^/]+/reports");
     private static final Pattern FOLLOW_UP_UPLOAD = Pattern.compile("/api/v1/follow-ups/[^/]+/media");
-    private static final Pattern VETERINARY_ASSISTANT = Pattern.compile("/api/v1/pets/[^/]+/veterinary-assistant(?:/.*)?");
     private static final Pattern GENERAL_VETERINARY_ASSISTANT = Pattern.compile("/api/v1/veterinary-assistant(?:/.*)?");
     private final InMemoryRateLimiter limiter;
     private final RateLimitProperties properties;
@@ -52,8 +50,6 @@ public class RateLimitFilter extends OncePerRequestFilter {
         if ("/api/v1/auth/password-reset/request".equals(path)) return new Rule("password-reset", properties.getPasswordReset(), true);
         if ("/api/v1/auth/email-verification/resend".equals(path)) return new Rule("email-verification-resend", properties.getEmailVerificationResend(), true);
         if (PET_UPLOAD.matcher(path).matches() || FOLLOW_UP_UPLOAD.matcher(path).matches()) return new Rule("uploads", properties.getUploads(), false);
-        if (PET_REPORT.matcher(path).matches()) return new Rule("reports", properties.getReports(), false);
-        if (VETERINARY_ASSISTANT.matcher(path).matches()) return new Rule("veterinary-assistant", properties.getVeterinaryAssistant(), false);
         if (GENERAL_VETERINARY_ASSISTANT.matcher(path).matches()) return new Rule("veterinary-assistant", properties.getVeterinaryAssistant(), false);
         return null;
     }

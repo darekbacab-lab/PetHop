@@ -56,7 +56,7 @@ class VeterinaryAssistantServiceTest {
                 {"urgency":"YELLOW","summary":"Conviene consultar al veterinario.","reasons":["Hay un cambio persistente."],"warning_signs":["Empeoramiento rápido."],"guidance":["Observa y agenda una evaluación."]}
                 """);
 
-        var response = service.ask(user, pet.getId(), "Come menos desde ayer");
+        var response = service.askGeneral(user, pet.getId(), "Come menos desde ayer");
 
         assertThat(response.urgency()).isEqualTo(VeterinaryUrgency.YELLOW);
         assertThat(response.petName()).isEqualTo("Luna");
@@ -69,7 +69,7 @@ class VeterinaryAssistantServiceTest {
                 {"urgency":"GREEN","summary":"No se observan señales de alarma en la descripción.","reasons":[],"warning_signs":[],"guidance":["Observa cualquier cambio y consulta si persiste."]}
                 """);
 
-        var response = service.ask(null, pet.getId(), "¿Qué cuidados preventivos necesita?");
+        var response = service.askGeneral(null, pet.getId(), "¿Qué cuidados preventivos necesita?");
 
         assertThat(response.petId()).isEqualTo(pet.getId());
         verify(provider).generate(org.mockito.ArgumentMatchers.contains("especie=DOG"));
@@ -89,7 +89,7 @@ class VeterinaryAssistantServiceTest {
 
     @Test
     void emergencyMessageGetsUrgentGuidanceWithoutTrustingProvider() {
-        var response = service.ask(user, pet.getId(), "Tiene dificultad para respirar");
+        var response = service.askGeneral(user, pet.getId(), "Tiene dificultad para respirar");
 
         assertThat(response.urgency()).isEqualTo(VeterinaryUrgency.RED);
         assertThat(response.guidance()).anyMatch(value -> value.contains("urgencias"));
@@ -100,7 +100,7 @@ class VeterinaryAssistantServiceTest {
     void malformedProviderResponseIsRejected() {
         when(provider.generate(org.mockito.ArgumentMatchers.anyString())).thenReturn("no es json");
 
-        assertThatThrownBy(() -> service.ask(user, pet.getId(), "Está más cansado"))
+        assertThatThrownBy(() -> service.askGeneral(user, pet.getId(), "Está más cansado"))
                 .isInstanceOf(ApiException.class).hasMessage("El servicio veterinario devolvió una respuesta no válida.");
     }
 
@@ -113,7 +113,7 @@ class VeterinaryAssistantServiceTest {
                 ```
                 """);
 
-        var response = service.ask(user, pet.getId(), "¿Qué cuidados necesita?");
+        var response = service.askGeneral(user, pet.getId(), "¿Qué cuidados necesita?");
 
         assertThat(response.warningSigns()).containsExactly("Empeoramiento rápido.");
     }
@@ -123,16 +123,16 @@ class VeterinaryAssistantServiceTest {
         when(provider.generate(org.mockito.ArgumentMatchers.anyString()))
                 .thenThrow(ApiException.serviceUnavailable("El servicio veterinario no está disponible en este momento."));
 
-        assertThatThrownBy(() -> service.ask(user, pet.getId(), "Tiene comezón"))
+        assertThatThrownBy(() -> service.askGeneral(user, pet.getId(), "Tiene comezón"))
                 .isInstanceOf(ApiException.class).hasMessage("El servicio veterinario no está disponible en este momento.");
     }
 
     @Test
-    void privatePetContextIsNotAvailableToUnrelatedUser() {
+    void privatePetIsNotAvailableToUnrelatedUser() {
         pet.setAdoptionStatus(AdoptionStatus.IN_PROCESS);
         when(adoptions.existsByPetIdAndAdopterId(pet.getId(), user.id())).thenReturn(false);
 
-        assertThatThrownBy(() -> service.context(user, pet.getId()))
+        assertThatThrownBy(() -> service.askGeneral(user, pet.getId(), "¿Qué cuidados necesita?"))
                 .isInstanceOf(ApiException.class).hasMessage("Mascota no encontrada.");
     }
 }

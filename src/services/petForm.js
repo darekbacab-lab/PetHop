@@ -12,11 +12,6 @@ export function normalizePersonality(value) {
   return [...new Set(candidates.map(item => String(item).trim()).filter(item => item && item.toLowerCase() !== 'true' && item.toLowerCase() !== 'false'))];
 }
 
-export function togglePersonality(traits, trait) {
-  const current = normalizePersonality(traits);
-  return current.includes(trait) ? current.filter(item => item !== trait) : [...current, trait];
-}
-
 export function mergePhotoSelection(selectedKeys, files, limit = 6) {
   const keys = [...selectedKeys];
   const seen = new Set(keys);
@@ -44,8 +39,6 @@ export function petPayload(form) {
     species: ({ Perro: 'DOG', Gato: 'CAT', Otro: 'OTHER' })[form.species] || form.species,
     breed: String(form.breed || '').trim() || null,
     sex: sexValues[form.gender] || form.sex || 'UNKNOWN',
-    ageValue: form.ageValue ?? null,
-    ageUnit: form.ageUnit ?? null,
     lifeStage: lifeStageValues[stageLabel] || stageLabel || null,
     size: sizeValues[form.size] || form.size || null,
     weight: Number.isFinite(weight) && weight > 0 ? weight : null,

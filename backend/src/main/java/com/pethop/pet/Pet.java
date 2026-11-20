@@ -32,8 +32,6 @@ public class Pet {
     @Enumerated(EnumType.STRING) @Column(nullable = false, length = 12) private PetSpecies species;
     @Column(length = 120) private String breed;
     @Enumerated(EnumType.STRING) @Column(nullable = false, length = 12) private PetSex sex = PetSex.UNKNOWN;
-    @Column(name = "age_value") private Short ageValue;
-    @Enumerated(EnumType.STRING) @Column(name = "age_unit", length = 12) private AgeUnit ageUnit;
     @Enumerated(EnumType.STRING) @Column(name = "life_stage", length = 16) private PetLifeStage lifeStage;
     @Enumerated(EnumType.STRING) @Column(length = 12) private PetSize size;
     @Column(precision = 6, scale = 2) private BigDecimal weight;
@@ -78,10 +76,6 @@ public class Pet {
     public void setBreed(String breed) { this.breed = breed; }
     public PetSex getSex() { return sex; }
     public void setSex(PetSex sex) { this.sex = sex; }
-    public Short getAgeValue() { return ageValue; }
-    public void setAgeValue(Short ageValue) { this.ageValue = ageValue; }
-    public AgeUnit getAgeUnit() { return ageUnit; }
-    public void setAgeUnit(AgeUnit ageUnit) { this.ageUnit = ageUnit; }
     public PetLifeStage getLifeStage() { return lifeStage; }
     public void setLifeStage(PetLifeStage lifeStage) { this.lifeStage = lifeStage; }
     public PetSize getSize() { return size; }
@@ -124,9 +118,7 @@ public class Pet {
     public void setAdoptionStatus(AdoptionStatus adoptionStatus) { this.adoptionStatus = adoptionStatus; }
     public ModerationStatus getModerationStatus() { return moderationStatus; }
     public void setModerationStatus(ModerationStatus moderationStatus) { this.moderationStatus = moderationStatus; }
-    public String getModerationReason() { return moderationReason; }
     public void setModerationReason(String moderationReason) { this.moderationReason = moderationReason; }
-    public Instant getModeratedAt() { return moderatedAt; }
     public void setModeratedAt(Instant moderatedAt) { this.moderatedAt = moderatedAt; }
     public Instant getPublishedAt() { return publishedAt; }
     public void setPublishedAt(Instant publishedAt) { this.publishedAt = publishedAt; }

@@ -23,7 +23,7 @@ public class ConversationParticipant {
     @Column(name="hidden_at") private Instant hiddenAt;
     @PrePersist void onCreate(){joinedAt=Instant.now();}
     public UUID getId(){return id;}public Conversation getConversation(){return conversation;}public void setConversation(Conversation v){conversation=v;}
-    public User getUser(){return user;}public void setUser(User v){user=v;}public Instant getJoinedAt(){return joinedAt;}
+    public User getUser(){return user;}public void setUser(User v){user=v;}
     public boolean isPinned(){return pinned;}public void setPinned(boolean v){pinned=v;}
     public Instant getHiddenAt(){return hiddenAt;}public void setHiddenAt(Instant v){hiddenAt=v;}
 }

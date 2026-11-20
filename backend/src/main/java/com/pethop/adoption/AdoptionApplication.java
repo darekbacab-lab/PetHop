@@ -51,6 +51,6 @@ public class AdoptionApplication {
     public String getAvailability(){return availability;} public void setAvailability(String v){availability=v;}
     public String getAdditionalInformation(){return additionalInformation;} public void setAdditionalInformation(String v){additionalInformation=v;}
     public Instant getSubmittedAt(){return submittedAt;} public Instant getReviewedAt(){return reviewedAt;} public void setReviewedAt(Instant v){reviewedAt=v;}
-    public User getReviewedBy(){return reviewedBy;} public void setReviewedBy(User v){reviewedBy=v;}
+    public void setReviewedBy(User v){reviewedBy=v;}
     public Instant getCreatedAt(){return createdAt;}
 }

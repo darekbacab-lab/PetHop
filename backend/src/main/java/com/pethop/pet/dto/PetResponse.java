@@ -1,7 +1,6 @@
 package com.pethop.pet.dto;
 
 import com.pethop.pet.AdoptionStatus;
-import com.pethop.pet.AgeUnit;
 import com.pethop.pet.Pet;
 import com.pethop.pet.PetSex;
 import com.pethop.pet.PetSize;
@@ -14,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 public record PetResponse(UUID id, UUID shelterId, String shelterName, String name, PetSpecies species,
-        String breed, PetSex sex, Short ageValue, AgeUnit ageUnit, PetSize size, BigDecimal weight,
+        String breed, PetSex sex, PetSize size, BigDecimal weight,
         String color, String description, String personality, String healthSummary, Boolean sterilized,
         Boolean vaccinated, Boolean dewormed, String location, AdoptionStatus adoptionStatus,
         Instant publishedAt, List<PetImageResponse> images, PetLifeStage lifeStage, List<String> personalityTraits,
@@ -24,10 +23,10 @@ public record PetResponse(UUID id, UUID shelterId, String shelterName, String na
         List<ShelterPetSummary> shelterOtherPets) {
     public record ShelterPetSummary(UUID id, String name, ModerationStatus moderationStatus) {}
     public static PetResponse from(Pet pet, List<PetImageResponse> images, List<String> traits) {
-        return new PetResponse(pet.getId(), pet.getShelter().getId(), pet.getShelter().getOrganizationName(), pet.getName(), pet.getSpecies(), pet.getBreed(), pet.getSex(), pet.getAgeValue(), pet.getAgeUnit(), pet.getSize(), pet.getWeight(), pet.getColor(), pet.getDescription(), pet.getPersonality(), pet.getHealthSummary(), pet.getSterilized(), pet.getVaccinated(), pet.getDewormed(), pet.getLocation(), pet.getAdoptionStatus(), pet.getPublishedAt(), List.copyOf(images), pet.getLifeStage(), traits == null ? List.of() : List.copyOf(traits), pet.getHealthCondition(), pet.getStory(), pet.getBackground(), pet.getHomeType(), pet.getConditions(), pet.getExperience(), pet.getRequirements(), pet.getModerationStatus(), null, null, null, null);
+        return new PetResponse(pet.getId(), pet.getShelter().getId(), pet.getShelter().getOrganizationName(), pet.getName(), pet.getSpecies(), pet.getBreed(), pet.getSex(), pet.getSize(), pet.getWeight(), pet.getColor(), pet.getDescription(), pet.getPersonality(), pet.getHealthSummary(), pet.getSterilized(), pet.getVaccinated(), pet.getDewormed(), pet.getLocation(), pet.getAdoptionStatus(), pet.getPublishedAt(), List.copyOf(images), pet.getLifeStage(), traits == null ? List.of() : List.copyOf(traits), pet.getHealthCondition(), pet.getStory(), pet.getBackground(), pet.getHomeType(), pet.getConditions(), pet.getExperience(), pet.getRequirements(), pet.getModerationStatus(), null, null, null, null);
     }
     public static PetResponse fromForReview(Pet pet, List<PetImageResponse> images, List<String> traits,
             String shelterContactEmail, List<ShelterPetSummary> shelterOtherPets) {
-        return new PetResponse(pet.getId(), pet.getShelter().getId(), pet.getShelter().getOrganizationName(), pet.getName(), pet.getSpecies(), pet.getBreed(), pet.getSex(), pet.getAgeValue(), pet.getAgeUnit(), pet.getSize(), pet.getWeight(), pet.getColor(), pet.getDescription(), pet.getPersonality(), pet.getHealthSummary(), pet.getSterilized(), pet.getVaccinated(), pet.getDewormed(), pet.getLocation(), pet.getAdoptionStatus(), pet.getPublishedAt(), List.copyOf(images), pet.getLifeStage(), traits == null ? List.of() : List.copyOf(traits), pet.getHealthCondition(), pet.getStory(), pet.getBackground(), pet.getHomeType(), pet.getConditions(), pet.getExperience(), pet.getRequirements(), pet.getModerationStatus(), pet.getShelter().getVerificationStatus().name(), shelterContactEmail, pet.getShelter().getContactPhone(), shelterOtherPets);
+        return new PetResponse(pet.getId(), pet.getShelter().getId(), pet.getShelter().getOrganizationName(), pet.getName(), pet.getSpecies(), pet.getBreed(), pet.getSex(), pet.getSize(), pet.getWeight(), pet.getColor(), pet.getDescription(), pet.getPersonality(), pet.getHealthSummary(), pet.getSterilized(), pet.getVaccinated(), pet.getDewormed(), pet.getLocation(), pet.getAdoptionStatus(), pet.getPublishedAt(), List.copyOf(images), pet.getLifeStage(), traits == null ? List.of() : List.copyOf(traits), pet.getHealthCondition(), pet.getStory(), pet.getBackground(), pet.getHomeType(), pet.getConditions(), pet.getExperience(), pet.getRequirements(), pet.getModerationStatus(), pet.getShelter().getVerificationStatus().name(), shelterContactEmail, pet.getShelter().getContactPhone(), shelterOtherPets);
     }
 }

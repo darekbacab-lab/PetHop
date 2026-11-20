@@ -19,7 +19,7 @@ Las vistas convertidas son:
 ## Arquitectura actual
 
 - `src/router/index.js` registra las rutas históricas con Vue Router.
-- `src/components/SiteHeader.vue`, `SiteFooter.vue`, `PetCard.vue` e `Icon.vue` contienen elementos reutilizables. `Icon.vue` renderiza trazados declarativos exportados desde la copia local de Lucide v1.52.0 (`js/vendor/lucide.min.js`); no inicializa el renderer DOM ni agrega una dependencia npm. El encabezado gestiona el menú adaptable y el resumen modal de favoritos.
+- `src/components/SiteHeader.vue`, `SiteFooter.vue`, `PetCard.vue` e `Icon.vue` contienen elementos reutilizables. `Icon.vue` renderiza trazados declarativos exportados desde los datos locales en `src/icons/lucide-icons.js` (derivados de Lucide v1.52.0, sin copia vendor); no inicializa el renderer DOM ni agrega una dependencia npm. El encabezado gestiona el menú adaptable y el resumen modal de favoritos.
 - `src/views/` contiene las siete plantillas y la lógica reactiva de página.
 - `src/services/storage.js` encapsula `localStorage` y `sessionStorage`; `src/services/pets.js` conecta catálogo, publicaciones y favoritos.
 - `js/pethop-data.js` se conserva como módulo de datos compatible con las claves y estructuras históricas de PetHop para directorio público, almacenamiento de mensajes e intercambio de conversaciones. No representa un controlador DOM y no carga páginas.

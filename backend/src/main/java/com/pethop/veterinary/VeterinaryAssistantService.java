@@ -13,7 +13,6 @@ import com.pethop.veterinary.dto.VeterinaryAssistantResponse;
 import com.pethop.veterinary.dto.VeterinaryPetContextResponse;
 import java.text.Normalizer;
 import java.io.IOException;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -36,17 +35,6 @@ public class VeterinaryAssistantService {
     public VeterinaryAssistantService(PetRepository pets, ShelterRepository shelters, AdoptionRepository adoptions,
             VeterinaryAiProvider provider, ObjectMapper mapper) {
         this.pets = pets; this.shelters = shelters; this.adoptions = adoptions; this.provider = provider; this.mapper = mapper;
-    }
-
-    @Transactional(readOnly = true)
-    public VeterinaryPetContextResponse context(SecurityUser user, UUID petId) {
-        return toContext(authorizedPet(user, petId));
-    }
-
-    @Transactional(readOnly = true)
-    public VeterinaryAssistantResponse ask(SecurityUser user, UUID petId, String message) {
-        Pet pet = authorizedPet(user, petId);
-        return askForPet(user, pet, message);
     }
 
     @Transactional(readOnly = true)
@@ -80,7 +68,7 @@ public class VeterinaryAssistantService {
 
     private VeterinaryPetContextResponse toContext(Pet pet) {
         return new VeterinaryPetContextResponse(pet.getId(), pet.getName(), pet.getSpecies(), pet.getBreed(), pet.getSex(),
-                pet.getAgeValue(), pet.getAgeUnit(), pet.getLifeStage(), pet.getSize(), pet.getWeight(), pet.getColor(),
+                pet.getLifeStage(), pet.getSize(), pet.getWeight(), pet.getColor(),
                 pet.getHealthSummary(), pet.getHealthCondition(), pet.getSterilized(), pet.getVaccinated(), pet.getDewormed(),
                 pet.getConditions(), pet.getRequirements());
     }
@@ -90,7 +78,7 @@ public class VeterinaryAssistantService {
                 + "Observación del usuario:\n" + message;
         return "Contexto autorizado de la mascota (sin datos personales):\n"
                 + "nombre=" + value(pet.name()) + ", especie=" + value(pet.species()) + ", raza=" + value(pet.breed())
-                + ", sexo=" + value(pet.sex()) + ", edad=" + value(pet.ageValue()) + " " + value(pet.ageUnit())
+                + ", sexo=" + value(pet.sex())
                 + ", etapa=" + value(pet.lifeStage()) + ", tamaño=" + value(pet.size()) + ", peso=" + value(pet.weight())
                 + ", color=" + value(pet.color()) + ", salud=" + value(pet.healthSummary())
                 + ", condición=" + value(pet.healthCondition()) + ", esterilizado=" + value(pet.sterilized())
@@ -108,7 +96,7 @@ public class VeterinaryAssistantService {
             List<String> reasons = list(root, "reasons");
             List<String> warningSigns = list(root, "warning_signs", "warningSigns");
             List<String> guidance = list(root, "guidance");
-            return new VeterinaryAssistantResponse(pet == null ? null : pet.getId(), pet == null ? null : pet.getName(), urgency, summary, reasons, warningSigns, guidance, DISCLAIMER, Instant.now());
+            return new VeterinaryAssistantResponse(pet == null ? null : pet.getId(), pet == null ? null : pet.getName(), urgency, summary, reasons, warningSigns, guidance, DISCLAIMER);
         } catch (ApiException exception) {
             throw exception;
         } catch (IOException | RuntimeException exception) {
@@ -157,7 +145,7 @@ public class VeterinaryAssistantService {
                 List.of("La dificultad respiratoria, la pérdida de conciencia, las convulsiones, el sangrado abundante o el dolor intenso son señales de alarma."),
                 List.of("Dificultad para respirar, encías azuladas o muy pálidas, pérdida de conciencia, convulsiones, sangrado abundante o empeoramiento rápido."),
                 List.of("Contacta ahora a un servicio veterinario de urgencias. Mantén a la mascota segura y tranquila durante el traslado. No administres medicamentos humanos ni esperes a que los signos desaparezcan."),
-                DISCLAIMER, Instant.now());
+                DISCLAIMER);
     }
 
     private String value(Object value) { return value == null ? "no proporcionado" : String.valueOf(value); }

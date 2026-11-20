@@ -35,13 +35,6 @@ public class FollowUpService {
         return reports.findAllByAdoptionIdOrderByReportDateDesc(adoptionId).stream().map(this::response).toList();
     }
     @Transactional
-    public FollowUpResponse update(SecurityUser user,UUID reportId,FollowUpRequest request){
-        FollowUpReport report=reports.findById(reportId).orElseThrow(()->ApiException.notFound("Reporte no encontrado."));
-        adoptions.authorized(report.getAdoption().getId(),user);
-        if(!report.getCreatedBy().getId().equals(user.id()))throw ApiException.forbidden("Solo quien creó el reporte puede editarlo.");
-        apply(report,request);return response(reports.save(report));
-    }
-    @Transactional
     public FollowUpMediaResponse addMedia(SecurityUser user,UUID reportId,MultipartFile file)throws IOException{
         FollowUpReport report=reports.findById(reportId).orElseThrow(()->ApiException.notFound("Reporte no encontrado."));adoptions.authorized(report.getAdoption().getId(),user);
         if(!report.getCreatedBy().getId().equals(user.id()))throw ApiException.forbidden("Solo quien creó el reporte puede adjuntar fotografías.");
@@ -59,7 +52,7 @@ public class FollowUpService {
     public FollowUpMedia getMedia(SecurityUser user,UUID mediaId){
         FollowUpMedia item=media.findById(mediaId).orElseThrow(()->ApiException.notFound("Fotografía no encontrada."));adoptions.authorized(item.getFollowUp().getAdoption().getId(),user);return item;
     }
-    private void apply(FollowUpReport r,FollowUpRequest q){r.setReportDate(q.reportDate());r.setPetCondition(q.petCondition());r.setBehaviorNotes(q.behaviorNotes());r.setHealthNotes(q.healthNotes());r.setGeneralNotes(q.generalNotes());}
+    private void apply(FollowUpReport r,FollowUpRequest q){r.setReportDate(q.reportDate());r.setPetCondition(q.petCondition());r.setGeneralNotes(q.generalNotes());}
     private FollowUpResponse response(FollowUpReport r){return FollowUpResponse.from(r,media.findAllByFollowUpId(r.getId()).stream().map(FollowUpMediaResponse::from).toList());}
     private com.pethop.user.User otherParty(Adoption a,SecurityUser actor){return actor.user().getRole()==UserRole.SHELTER?a.getAdopter():a.getShelter().getUser();}
 }

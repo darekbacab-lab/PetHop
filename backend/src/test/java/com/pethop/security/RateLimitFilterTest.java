@@ -33,7 +33,7 @@ class RateLimitFilterTest {
     }
 
     @Test
-    void limitsUploadsAndReportsWithoutChangingOtherEndpoints() throws Exception {
+    void limitsUploadsWithoutChangingOtherEndpoints() throws Exception {
         RateLimitProperties properties = properties(1, 60);
         RateLimitFilter filter = new RateLimitFilter(new InMemoryRateLimiter(Clock.fixed(Instant.EPOCH, ZoneOffset.UTC)), properties);
         AtomicInteger passed = new AtomicInteger();
@@ -44,13 +44,8 @@ class RateLimitFilterTest {
         filter.doFilter(request("/api/v1/pets/1/images", "POST"), blockedUpload, chain);
         assertThat(blockedUpload.getStatus()).isEqualTo(429);
 
-        filter.doFilter(request("/api/v1/pets/1/reports", "POST"), new MockHttpServletResponse(), chain);
-        MockHttpServletResponse blockedReport = new MockHttpServletResponse();
-        filter.doFilter(request("/api/v1/pets/1/reports", "POST"), blockedReport, chain);
-        assertThat(blockedReport.getStatus()).isEqualTo(429);
-
         filter.doFilter(request("/api/v1/pets", "GET"), new MockHttpServletResponse(), chain);
-        assertThat(passed.get()).isEqualTo(3);
+        assertThat(passed.get()).isEqualTo(2);
     }
 
     @Test
@@ -58,9 +53,9 @@ class RateLimitFilterTest {
         RateLimitProperties properties = properties(1, 60);
         RateLimitFilter filter = new RateLimitFilter(new InMemoryRateLimiter(Clock.fixed(Instant.EPOCH, ZoneOffset.UTC)), properties);
         FilterChain chain = mock(FilterChain.class);
-        filter.doFilter(request("/api/v1/pets/1/veterinary-assistant/messages", "POST"), new MockHttpServletResponse(), chain);
+        filter.doFilter(request("/api/v1/veterinary-assistant/messages", "POST"), new MockHttpServletResponse(), chain);
         MockHttpServletResponse blocked = new MockHttpServletResponse();
-        filter.doFilter(request("/api/v1/pets/1/veterinary-assistant/messages", "POST"), blocked, chain);
+        filter.doFilter(request("/api/v1/veterinary-assistant/messages", "POST"), blocked, chain);
         assertThat(blocked.getStatus()).isEqualTo(429);
     }
 

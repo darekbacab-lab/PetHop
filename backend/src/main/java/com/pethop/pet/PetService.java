@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.UUID;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -176,14 +175,6 @@ public class PetService {
         return image;
     }
 
-    @Transactional(readOnly=true)
-    public List<PetImageResponse> images(UUID petId, SecurityUser principal) {
-        Pet pet = find(petId);
-        if ((pet.getAdoptionStatus() != AdoptionStatus.AVAILABLE || pet.getModerationStatus() != ModerationStatus.APPROVED)
-                && !canView(pet, principal)) throw ApiException.notFound("Mascota no encontrada.");
-        return images.findAllByPetIdOrderByDisplayOrder(petId).stream().map(PetImageResponse::from).toList();
-    }
-
     private Pet find(UUID id) { return pets.findByIdAndDeletedAtIsNull(id).orElseThrow(() -> ApiException.notFound("Mascota no encontrada.")); }
     private void requireVerifiedShelter(SecurityUser principal, ShelterProfile shelter) {
         if (principal.user().getRole() == UserRole.ADMIN) return;
@@ -193,13 +184,6 @@ public class PetService {
     private ShelterProfile ownedShelter(SecurityUser principal) {
         if (principal.user().getRole() != UserRole.SHELTER) throw ApiException.forbidden("Solo refugios pueden administrar mascotas.");
         return shelters.findByUserId(principal.id()).orElseThrow(() -> ApiException.badRequest("Primero registra el perfil del refugio."));
-    }
-    private Pet ownedPet(UUID id, SecurityUser principal) {
-        Pet pet = find(id);
-        if (principal.user().getRole() == UserRole.ADMIN) return pet;
-        ShelterProfile shelter = ownedShelter(principal);
-        if (!pet.getShelter().getId().equals(shelter.getId())) throw ApiException.notFound("Mascota no encontrada.");
-        return pet;
     }
     private Pet ownedPetForUpdate(UUID id, SecurityUser principal) {
         Pet pet = pets.findByIdForUpdate(id).orElseThrow(() -> ApiException.notFound("Mascota no encontrada."));
@@ -244,7 +228,7 @@ public class PetService {
     }
     private void apply(Pet pet, PetRequest request, boolean creating) {
         pet.setName(request.name().trim()); pet.setSpecies(request.species()); pet.setBreed(request.breed());
-        pet.setSex(request.sex()); pet.setAgeValue(request.ageValue()); pet.setAgeUnit(request.ageUnit()); pet.setSize(request.size());
+        pet.setSex(request.sex()); pet.setSize(request.size());
         pet.setLifeStage(request.lifeStage());
         pet.setWeight(request.weight()); pet.setColor(request.color()); pet.setDescription(request.description().trim());
         List<String> traits = request.personalityTraits() == null ? parseTraits(request.personality()) : request.personalityTraits();

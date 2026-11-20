@@ -67,12 +67,11 @@ const isAdmin = computed(() => currentUser.value?.role === 'ADMIN');
 const reviewSections = computed(() => {
   const pet = selected.value || {};
   const booleanValue = value => value === null || value === undefined ? 'No indicado' : value ? 'Sí' : 'No';
-  const age = pet.ageValue === null || pet.ageValue === undefined ? null : `${pet.ageValue}${pet.ageUnit ? ` ${pet.ageUnit}` : ''}`;
   const traits = Array.isArray(pet.personalityTraits) && pet.personalityTraits.length ? pet.personalityTraits.join(', ') : null;
   const fields = (items, includeMissing = false) => items.filter(([, value]) => includeMissing || (value !== null && value !== undefined && String(value).trim() !== ''));
   return [
     { title: 'Identidad y características', fields: fields([
-      ['Nombre', pet.name], ['Especie', speciesLabel(pet.species)], ['Raza', pet.breed], ['Etapa de vida', lifeStageLabel(pet.lifeStage)], ['Edad', age],
+      ['Nombre', pet.name], ['Especie', speciesLabel(pet.species)], ['Raza', pet.breed], ['Etapa de vida', lifeStageLabel(pet.lifeStage)],
       ['Sexo', sexLabel(pet.sex)], ['Tamaño', sizeLabel(pet.size)], ['Peso', pet.weight === null || pet.weight === undefined ? null : `${pet.weight} kg`], ['Color', pet.color], ['Ubicación', pet.location]
     ]) },
     { title: 'Salud y cuidados', fields: fields([

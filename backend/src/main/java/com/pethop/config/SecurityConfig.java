@@ -26,7 +26,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -96,11 +95,9 @@ public class SecurityConfig {
                             "/api/v1/auth/email-verification/resend").permitAll()
                     .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                     .requestMatchers("/api/v1/veterinary-assistant/**").authenticated()
-                    .requestMatchers("/api/v1/pets/*/veterinary-assistant/**").authenticated()
                     .requestMatchers(HttpMethod.GET, "/api/v1/affiliates").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/v1/pets/*/reports").authenticated()
                     .requestMatchers(HttpMethod.GET, "/api/v1/pets/mine").hasAnyRole("SHELTER", "ADMIN")
-                    .requestMatchers(HttpMethod.GET, "/api/v1/pets/*/health-records", "/api/v1/pets/*/health-records/upcoming").authenticated()
+                    .requestMatchers(HttpMethod.GET, "/api/v1/pets/*/health-records").authenticated()
                     .requestMatchers(HttpMethod.GET, "/api/v1/pets", "/api/v1/pets/*").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/v1/pet-images/*").permitAll()
                     .requestMatchers("/api/v1/pets/**").hasAnyRole("SHELTER", "ADMIN")

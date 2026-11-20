@@ -32,7 +32,7 @@ public class Notification {
     public String getMessage(){return message;} public void setMessage(String message){this.message=message;}
     public String getReferenceType(){return referenceType;} public void setReferenceType(String value){referenceType=value;}
     public UUID getReferenceId(){return referenceId;} public void setReferenceId(UUID value){referenceId=value;}
-    public String getDedupeKey(){return dedupeKey;} public void setDedupeKey(String value){dedupeKey=value;}
+    public void setDedupeKey(String value){dedupeKey=value;}
     public Instant getReadAt(){return readAt;} public void setReadAt(Instant value){readAt=value;}
     public Instant getCreatedAt(){return createdAt;}
 }

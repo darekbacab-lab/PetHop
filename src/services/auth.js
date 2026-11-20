@@ -2,7 +2,7 @@ import { api, clearApiSession } from './api.js';
 import { ref } from 'vue';
 
 export const currentUser = ref(null);
-export const sessionLoaded = ref(false);
+const sessionLoaded = ref(false);
 let currentUserRequest;
 
 export async function loadCurrentUser({ refresh = false } = {}) {

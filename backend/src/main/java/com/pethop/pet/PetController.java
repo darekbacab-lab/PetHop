@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -58,7 +57,6 @@ public class PetController {
     }
 
     @GetMapping("/{id}") PetResponse get(@PathVariable UUID id, @AuthenticationPrincipal SecurityUser principal) { return service.get(id, principal); }
-    @GetMapping("/{id}/images") List<PetImageResponse> images(@PathVariable UUID id, @AuthenticationPrincipal SecurityUser principal) { return service.images(id, principal); }
     @PostMapping @ResponseStatus(HttpStatus.CREATED)
     PetResponse create(@AuthenticationPrincipal SecurityUser principal, @Valid @RequestBody PetRequest request) { return service.create(principal, request); }
     @PatchMapping("/{id}") PetResponse update(@PathVariable UUID id, @AuthenticationPrincipal SecurityUser principal, @Valid @RequestBody PetRequest request) { return service.update(id, principal, request); }
