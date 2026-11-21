@@ -1428,14 +1428,19 @@ test('header shows the page title from route meta on every page except home; mes
   assert.match(header, /\.header-page-title \{[^}]*font:800 1\.4rem\/1\.2 "Montserrat",sans-serif;/);
   assert.match(header, /@media\(max-width:900px\) \{ \.header-page-title \{ display:none; \} \}/);
 
-  // Messages: no in-page title row; the main fills the viewport below the sticky header
-  // and the card flexes inside it, so the composer is always on screen.
+  // Messages: no in-page title row; the page is exactly one viewport tall (flex column,
+  // no footer below the main) and the layout is fused with the window — no card frame —
+  // so the composer is always on screen.
   assert.doesNotMatch(messages, /adopter-messages-titlebar/);
   assert.match(messages, /<h1 class="sr-only">Tus Mensajes<\/h1>/);
-  assert.match(messages, /\.adopter-messages-main \{[^}]*height:calc\(100dvh - var\(--header-height\)\);/);
-  assert.match(messages, /\.adopter-message-layout \{[^}]*flex:1; min-height:0;[^}]*max-width:1680px; max-height:904px;/);
+  assert.doesNotMatch(messages, /SiteFooter/);
+  assert.match(messages, /\.adopter-messages-page \{[^}]*height:100dvh; overflow:hidden;/);
+  assert.match(messages, /\.adopter-messages-main \{[^}]*flex:1; min-height:0;[^}]*padding:0;/);
+  assert.doesNotMatch(messages, /height:calc\(100dvh - var\(--header-height\)\)/);
   assert.doesNotMatch(messages, /height:min\(904px,calc\(100dvh - 160px\)\)/);
   assert.doesNotMatch(messages, /height:calc\(100dvh - 140px\)/);
+  const layoutRule = messages.match(/\.adopter-message-layout \{[^}]*\}/)[0];
+  assert.doesNotMatch(layoutRule, /border:|box-shadow:|border-radius:|max-width:|max-height:/);
   assert.match(messages, /grid-template-columns:minmax\(300px,478px\) minmax\(0,1fr\);/);
 
   // Explorar usa el ancho del resto del sitio, no una columna angosta.

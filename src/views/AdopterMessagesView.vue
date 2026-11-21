@@ -2,7 +2,6 @@
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import SiteHeader from '../components/SiteHeader.vue';
-import SiteFooter from '../components/SiteFooter.vue';
 import Icon from '../components/Icon.vue';
 import { getPetById } from '../services/petApi.js';
 import { api } from '../services/api.js';
@@ -211,14 +210,13 @@ onUnmounted(() => { window.removeEventListener('resize', syncLayout); document.r
         <section v-else class="adopter-no-conversation"><Icon name="search" :size="28" /><p>No encontramos conversaciones con ese nombre.</p></section>
       </section>
     </main>
-    <SiteFooter />
   </div>
 </template>
 
 <style scoped>
-.adopter-messages-page { min-height:100vh; overflow-x:clip; background:var(--background); }
-.adopter-messages-main { display:flex; flex-direction:column; width:100%; height:calc(100vh - var(--header-height)); height:calc(100dvh - var(--header-height)); margin:0; padding:24px; }
-.adopter-message-layout { display:grid; grid-template-columns:minmax(300px,478px) minmax(0,1fr); flex:1; min-height:0; width:100%; max-width:1680px; max-height:904px; margin:0 auto; overflow:hidden; border:1px solid var(--primary); border-radius:21px; background:var(--white); box-shadow:0 11px 11px rgba(0,0,0,0.25); }
+.adopter-messages-page { display:flex; flex-direction:column; height:100vh; height:100dvh; overflow:hidden; background:var(--background); }
+.adopter-messages-main { display:flex; flex-direction:column; width:100%; flex:1; min-height:0; margin:0; padding:0; }
+.adopter-message-layout { display:grid; grid-template-columns:minmax(300px,478px) minmax(0,1fr); flex:1; min-height:0; width:100%; overflow:hidden; background:var(--white); }
 .adopter-conversation-sidebar { display:flex; min-width:0; flex-direction:column; border-right:1px solid var(--border); background:var(--white); }
 .adopter-inbox-heading { display:flex; align-items:center; justify-content:space-between; padding:20px 19px 15px; }
 .adopter-inbox-heading h2 { color:var(--text); font:700 1.08rem/1.3 "Poppins",sans-serif; }
@@ -289,7 +287,7 @@ onUnmounted(() => { window.removeEventListener('resize', syncLayout); document.r
 .messages-empty-state p { max-width:450px; margin:7px 0 19px; color:var(--text-soft); font-size:.85rem; }
 .messages-login-link { display:inline-flex; min-height:42px; align-items:center; padding:0 16px; border-radius: var(--radius-sm); background:var(--primary-strong); color:var(--white); font-size:.78rem; font-weight:800; text-decoration:none; }
 @media(max-width:760px) {
-  .adopter-messages-main { padding:12px; }
+  .adopter-messages-main { padding:0; }
   .adopter-no-conversation { display:none; }
   .adopter-message-layout { position:relative; display:block; min-height:430px; }
   .adopter-conversation-sidebar,.adopter-chat-window { position:absolute; inset:0; }
