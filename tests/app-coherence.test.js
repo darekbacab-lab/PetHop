@@ -712,10 +712,10 @@ test('audit batch M1: contrast, wrapping, 320px, accessible names, nav, live rol
     assert.equal((styles.match(/min-width: 300px;/g) || []).length, 1, 'only the organization button may use a 300px min-width');
     assert.match(styles, /\.organization-button \{[^}]*min-width: 300px;/);
     assert.match(styles, /\.shelter-toast-close/);
-    assert.match(admin, /\.admin-breadcrumb strong \{ color:var\(--text-soft\); \}/);
     assert.match(admin, /import SiteHeader from '\.\.\/components\/SiteHeader\.vue';/);
     assert.match(admin, /<SiteHeader \/>/);
-    assert.match(admin, /\.admin-topbar \{ position:static;/);
+    assert.doesNotMatch(admin, /admin-topbar/);
+    assert.doesNotMatch(admin, /sidebarOpen/);
     assert.match(header, /Abrir notificaciones, \$\{unreadNotifications\} sin leer/);
     assert.match(header, /Seguimiento: solicitudes recibidas por tu refugio/);
     assert.match(header, /<span class="favorites-count" aria-live="polite">/);
