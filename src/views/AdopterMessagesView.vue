@@ -216,8 +216,8 @@ onUnmounted(() => { window.removeEventListener('resize', syncLayout); document.r
 <style scoped>
 .adopter-messages-page { display:flex; flex-direction:column; height:100vh; height:100dvh; overflow-x:hidden; overflow-y:auto; background:var(--background); }
 .adopter-messages-main { display:flex; flex-direction:column; width:100%; flex:1; min-height:0; margin:0; padding:0; }
-.adopter-message-layout { display:grid; grid-template-columns:minmax(300px,478px) minmax(0,1fr); flex:1; min-height:0; width:100%; overflow:hidden; background:var(--white); }
-.adopter-conversation-sidebar { display:flex; min-width:0; flex-direction:column; border-right:1px solid var(--border); background:var(--white); }
+.adopter-message-layout { display:grid; grid-template-columns:minmax(300px,478px) minmax(0,1fr); grid-template-rows:minmax(0,1fr); flex:1; min-height:0; width:100%; overflow:hidden; background:var(--white); }
+.adopter-conversation-sidebar { display:flex; min-width:0; min-height:0; flex-direction:column; border-right:1px solid var(--border); background:var(--white); }
 .adopter-inbox-heading { display:flex; align-items:center; justify-content:space-between; padding:20px 19px 15px; }
 .adopter-inbox-heading h2 { color:var(--text); font:700 1.08rem/1.3 "Poppins",sans-serif; }
 .adopter-inbox-heading p { margin-top:2px; color:var(--text-soft); font-size:.75rem; }
@@ -251,7 +251,7 @@ onUnmounted(() => { window.removeEventListener('resize', syncLayout); document.r
 .adopter-conversation-bottom > span { overflow:hidden; color:var(--text-soft); font-size:.94rem; text-overflow:ellipsis; white-space:nowrap; }
 .adopter-conversation-bottom :deep(svg) { flex:0 0 auto; color:#819091; }
 .adopter-search-empty { padding:20px 15px; color:var(--text-soft); font-size:.78rem; text-align:center; }
-.adopter-chat-window { display:flex; min-width:0; flex-direction:column; background:var(--tint); }
+.adopter-chat-window { display:flex; min-width:0; min-height:0; flex-direction:column; background:var(--tint); }
 .adopter-chat-header { display:flex; min-height:107px; align-items:center; gap:12px; padding:12px 22px; border-bottom:1px solid var(--border); background:var(--white); }
 .adopter-chat-avatar { width:60px; height:60px; flex-basis:60px; }
 .adopter-chat-contact { display:flex; min-width:0; flex:1; flex-direction:column; gap:3px; }

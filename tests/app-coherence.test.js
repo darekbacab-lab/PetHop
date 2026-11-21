@@ -1443,6 +1443,11 @@ test('header shows the page title from route meta on every page except home; mes
   const layoutRule = messages.match(/\.adopter-message-layout \{[^}]*\}/)[0];
   assert.doesNotMatch(layoutRule, /border:|box-shadow:|border-radius:|max-width:|max-height:/);
   assert.match(messages, /grid-template-columns:minmax\(300px,478px\) minmax\(0,1fr\);/);
+  // La fila del grid es 1fr acotada: sin ella la fila es auto y el chat crece con
+  // todos los mensajes, empujando la barra bajo el pliegue (Kiki, nov 2026).
+  assert.match(layoutRule, /grid-template-rows:minmax\(0,1fr\);/);
+  assert.match(messages, /\.adopter-chat-window \{[^}]*min-height:0;/);
+  assert.match(messages, /\.adopter-conversation-sidebar \{[^}]*min-height:0;/);
 
   // Explorar usa el ancho del resto del sitio, no una columna angosta.
   const explore = fs.readFileSync(path.join(projectRoot, 'src', 'views', 'ExploreView.vue'), 'utf8');
