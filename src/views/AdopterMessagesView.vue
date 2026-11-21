@@ -152,9 +152,7 @@ onUnmounted(() => { window.removeEventListener('resize', syncLayout); document.r
   <div class="adopter-messages-page">
     <SiteHeader />
     <main id="main-content" tabindex="-1" class="adopter-messages-main">
-      <div class="adopter-messages-titlebar">
-        <h1><span class="title-dark">&gt; Tus </span><span class="title-accent">Mensajes</span></h1>
-      </div>
+      <h1 class="sr-only">Tus Mensajes</h1>
 
       <section v-if="inboxError && !allConversations.length" class="messages-empty-state" role="alert">
         <span class="messages-empty-icon"><Icon name="messages-square" :size="31" /></span>
@@ -218,13 +216,9 @@ onUnmounted(() => { window.removeEventListener('resize', syncLayout); document.r
 </template>
 
 <style scoped>
-.adopter-messages-page { min-height:100vh; background:var(--background); }
-.adopter-messages-main { width:100%; margin:0; padding:0; }
-.adopter-messages-titlebar { display:flex; align-items:center; min-height:57px; padding:8px 24px; background:var(--white); }
-.adopter-messages-titlebar h1 { margin:0; font:800 2rem/1.2 "Montserrat",sans-serif; letter-spacing:-.02em; }
-.adopter-messages-titlebar h1 .title-dark { color:var(--hero-title-dark); }
-.adopter-messages-titlebar h1 .title-accent { color:var(--primary); }
-.adopter-message-layout { display:grid; grid-template-columns:minmax(270px,.72fr) minmax(0,1.5fr); height:min(904px,calc(100dvh - 160px)); min-height:560px; overflow:hidden; border:1px solid var(--primary); border-radius:21px; background:var(--white); box-shadow:0 11px 11px rgba(0,0,0,0.25); }
+.adopter-messages-page { min-height:100vh; overflow-x:clip; background:var(--background); }
+.adopter-messages-main { display:flex; flex-direction:column; width:100%; height:calc(100vh - var(--header-height)); height:calc(100dvh - var(--header-height)); margin:0; padding:24px; }
+.adopter-message-layout { display:grid; grid-template-columns:minmax(300px,478px) minmax(0,1fr); flex:1; min-height:0; width:100%; max-width:1680px; max-height:904px; margin:0 auto; overflow:hidden; border:1px solid var(--primary); border-radius:21px; background:var(--white); box-shadow:0 11px 11px rgba(0,0,0,0.25); }
 .adopter-conversation-sidebar { display:flex; min-width:0; flex-direction:column; border-right:1px solid var(--border); background:var(--white); }
 .adopter-inbox-heading { display:flex; align-items:center; justify-content:space-between; padding:20px 19px 15px; }
 .adopter-inbox-heading h2 { color:var(--text); font:700 1.08rem/1.3 "Poppins",sans-serif; }
@@ -280,7 +274,7 @@ onUnmounted(() => { window.removeEventListener('resize', syncLayout); document.r
 .adopter-chat-bubble.is-outgoing time { color:rgba(255,255,255,.78); }
 .adopter-chat-first-message { align-self:center; margin:auto; padding:10px 13px; border-radius: var(--radius-md); background:rgba(255,255,255,.8); color:var(--text-soft); font-size:.76rem; text-align:center; }
 .adopter-chat-composer { display:flex; align-items:flex-end; gap:11px; padding:42px 22px 47px; background:var(--background); }
-.adopter-chat-composer textarea { min-height:65px; max-height:110px; flex:1; resize:vertical; padding:11px 14px; border:1px solid var(--primary); border-radius:21px;  background:var(--white); color:var(--text); font:500 1rem/1.4 "Poppins",sans-serif; }
+.adopter-chat-composer textarea { min-width:0; min-height:65px; max-height:110px; flex:1; resize:vertical; padding:11px 14px; border:1px solid var(--primary); border-radius:21px;  background:var(--white); color:var(--text); font:500 1rem/1.4 "Poppins",sans-serif; }
 .adopter-chat-composer textarea::placeholder { color:var(--text-soft); }
 .adopter-chat-composer textarea:focus { border-color:var(--primary-strong); box-shadow:0 0 0 3px rgba(22,127,135,.1); }
 .adopter-chat-composer button { display:grid; width:58px; height:58px; flex:0 0 58px; place-items:center; border:0; border-radius:50%; background:var(--primary-strong); color:var(--white); cursor:pointer; transition:background .18s ease,transform .18s ease; }
@@ -295,10 +289,9 @@ onUnmounted(() => { window.removeEventListener('resize', syncLayout); document.r
 .messages-empty-state p { max-width:450px; margin:7px 0 19px; color:var(--text-soft); font-size:.85rem; }
 .messages-login-link { display:inline-flex; min-height:42px; align-items:center; padding:0 16px; border-radius: var(--radius-sm); background:var(--primary-strong); color:var(--white); font-size:.78rem; font-weight:800; text-decoration:none; }
 @media(max-width:760px) {
-  .adopter-messages-titlebar { min-height:52px; padding:8px 14px; }
-  .adopter-messages-titlebar h1 { font-size:1.5rem; }
+  .adopter-messages-main { padding:12px; }
   .adopter-no-conversation { display:none; }
-  .adopter-message-layout { position:relative; display:block; height:calc(100dvh - 140px); min-height:430px; }
+  .adopter-message-layout { position:relative; display:block; min-height:430px; }
   .adopter-conversation-sidebar,.adopter-chat-window { position:absolute; inset:0; }
   .adopter-chat-window { display:none; }
   .adopter-message-layout.mobile-chat-open .adopter-conversation-sidebar { display:none; }

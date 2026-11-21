@@ -29,6 +29,13 @@ const unreadNotifications = computed(() => notifications.value.filter(item => !i
 const count = computed(() => favorites.value.length);
 const accountRoute = computed(() => '/perfil.html');
 const profileLabel = computed(() => 'Mi perfil');
+const pageTitleParts = computed(() => {
+  const title = route.meta?.pageTitle;
+  if (!title) return null;
+  const words = String(title).split(' ');
+  if (words.length === 1) return { dark: '> ', accent: words[0] };
+  return { dark: `> ${words.slice(0, -1).join(' ')} `, accent: words.at(-1) };
+});
 const links = computed(() => [
   { label: 'Inicio', to: '/inicio.html', icon: 'house' },
   { label: 'Explorar', to: '/explorar.html', icon: 'search' },
@@ -143,6 +150,7 @@ onUnmounted(() => window.removeEventListener('pethop:shelter-updated', onShelter
   <header class="site-header" @keydown.esc.window="closeMenu(true)"><div class="header-container">
     <button ref="menuToggle" type="button" class="menu-toggle" :class="{ 'menu-toggle-open': open }" :aria-expanded="open" aria-controls="main-menu" :aria-label="open ? 'Cerrar menú' : 'Abrir menú'" @click="open = !open"><Icon :name="open ? 'x' : 'menu'" /></button>
     <RouterLink to="/inicio.html" class="brand" aria-label="PetHop"><img class="brand-logo-color" src="/img/image1.png" alt=""><img class="brand-logo-mono" src="/img/Logomonocr.png" alt=""></RouterLink>
+    <p v-if="pageTitleParts" class="header-page-title"><span class="title-dark">{{ pageTitleParts.dark }}</span><span class="title-accent">{{ pageTitleParts.accent }}</span></p>
     <nav id="main-menu" class="main-nav" :class="{ open }" :inert="!open" aria-label="Navegación principal">
       <div class="menu-drawer-header"><div class="menu-drawer-brand"><img class="brand-logo-color" src="/img/image1.png" alt=""><img class="brand-logo-mono" src="/img/Logomonocr.png" alt=""></div><button type="button" class="menu-drawer-close" aria-label="Cerrar menú" @click="closeMenu(true)"><Icon name="x" /></button></div>
       <template v-for="(item, index) in links" :key="item.to"><RouterLink class="nav-link" :class="{ active: isNavActive(item) }" :to="item.to" :aria-current="isNavActive(item) ? 'page' : undefined" :aria-label="item.hint || undefined" :title="item.hint || undefined" @click="closeMenu"><Icon :name="item.icon" class="nav-item-icon" /><span>{{ item.label }}</span></RouterLink><button v-if="index === 1 && (!currentUser || currentUser.role === 'ADOPTER')" type="button" class="favorites-button menu-favorites" @click="openFavorites"><Icon name="heart" class="nav-item-icon" /><span class="favorites-label">Favoritos</span><span class="favorites-count" aria-live="polite">{{ count }}</span></button></template>
@@ -157,6 +165,10 @@ onUnmounted(() => window.removeEventListener('pethop:shelter-updated', onShelter
 </template>
 
 <style scoped>
+.header-page-title { margin:0 0 0 6px; overflow:hidden; font:800 1.4rem/1.2 "Montserrat",sans-serif; letter-spacing:-.02em; text-overflow:ellipsis; white-space:nowrap; }
+.header-page-title .title-dark { color:var(--hero-title-dark); }
+.header-page-title .title-accent { color:var(--primary); }
+@media(max-width:900px) { .header-page-title { display:none; } }
 .brand-logo-mono { display:none!important; }
 .account-trigger { position:relative; display:grid; width:48px; height:48px; place-items:center; padding:0; border:1px solid var(--border); border-radius: var(--radius-sm); background:var(--white); color:var(--primary-strong); text-decoration:none; }
 .account-trigger:hover { border-color:var(--primary); background:var(--background); }

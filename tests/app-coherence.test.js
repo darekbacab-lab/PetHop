@@ -1268,7 +1268,7 @@ test('prelaunch C: custom 404 page', () => {
     const server = fs.readFileSync(path.join(projectRoot, 'server.mjs'), 'utf8');
     const css = fs.readFileSync(path.join(projectRoot, 'css/styles.css'), 'utf8');
     assert.doesNotMatch(router, /pathMatch\(\.\*\)\*', redirect: '\/inicio\.html'/);
-    assert.match(router, /path: '\/:pathMatch\(\.\*\)\*', name: 'not-found', meta: \{ title: 'Página no encontrada \| PetHop', description: /);
+    assert.match(router, /path: '\/:pathMatch\(\.\*\)\*', name: 'not-found', meta: \{ title: 'Página no encontrada \| PetHop', pageTitle: 'Página no encontrada', description: /);
     assert.match(router, /component: \(\) => import\('\.\.\/views\/NotFoundView\.vue'\)/);
     assert.match(view, /404/);
     assert.match(view, /se escapó\./);
@@ -1411,4 +1411,36 @@ test('catalog pet photos fill the card frame, gallery keeps the full photo', () 
   assert.match(css, /\.catalog-page \.catalog-card-image \.image-loading-content \{ object-fit:cover; \}/);
   assert.doesNotMatch(css, /\.catalog-page \.catalog-card-image \.image-loading-content,\s*\.gallery-slide-image \{ object-fit:contain; \}/);
   assert.match(css, /\.gallery-slide-image \{ object-fit:contain; \}/);
+});
+
+test('header shows the page title from route meta on every page except home; messages fills the viewport so the composer stays visible', () => {
+  const router = fs.readFileSync(path.join(projectRoot, 'src', 'router', 'index.js'), 'utf8');
+  const header = fs.readFileSync(path.join(projectRoot, 'src', 'components', 'SiteHeader.vue'), 'utf8');
+  const messages = fs.readFileSync(path.join(projectRoot, 'src', 'views', 'AdopterMessagesView.vue'), 'utf8');
+
+  // Every route except home carries a short page title for the header.
+  const routeLines = router.split('\n').filter(line => line.includes("path: '/"));
+  assert.equal(routeLines.filter(line => line.includes('pageTitle')).length, 14);
+  assert.ok(!routeLines.find(line => line.includes("path: '/inicio.html'"))?.includes('pageTitle'));
+  assert.match(router, /path: '\/mensajes\.html', name: 'mensajes', meta: \{ title: '[^']+', pageTitle: 'Tus Mensajes',/);
+  assert.match(header, /pageTitleParts = computed\(\(\) => \{\s*const title = route\.meta\?\.pageTitle;/);
+  assert.match(header, /<p v-if="pageTitleParts" class="header-page-title">/);
+  assert.match(header, /\.header-page-title \{[^}]*font:800 1\.4rem\/1\.2 "Montserrat",sans-serif;/);
+  assert.match(header, /@media\(max-width:900px\) \{ \.header-page-title \{ display:none; \} \}/);
+
+  // Messages: no in-page title row; the main fills the viewport below the sticky header
+  // and the card flexes inside it, so the composer is always on screen.
+  assert.doesNotMatch(messages, /adopter-messages-titlebar/);
+  assert.match(messages, /<h1 class="sr-only">Tus Mensajes<\/h1>/);
+  assert.match(messages, /\.adopter-messages-main \{[^}]*height:calc\(100dvh - var\(--header-height\)\);/);
+  assert.match(messages, /\.adopter-message-layout \{[^}]*flex:1; min-height:0;[^}]*max-width:1680px; max-height:904px;/);
+  assert.doesNotMatch(messages, /height:min\(904px,calc\(100dvh - 160px\)\)/);
+  assert.doesNotMatch(messages, /height:calc\(100dvh - 140px\)/);
+  assert.match(messages, /grid-template-columns:minmax\(300px,478px\) minmax\(0,1fr\);/);
+
+  // Explorar usa el ancho del resto del sitio, no una columna angosta.
+  const explore = fs.readFileSync(path.join(projectRoot, 'src', 'views', 'ExploreView.vue'), 'utf8');
+  assert.match(explore, /\.catalog-header-container \{ max-width:1320px; \}/);
+  assert.match(explore, /\.catalog-container \{ max-width:1320px; \}/);
+  assert.doesNotMatch(explore, /max-width:920px/);
 });

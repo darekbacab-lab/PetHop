@@ -115,9 +115,9 @@ onMounted(refresh);
 .catalog-header h1 { max-width:560px; color:var(--hero-title-dark); font-size:clamp(2rem,4vw,2.9rem); font-weight:800; line-height:1.05; letter-spacing:-.045em; }
 .catalog-header h1 span { color:var(--hero-title-light); }
 .catalog-layout { display:block; }
-.catalog-header-container { max-width:920px; }
+.catalog-header-container { max-width:1320px; }
 .catalog-section { padding-top:12px; }
-.catalog-container { max-width:920px; }
+.catalog-container { max-width:1320px; }
 .catalog-page .catalog-card-image { height:210px; }
 .catalog-filterbar { position:static; margin-bottom:18px; padding:12px 16px; border-color:var(--primary); background-color:var(--background); }
 .catalog-filter-controls { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)) minmax(130px,1.2fr) minmax(168px,1.55fr) minmax(140px,1.2fr); gap:10px; align-items:end; }
