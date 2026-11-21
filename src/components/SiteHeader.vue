@@ -205,7 +205,7 @@ onUnmounted(() => window.removeEventListener('pethop:shelter-updated', onShelter
 .favorites-pet-actions { display:flex; align-items:center; justify-content:flex-end; gap:8px; }
 .favorites-profile-link { display:inline-flex; min-height:38px; align-items:center; justify-content:center; padding:0 12px; border-radius: var(--radius-xs); background:var(--primary-strong); color:var(--white); font-size:.75rem; font-weight:800; text-decoration:none; white-space:nowrap; }
 .favorites-profile-link:hover { background:var(--primary-strong-hover); }
-.favorites-remove-button { display:inline-flex; min-height:38px; align-items:center; justify-content:center; gap:5px; padding:0 10px; border:1px solid var(--border); border-radius: var(--radius-xs); background:var(--white); color:var(--text-soft); cursor:pointer; font:700.75rem "Montserrat",Arial,sans-serif; white-space:nowrap; }
+.favorites-remove-button { display:inline-flex; min-height:38px; align-items:center; justify-content:center; gap:5px; padding:0 10px; border:1px solid var(--border); border-radius: var(--radius-xs); background:var(--white); color:var(--text-soft); cursor:pointer; font:700 .75rem "Montserrat",Arial,sans-serif; white-space:nowrap; }
 .favorites-remove-button:hover { border-color:var(--danger); color:var(--danger); }
 .favorites-remove-button :deep(svg) { width:15px; height:15px; }
 .favorites-empty-copy { margin:12px 0 0!important; font-size:.84rem!important; line-height:1.6; }

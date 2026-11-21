@@ -214,7 +214,7 @@ onUnmounted(() => { window.removeEventListener('resize', syncLayout); document.r
 </template>
 
 <style scoped>
-.adopter-messages-page { display:flex; flex-direction:column; height:100vh; height:100dvh; overflow:hidden; background:var(--background); }
+.adopter-messages-page { display:flex; flex-direction:column; height:100vh; height:100dvh; overflow-x:hidden; overflow-y:auto; background:var(--background); }
 .adopter-messages-main { display:flex; flex-direction:column; width:100%; flex:1; min-height:0; margin:0; padding:0; }
 .adopter-message-layout { display:grid; grid-template-columns:minmax(300px,478px) minmax(0,1fr); flex:1; min-height:0; width:100%; overflow:hidden; background:var(--white); }
 .adopter-conversation-sidebar { display:flex; min-width:0; flex-direction:column; border-right:1px solid var(--border); background:var(--white); }
@@ -271,7 +271,7 @@ onUnmounted(() => { window.removeEventListener('resize', syncLayout); document.r
 .adopter-chat-bubble time { align-self:flex-end; color:var(--text-soft); font-size:.94rem; }
 .adopter-chat-bubble.is-outgoing time { color:rgba(255,255,255,.78); }
 .adopter-chat-first-message { align-self:center; margin:auto; padding:10px 13px; border-radius: var(--radius-md); background:rgba(255,255,255,.8); color:var(--text-soft); font-size:.76rem; text-align:center; }
-.adopter-chat-composer { display:flex; align-items:flex-end; gap:11px; padding:42px 22px 47px; background:var(--background); }
+.adopter-chat-composer { display:flex; align-items:flex-end; gap:11px; padding:42px 22px 72px; background:var(--background); }
 .adopter-chat-composer textarea { min-width:0; min-height:65px; max-height:110px; flex:1; resize:vertical; padding:11px 14px; border:1px solid var(--primary); border-radius:21px;  background:var(--white); color:var(--text); font:500 1rem/1.4 "Poppins",sans-serif; }
 .adopter-chat-composer textarea::placeholder { color:var(--text-soft); }
 .adopter-chat-composer textarea:focus { border-color:var(--primary-strong); box-shadow:0 0 0 3px rgba(22,127,135,.1); }

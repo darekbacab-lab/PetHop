@@ -786,7 +786,7 @@ watch(() => state.step, () => persist());
 }
 .shelter-health-records { grid-column:1/-1; display:grid; gap:12px; padding:18px; border:1px solid var(--border); border-radius: var(--radius-sm); background:var(--background); }
 .shelter-health-records h3 { margin:0; color:var(--text); font:750 1rem "Poppins",sans-serif; }
-.shelter-health-records h3 small { color:var(--primary-strong); font:800.75rem "Montserrat",sans-serif; letter-spacing:.08em; }
+.shelter-health-records h3 small { color:var(--primary-strong); font:800 .75rem "Montserrat",sans-serif; letter-spacing:.08em; }
 .shelter-health-records > p { margin:0; color:var(--text-soft); font-size:.78rem; line-height:1.55; }
 .shelter-health-record-list { display:grid; gap:8px; margin:0; padding:0; list-style:none; }
 .shelter-health-record-list li { display:grid; gap:3px; padding:11px 12px; border:1px solid var(--border); border-radius: var(--radius-sm); background:var(--white); }
@@ -794,7 +794,7 @@ watch(() => state.step, () => persist());
 .shelter-health-record-list strong { color:var(--text); font-size:.86rem; }
 .shelter-health-record-list span { color:var(--primary-strong); font-size:.75rem; font-weight:800; }
 .shelter-health-record-list small { color:var(--text-soft); font-size:.75rem; }
-.shelter-health-record-remove { display:inline-flex; align-items:center; gap:4px; justify-self:start; margin-top:4px; padding:5px 9px; border:1px solid var(--border); border-radius: var(--radius-xs); background:var(--white); color:var(--text-soft); cursor:pointer; font:700.75rem "Montserrat",sans-serif; }
+.shelter-health-record-remove { display:inline-flex; align-items:center; gap:4px; justify-self:start; margin-top:4px; padding:5px 9px; border:1px solid var(--border); border-radius: var(--radius-xs); background:var(--white); color:var(--text-soft); cursor:pointer; font:700 .75rem "Montserrat",sans-serif; }
 .shelter-health-record-remove:hover { border-color:var(--danger); color:var(--danger); }
 .shelter-health-record-remove :deep(svg) { width:13px; height:13px; }
 .shelter-health-record-form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }

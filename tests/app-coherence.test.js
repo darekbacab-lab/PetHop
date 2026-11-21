@@ -1434,7 +1434,8 @@ test('header shows the page title from route meta on every page except home; mes
   assert.doesNotMatch(messages, /adopter-messages-titlebar/);
   assert.match(messages, /<h1 class="sr-only">Tus Mensajes<\/h1>/);
   assert.doesNotMatch(messages, /SiteFooter/);
-  assert.match(messages, /\.adopter-messages-page \{[^}]*height:100dvh; overflow:hidden;/);
+  assert.match(messages, /\.adopter-messages-page \{[^}]*height:100dvh; overflow-x:hidden; overflow-y:auto;/);
+  assert.match(messages, /\.adopter-chat-composer \{[^}]*padding:42px 22px 72px;/);
   assert.match(messages, /\.adopter-messages-main \{[^}]*flex:1; min-height:0;[^}]*padding:0;/);
   assert.doesNotMatch(messages, /height:calc\(100dvh - var\(--header-height\)\)/);
   assert.doesNotMatch(messages, /height:min\(904px,calc\(100dvh - 160px\)\)/);
@@ -1448,4 +1449,23 @@ test('header shows the page title from route meta on every page except home; mes
   assert.match(explore, /\.catalog-header-container \{ max-width:1320px; \}/);
   assert.match(explore, /\.catalog-container \{ max-width:1320px; \}/);
   assert.doesNotMatch(explore, /max-width:920px/);
+});
+
+test('font shorthands never merge weight and size (font:600.75rem renders text at 600rem)', () => {
+  // A missing space turns "600 .75rem" into "600.75rem": the browser reads it as a
+  // single 600.75rem font-size, so the text becomes thousands of pixels tall and its
+  // button looks like an endless empty box (assistant quick questions, Nov 2026).
+  const malformed = /font:\s*\d+\.\d+rem/;
+  const offenders = [];
+  const walk = dir => {
+    for (const entry of fs.readdirSync(path.join(projectRoot, dir), { withFileTypes: true })) {
+      const rel = path.join(dir, entry.name);
+      if (entry.isDirectory()) { if (entry.name !== 'node_modules' && entry.name !== 'dist') walk(rel); continue; }
+      if (!/\.(vue|css|js)$/.test(entry.name)) continue;
+      if (malformed.test(fs.readFileSync(path.join(projectRoot, rel), 'utf8'))) offenders.push(rel);
+    }
+  };
+  walk('src');
+  walk('css');
+  assert.deepEqual(offenders, []);
 });
