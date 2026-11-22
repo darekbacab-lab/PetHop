@@ -201,6 +201,31 @@ test('the sidebar stays above its backdrop and can close through Vue controls', 
     for (const label of ['Inicio', 'Explorar', 'Dar en adopción', 'Seguimiento', 'Favoritos']) assert.ok(source.includes(label));
 });
 
+test('the home header is static so it scrolls away while other pages keep the sticky header', () => {
+    const home = fs.readFileSync(path.join(projectRoot, 'src/views/HomeView.vue'), 'utf8');
+    assert.match(home, /<div class="home-page"><SiteHeader \/>/);
+    const css = fs.readFileSync(path.resolve(projectRoot, 'css/styles.css'), 'utf8');
+    assert.match(css, /\.site-header\s*\{[^}]*position:\s*sticky/);
+    assert.match(css, /\.home-page\s+\.site-header\s*\{[^}]*position:\s*static/);
+});
+
+test('the footer copyright centers on mobile so it lines up with the brand above it', () => {
+    const footer = fs.readFileSync(path.join(projectRoot, 'src/components/SiteFooter.vue'), 'utf8');
+    assert.match(footer, /@media \(max-width: 600px\) \{\s*\.site-footer \.footer-bottom \{\s*padding-left: 0;\s*padding-right: 0;\s*text-align: center;/);
+    assert.match(footer, /copyright-mark/);
+});
+
+test('the side menu items slide in on hover like a tooltip', () => {
+    const header = fs.readFileSync(path.join(projectRoot, 'src/components/SiteHeader.vue'), 'utf8');
+    assert.match(header, /\.main-nav a::before/);
+    assert.match(header, /transform: translateX\(-102%\)/);
+    assert.match(header, /\.main-nav a:hover::before/);
+    assert.match(header, /transform: translateX\(0\)/);
+    assert.match(header, /\.main-nav a:hover > \*/);
+    assert.match(header, /transform: translateX\(3px\)/);
+    assert.match(header, /\.main-nav a\.active::before \{\s*display: none;/);
+});
+
 test('adopter favorites modal reads and removes favorites through the API', () => {
     const source = fs.readFileSync(path.join(projectRoot, 'src/components/SiteHeader.vue'), 'utf8');
     assert.match(source, /from '\.\.\/services\/petApi\.js'/);

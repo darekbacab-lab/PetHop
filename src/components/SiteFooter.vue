@@ -16,4 +16,12 @@ const trackingLink = computed(() => currentUser.value?.role === 'SHELTER' ? '/re
 .copyright-mark {
     vertical-align: 0.1em;
 }
+
+@media (max-width: 600px) {
+    .site-footer .footer-bottom {
+        padding-left: 0;
+        padding-right: 0;
+        text-align: center;
+    }
+}
 </style>

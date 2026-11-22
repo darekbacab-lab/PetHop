@@ -189,6 +189,54 @@ onUnmounted(() => window.removeEventListener('pethop:shelter-updated', onShelter
 .main-nav .account-nav-signout:hover { background:var(--primary-soft); color:var(--danger); }
 .main-nav .account-nav-signout:focus-visible { outline:3px solid color-mix(in srgb,var(--primary) 45%,transparent); outline-offset:2px; }
 .main-nav .account-nav-signout .nav-item-icon { width:19px; height:19px; flex:0 0 auto; }
+/* Animación al pasar el cursor sobre el menú lateral: el fondo entra
+   deslizándose desde la izquierda y el contenido se mueve un poco a la
+   derecha, como la etiqueta que aparece en el menú de la app. */
+.main-nav a,
+.main-nav .favorites-button,
+.main-nav .account-nav-signout {
+    position: relative;
+    overflow: hidden;
+}
+.main-nav a::before,
+.main-nav .favorites-button::before,
+.main-nav .account-nav-signout::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--primary-soft);
+    transform: translateX(-102%);
+    transition: transform .25s ease;
+    pointer-events: none;
+}
+.main-nav a:hover::before,
+.main-nav .favorites-button:hover::before,
+.main-nav .account-nav-signout:hover::before {
+    transform: translateX(0);
+}
+.main-nav a.active::before {
+    display: none;
+}
+.main-nav a:hover:not(.active),
+.main-nav .favorites-button:hover,
+.main-nav .account-nav-signout:hover {
+    background: transparent;
+}
+.main-nav a > *,
+.main-nav .favorites-button > *,
+.main-nav .account-nav-signout > * {
+    position: relative;
+    transition: transform .25s ease;
+}
+.main-nav a:hover > *,
+.main-nav .favorites-button:hover > *,
+.main-nav .account-nav-signout:hover > * {
+    transform: translateX(3px);
+}
+.main-nav .favorites-button {
+    transition: color .25s ease;
+}
 .favorites-modal-content { width:min(560px,100%); padding:32px; }
 .favorites-modal-eyebrow { display:block; margin-bottom:5px; color:var(--primary-strong); font-size:.75rem; font-weight:800; letter-spacing:.09em; }
 .favorites-modal h2 { display:flex; align-items:center; gap:10px; margin-bottom:5px; font-size:1.75rem; }
