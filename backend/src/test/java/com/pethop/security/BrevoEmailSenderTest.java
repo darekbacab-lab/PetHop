@@ -50,6 +50,8 @@ class BrevoEmailSenderTest {
         assertThat(body.get()).contains("\"subject\":\"Confirma tu correo de PetHop\"");
         assertThat(body.get()).contains("\"textContent\":\"Hola, gracias por registrarte en PetHop.");
         assertThat(body.get()).contains("\"htmlContent\":\"");
+        assertThat(body.get()).contains("img/Logomonocr.png");
+        assertThat(body.get()).doesNotContain("&#128062;");
         assertThat(body.get()).contains(">Confirma tu correo</a>");
         assertThat(body.get()).contains("href=\\\"https://pethop-production.up.railway.app/acceso.html?mode=verify&amp;token=abc\\\"");
         assertThat(body.get()).contains("background:#167F87");

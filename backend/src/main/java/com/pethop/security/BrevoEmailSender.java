@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class BrevoEmailSender implements TransactionalEmailSender {
     private static final Duration TIMEOUT = Duration.ofSeconds(15);
+    /** Logo blanco de PetHop para el encabezado del correo (fondo teal). Activo del frontend en producción. */
+    private static final String LOGO_URL = "https://pethop-production.up.railway.app/img/Logomonocr.png";
     private final BrevoProperties properties;
     private final HttpClient http;
 
@@ -64,9 +66,9 @@ public class BrevoEmailSender implements TransactionalEmailSender {
     }
 
     /**
-     * Versión HTML del correo con la marca de PetHop: encabezado en color, el enlace como botón
-     * y el enlace en texto por si el botón no funciona. El texto plano se sigue enviando como
-     * respaldo para los clientes que no muestran HTML.
+     * Versión HTML del correo con la marca de PetHop: encabezado en color con el logo,
+     * el enlace como botón y el enlace en texto por si el botón no funciona. El texto plano
+     * se sigue enviando como respaldo para los clientes que no muestran HTML.
      */
     private String htmlContent(String subject, String text) {
         String actionLabel = subject.replace(" de PetHop", "");
@@ -88,7 +90,7 @@ public class BrevoEmailSender implements TransactionalEmailSender {
         }
         return "<!doctype html><html><body style=\"margin:0;padding:0;background:#f3f4f6;\">"
                 + "<div style=\"max-width:560px;margin:0 auto;padding:24px 16px;font-family:Arial,Helvetica,sans-serif;color:#1f2937;\">"
-                + "<div style=\"background:#167F87;color:#ffffff;text-align:center;padding:20px;border-radius:12px 12px 0 0;font-size:24px;font-weight:bold;\">&#128062; PetHop</div>"
+                + "<div style=\"background:#167F87;text-align:center;padding:20px;border-radius:12px 12px 0 0;\"><img src=\"" + LOGO_URL + "\" alt=\"PetHop\" width=\"150\" style=\"display:block;margin:0 auto;height:auto;\"></div>"
                 + "<div style=\"background:#ffffff;padding:28px 24px;border-radius:0 0 12px 12px;\">"
                 + "<h1 style=\"font-size:20px;margin:0 0 16px;color:#111827;\">" + escapeHtml(subject) + "</h1>"
                 + paragraphs
