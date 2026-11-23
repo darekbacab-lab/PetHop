@@ -1353,13 +1353,14 @@ test('prelaunch C: custom 404 page', () => {
 test('prelaunch D: compressed images, no dead favicons', () => {
     const webp = path.join(projectRoot, 'img/mascotas-hero-v2.webp');
     const og = path.join(projectRoot, 'img/mascotas-hero-og.jpg');
-    const favicon = path.join(projectRoot, 'img/favicon.png');
+    const favicon = path.join(projectRoot, 'img/favicon.svg');
     assert.ok(fs.existsSync(webp), 'hero WebP missing');
     assert.ok(fs.statSync(webp).size < 400 * 1024, `hero WebP too big: ${fs.statSync(webp).size} bytes`);
     assert.ok(fs.existsSync(og), 'OG image missing');
     assert.ok(fs.statSync(og).size < 200 * 1024, `OG image too big: ${fs.statSync(og).size} bytes`);
+    assert.ok(fs.existsSync(favicon), 'favicon SVG missing');
     assert.ok(fs.statSync(favicon).size < 150 * 1024, `favicon too big: ${fs.statSync(favicon).size} bytes`);
-    for (const dead of ['img/favicon2.png', 'img/favicaon.png', 'img/favicoaan.png', 'img/favicon3.png', 'img/mascotas-hero-v2.png']) {
+    for (const dead of ['img/favicon.png', 'img/favicon2.png', 'img/favicaon.png', 'img/favicoaan.png', 'img/favicon3.png', 'img/mascotas-hero-v2.png']) {
         assert.ok(!fs.existsSync(path.join(projectRoot, dead)), `${dead} still present`);
     }
     const home = fs.readFileSync(path.join(projectRoot, 'src/views/HomeView.vue'), 'utf8');

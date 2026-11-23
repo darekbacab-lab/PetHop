@@ -173,7 +173,7 @@ onUnmounted(() => { window.removeEventListener('resize', syncLayout); document.r
           <div class="adopter-conversation-list" @scroll="closeConversationMenu">
             <div v-for="thread in conversations" :key="thread.id" class="adopter-conversation-item" :class="{ 'is-selected': activeConversation?.id === thread.id, 'is-pinned': thread.pinned }">
               <button type="button" class="adopter-conversation-select" @click="chooseConversation(thread)">
-                <span class="adopter-pet-avatar"><img v-if="threadPhoto(thread.pet)" :src="threadPhoto(thread.pet)" :alt="''" /><Icon v-else name="paw-print" /></span>
+                <span class="adopter-pet-avatar"><img v-if="threadPhoto(thread.pet)" :src="threadPhoto(thread.pet)" :alt="''" loading="lazy" /><Icon v-else name="paw-print" /></span>
                 <span class="adopter-conversation-copy"><span class="adopter-conversation-top"><strong>{{ thread.petName }}</strong><time>{{ formatConversationDate(thread) }}</time></span><span class="adopter-conversation-bottom"><span>{{ thread.lastMessage || thread.messages.at(-1)?.text || 'Inicia la conversación' }}</span><span v-if="thread.unreadCount" class="adopter-unread-badge" aria-label="Mensajes no leídos">{{ thread.unreadCount > 9 ? '9+' : thread.unreadCount }}</span><Icon name="chevron-right" :size="16" /></span></span>
               </button>
               <div class="adopter-conversation-actions"><button type="button" class="adopter-conversation-menu-trigger" :aria-label="`Opciones de conversación sobre ${thread.petName}`" aria-haspopup="true" :aria-expanded="openConversationMenuId===thread.id" @click.stop="toggleConversationMenu(thread,$event)" @keydown.esc.stop="closeConversationMenu"><span aria-hidden="true">•••</span></button></div>
@@ -186,7 +186,7 @@ onUnmounted(() => { window.removeEventListener('resize', syncLayout); document.r
         <section v-if="activeConversation" class="adopter-chat-window" aria-label="Conversación activa">
           <header class="adopter-chat-header">
             <button type="button" class="adopter-chat-back" aria-label="Volver a conversaciones" @click="mobileChatOpen=false"><Icon name="arrow-left" /></button>
-            <span class="adopter-pet-avatar adopter-chat-avatar"><img v-if="threadPhoto(activeConversation.pet)" :src="threadPhoto(activeConversation.pet)" :alt="''" /><Icon v-else name="paw-print" /></span>
+            <span class="adopter-pet-avatar adopter-chat-avatar"><img v-if="threadPhoto(activeConversation.pet)" :src="threadPhoto(activeConversation.pet)" :alt="''" loading="lazy" /><Icon v-else name="paw-print" /></span>
             <div class="adopter-chat-contact"><strong>{{ publisherName(activeConversation) || activeConversation.otherParticipant || 'Contacto de adopción' }}</strong><span>Sobre: {{ activeConversation.petName }}</span><small v-if="activeConversation.pet?.location" class="adopter-chat-location">Ubicación: {{ activeConversation.pet.location }}</small></div>
             <RouterLink v-if="activeConversation.pet" class="adopter-profile-link" :to="{ path: '/mascota.html', query: { pet: activeConversation.petId } }">Ver perfil</RouterLink>
           </header>
