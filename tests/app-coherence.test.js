@@ -262,7 +262,7 @@ test('the home page has a fixed side menu on desktop with sliding labels on hove
 
 test('the home page footer aligns left with the copyright and the content stretches wider', () => {
     const css = fs.readFileSync(path.resolve(projectRoot, 'css/styles.css'), 'utf8');
-    assert.match(css, /@media \(min-width: 1101px\) \{[\s\S]*?\.home-page \{[\s\S]*?padding-left: 72px;[\s\S]*?--container-width: 1600px;/);
+    assert.match(css, /@media \(min-width: 1101px\) \{[\s\S]*?\.home-page \{[\s\S]*?padding-left: 72px;[\s\S]*?--container-width: 1600px;[\s\S]*?--max-width: 1600px;/);
     assert.match(css, /\.home-page \.footer-container \{\s*width: calc\(100% - 40px\);\s*margin: 0 0 0 20px;/);
     assert.match(css, /\.home-page \.footer-bottom \{\s*width: calc\(100% - 40px\);\s*margin: 45px 0 0 20px;/);
 });

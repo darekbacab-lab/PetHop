@@ -211,8 +211,13 @@ ol {
     .home-page {
         padding-left: 72px;
         /* El contenido se ensancha para aprovechar el espacio y arrancar
-           más a la izquierda, sin tanto vacío entre el rail y el contenido. */
+           más a la izquierda, sin tanto vacío entre el rail y el contenido.
+           Ojo: los contenedores usan var(--max-width), y --max-width ya se
+           resolvió a 1320px en :root, así que hay que sobreescribir
+           --max-width directamente (sobre-escribir solo --container-width
+           no los ensancha). */
         --container-width: 1600px;
+        --max-width: 1600px;
     }
     .home-page .site-header .menu-toggle {
         display: none;
