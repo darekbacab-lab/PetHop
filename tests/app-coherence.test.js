@@ -267,6 +267,7 @@ test('the home page footer aligns left with the copyright and the content stretc
     assert.match(css, /\.home-page \.footer-container \{\s*width: calc\(100% - 40px\);\s*margin: 0 0 0 20px;/);
     assert.match(css, /\.home-page \.footer-bottom \{\s*width: calc\(100% - 40px\);\s*margin: 45px 0 0 20px;/);
     assert.match(css, /\.home-page \.footer-brand \{\s*padding-left: 24px;/);
+    assert.match(css, /\.home-page \.footer-brand img \{\s*margin-left: -10px;/);
     assert.doesNotMatch(css, /\.home-page \.site-footer \.footer-bottom/);
 });
 

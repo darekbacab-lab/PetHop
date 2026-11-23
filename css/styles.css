@@ -232,6 +232,13 @@ ol {
     .home-page .footer-brand {
         padding-left: 24px;
     }
+    /* La imagen del logo trae aire transparente a la izquierda, así que su
+       cuerpo visible queda unos 10px a la derecha del borde; este margen lo
+       compensa para que el logo arranque en la misma línea que el texto y
+       el copyright. */
+    .home-page .footer-brand img {
+        margin-left: -10px;
+    }
     .home-page .footer-bottom {
         width: calc(100% - 40px);
         margin: 45px 0 0 20px;
