@@ -243,7 +243,7 @@ test('the home page has a fixed side menu on desktop with sliding labels on hove
     const header = fs.readFileSync(path.join(projectRoot, 'src/components/SiteHeader.vue'), 'utf8');
     assert.match(header, /const isHome = computed\(\(\) => route\.name === 'inicio'\)/);
     assert.match(header, /<nav v-if="isHome" class="side-rail" aria-label="Menú principal">/);
-    assert.match(header, /class="side-rail-brand"/);
+    assert.doesNotMatch(header, /side-rail-brand/);
     assert.match(header, /v-for="item in links"/);
     assert.match(header, /class="side-rail-item"/);
     assert.match(header, /class="side-rail-label"/);
@@ -258,6 +258,13 @@ test('the home page has a fixed side menu on desktop with sliding labels on hove
     const css = fs.readFileSync(path.resolve(projectRoot, 'css/styles.css'), 'utf8');
     assert.match(css, /@media \(min-width: 1101px\) \{[\s\S]*?\.home-page \{\s*padding-left: 72px;/);
     assert.match(css, /\.home-page \.site-header \.menu-toggle \{\s*display: none;/);
+});
+
+test('the home page footer aligns left with the copyright and the content stretches wider', () => {
+    const css = fs.readFileSync(path.resolve(projectRoot, 'css/styles.css'), 'utf8');
+    assert.match(css, /@media \(min-width: 1101px\) \{[\s\S]*?\.home-page \{[\s\S]*?padding-left: 72px;[\s\S]*?--container-width: 1600px;/);
+    assert.match(css, /\.home-page \.footer-container \{\s*width: calc\(100% - 40px\);\s*margin: 0 0 0 20px;/);
+    assert.match(css, /\.home-page \.footer-bottom \{\s*width: calc\(100% - 40px\);\s*margin: 45px 0 0 20px;/);
 });
 
 test('adopter favorites modal reads and removes favorites through the API', () => {

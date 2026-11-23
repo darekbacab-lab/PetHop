@@ -162,7 +162,6 @@ onUnmounted(() => window.removeEventListener('pethop:shelter-updated', onShelter
     <div class="header-right"><RouterLink to="/inicio.html#como-funciona" class="how-button">Cómo funciona</RouterLink><span v-if="currentUser" class="account-display-name" :title="accountDisplayName">{{ accountDisplayName }}</span><RouterLink v-if="!currentUser" to="/acceso.html" class="login-button"><Icon name="log-in" />Ingresar</RouterLink><template v-else><RouterLink :to="accountRoute" class="account-trigger" aria-label="Abrir mi perfil"><span class="account-avatar"><Icon name="user-round" /></span><span class="account-presence" aria-label="Sesión activa"></span></RouterLink><button type="button" class="notification-trigger" :aria-label="unreadNotifications ? `Abrir notificaciones, ${unreadNotifications} sin leer` : 'Abrir notificaciones'" :aria-expanded="notificationsOpen" @click="openNotifications"><Icon name="bell" /><span v-if="unreadNotifications" class="notification-badge">{{ unreadNotifications > 9 ? '9+' : unreadNotifications }}</span></button></template></div>
   </div></header>
   <nav v-if="isHome" class="side-rail" aria-label="Menú principal">
-    <RouterLink to="/inicio.html" class="side-rail-brand" aria-label="PetHop, ir a Inicio"><Icon name="paw-print" class="side-rail-brand-icon" /></RouterLink>
     <div class="side-rail-group">
       <template v-for="item in links" :key="item.to"><RouterLink class="side-rail-item" :class="{ active: isNavActive(item) }" :to="item.to" :aria-current="isNavActive(item) ? 'page' : undefined" :aria-label="item.label"><Icon :name="item.icon" class="side-rail-icon" /><span class="side-rail-label" aria-hidden="true">{{ item.label }}</span></RouterLink></template>
       <button v-if="!currentUser || currentUser.role === 'ADOPTER'" type="button" class="side-rail-item" aria-label="Favoritos" @click="openFavorites"><Icon name="heart" class="side-rail-icon" /><span v-if="count" class="side-rail-badge">{{ count > 9 ? '9+' : count }}</span><span class="side-rail-label" aria-hidden="true">Favoritos</span></button>
@@ -275,29 +274,6 @@ onUnmounted(() => window.removeEventListener('pethop:shelter-updated', onShelter
         background: var(--white);
         border-right: 1px solid var(--border);
     }
-}
-.side-rail-brand {
-    display: grid;
-    place-items: center;
-    width: 48px;
-    height: 48px;
-    margin-bottom: 8px;
-    border-radius: var(--radius-sm);
-    color: var(--primary-strong);
-    text-decoration: none;
-    transition: background var(--transition);
-}
-.side-rail-brand:hover,
-.side-rail-brand:focus-visible {
-    background: var(--tint);
-}
-.side-rail-brand:focus-visible {
-    outline: 3px solid color-mix(in srgb, var(--primary) 45%, transparent);
-    outline-offset: 2px;
-}
-.side-rail-brand-icon {
-    width: 26px;
-    height: 26px;
 }
 .side-rail-group {
     display: flex;

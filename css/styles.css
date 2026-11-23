@@ -210,9 +210,23 @@ ol {
        ya es el menú. */
     .home-page {
         padding-left: 72px;
+        /* El contenido se ensancha para aprovechar el espacio y arrancar
+           más a la izquierda, sin tanto vacío entre el rail y el contenido. */
+        --container-width: 1600px;
     }
     .home-page .site-header .menu-toggle {
         display: none;
+    }
+    /* El pie va alineado a la izquierda, con la marca y el copyright en el
+       mismo borde, un poco separados del panel para que el copyright no
+       quede pegado a él. */
+    .home-page .footer-container {
+        width: calc(100% - 40px);
+        margin: 0 0 0 20px;
+    }
+    .home-page .footer-bottom {
+        width: calc(100% - 40px);
+        margin: 45px 0 0 20px;
     }
 }
 
