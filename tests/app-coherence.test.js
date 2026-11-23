@@ -231,6 +231,14 @@ test('the drawer hover wipe uses a visible tint, not white on white', () => {
     assert.match(header, /\.main-nav a::before,\s*\.main-nav \.favorites-button::before,\s*\.main-nav \.account-nav-signout::before \{\s*content: "";\s*position: absolute;\s*inset: 0;\s*border-radius: inherit;\s*background: var\(--tint\);/);
 });
 
+test('the server never caches HTML entry points so a deploy shows up at once', () => {
+    const server = fs.readFileSync(path.join(projectRoot, 'server.mjs'), 'utf8');
+    assert.match(server, /path\.extname\(file\)\.toLowerCase\(\) === '\.html'/);
+    assert.match(server, /headers\['Cache-Control'\] = 'no-cache'/);
+    assert.match(server, /max-age=31536000, immutable/);
+    assert.doesNotMatch(server, /basename\(file\) === 'index\.html'/);
+});
+
 test('the home page has a fixed side menu on desktop with sliding labels on hover', () => {
     const header = fs.readFileSync(path.join(projectRoot, 'src/components/SiteHeader.vue'), 'utf8');
     assert.match(header, /const isHome = computed\(\(\) => route\.name === 'inicio'\)/);

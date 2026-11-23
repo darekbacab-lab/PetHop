@@ -82,7 +82,7 @@ const server = http.createServer(async (request, response) => {
     'Content-Type': contentTypes[path.extname(file).toLowerCase()] || 'application/octet-stream',
     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
   };
-  if (path.basename(file) === 'index.html') headers['Cache-Control'] = 'no-cache';
+  if (path.extname(file).toLowerCase() === '.html') headers['Cache-Control'] = 'no-cache';
   if (file.includes(`${path.sep}assets${path.sep}`)) headers['Cache-Control'] = 'public, max-age=31536000, immutable';
   if (request.method === 'HEAD') {
     response.writeHead(200, headers).end();
