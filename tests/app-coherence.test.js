@@ -263,8 +263,8 @@ test('the home page has a fixed side menu on desktop with sliding labels on hove
 
 test('the home page content zooms out slightly while the side menu stays the same', () => {
     const css = fs.readFileSync(path.resolve(projectRoot, 'css/styles.css'), 'utf8');
-    assert.match(css, /\.home-page main,[\s\S]*?\.home-page \.site-footer \{\s*zoom: 0\.9;\s*width: calc\(100% \/ 0\.9\);/);
-    assert.match(css, /\.home-page \.header-container \{\s*zoom: 0\.9;/);
+    assert.match(css, /\.home-page main,[\s\S]*?\.home-page \.site-footer \{\s*zoom: 0\.85;\s*width: calc\(100% \/ 0\.85\);/);
+    assert.match(css, /\.home-page \.header-container \{\s*zoom: 0\.85;/);
     assert.doesNotMatch(css, /\.side-rail \{[^}]*zoom:/);
     assert.doesNotMatch(css, /\.home-page \{[^}]*zoom:/);
 });

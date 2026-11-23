@@ -222,17 +222,17 @@ ol {
     .home-page .site-header .menu-toggle {
         display: none;
     }
-    /* Zoom out ligero del contenido de Inicio (un 10% más chico): el
-       encabezado, el contenido y el pie se ven más pequeños, pero el menú
-       lateral (el rail) se queda exactamente igual. El ancho compensa el
-       zoom para que el contenido siga ocupando todo el ancho disponible. */
+    /* Zoom out del contenido de Inicio: el encabezado, el contenido y el
+       pie se ven más chicos, pero el menú lateral (el rail) se queda
+       exactamente igual. El ancho compensa el zoom para que el contenido
+       siga ocupando todo el ancho disponible. */
     .home-page main,
     .home-page .site-footer {
-        zoom: 0.9;
-        width: calc(100% / 0.9);
+        zoom: 0.85;
+        width: calc(100% / 0.85);
     }
     .home-page .header-container {
-        zoom: 0.9;
+        zoom: 0.85;
     }
     /* El pie va alineado a la izquierda en todas las páginas (no solo en
        Inicio). El copyright está donde debe (con su padding de 24px, no se
