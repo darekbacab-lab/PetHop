@@ -261,6 +261,14 @@ test('the home page has a fixed side menu on desktop with sliding labels on hove
     assert.match(css, /\.home-page \.site-header \.menu-toggle \{\s*display: none;/);
 });
 
+test('the home page content zooms out slightly while the side menu stays the same', () => {
+    const css = fs.readFileSync(path.resolve(projectRoot, 'css/styles.css'), 'utf8');
+    assert.match(css, /\.home-page main,[\s\S]*?\.home-page \.site-footer \{\s*zoom: 0\.9;\s*width: calc\(100% \/ 0\.9\);/);
+    assert.match(css, /\.home-page \.header-container \{\s*zoom: 0\.9;/);
+    assert.doesNotMatch(css, /\.side-rail \{[^}]*zoom:/);
+    assert.doesNotMatch(css, /\.home-page \{[^}]*zoom:/);
+});
+
 test('every footer aligns left with the copyright and the home content stretches wider', () => {
     const css = fs.readFileSync(path.resolve(projectRoot, 'css/styles.css'), 'utf8');
     assert.match(css, /@media \(min-width: 1101px\) \{[\s\S]*?\.home-page \{[\s\S]*?padding-left: 72px;[\s\S]*?--container-width: 1600px;[\s\S]*?--max-width: 1600px;/);

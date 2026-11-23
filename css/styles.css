@@ -222,6 +222,18 @@ ol {
     .home-page .site-header .menu-toggle {
         display: none;
     }
+    /* Zoom out ligero del contenido de Inicio (un 10% más chico): el
+       encabezado, el contenido y el pie se ven más pequeños, pero el menú
+       lateral (el rail) se queda exactamente igual. El ancho compensa el
+       zoom para que el contenido siga ocupando todo el ancho disponible. */
+    .home-page main,
+    .home-page .site-footer {
+        zoom: 0.9;
+        width: calc(100% / 0.9);
+    }
+    .home-page .header-container {
+        zoom: 0.9;
+    }
     /* El pie va alineado a la izquierda en todas las páginas (no solo en
        Inicio). El copyright está donde debe (con su padding de 24px, no se
        toca) y la marca —logo y texto— se corre a la derecha para arrancar
