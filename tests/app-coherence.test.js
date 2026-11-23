@@ -263,8 +263,9 @@ test('the home page has a fixed side menu on desktop with sliding labels on hove
 
 test('the home page content zooms out slightly while the side menu stays the same', () => {
     const css = fs.readFileSync(path.resolve(projectRoot, 'css/styles.css'), 'utf8');
-    assert.match(css, /\.home-page main,[\s\S]*?\.home-page \.site-footer \{\s*zoom: 0\.85;\s*width: calc\(100% \/ 0\.85\);/);
-    assert.match(css, /\.home-page \.header-container \{\s*zoom: 0\.85;/);
+    assert.match(css, /\.home-page main,[\s\S]*?\.home-page \.footer-bottom \{\s*zoom: 0\.85;/);
+    assert.doesNotMatch(css, /width: calc\(100% \/ 0\.85\)/);
+    assert.doesNotMatch(css, /\.home-page \.site-footer \{\s*zoom:/);
     assert.doesNotMatch(css, /\.side-rail \{[^}]*zoom:/);
     assert.doesNotMatch(css, /\.home-page \{[^}]*zoom:/);
 });
@@ -276,9 +277,15 @@ test('every footer aligns left with the copyright and the home content stretches
     assert.match(css, /\.site-footer \.footer-bottom \{\s*width: calc\(100% - 40px\);\s*margin: 45px 0 0 20px;/);
     assert.match(css, /\.site-footer \.footer-brand \{\s*padding-left: 24px;/);
     assert.match(css, /\.site-footer \.footer-brand img \{\s*margin-left: -10px;/);
-    assert.doesNotMatch(css, /\.home-page \.footer-container/);
-    assert.doesNotMatch(css, /\.home-page \.footer-brand/);
-    assert.doesNotMatch(css, /\.home-page \.footer-bottom/);
+    /* La alineación del pie vale para todas las páginas: ninguna regla
+       .home-page .footer-* debe fijar el ancho, el margen ni el padding
+       de alineación. (El zoom out de Inicio sí se permite ahí, porque solo
+       fija `zoom` y es propio de Inicio.) */
+    assert.doesNotMatch(css, /\.home-page \.footer-container \{[^}]*width:/);
+    assert.doesNotMatch(css, /\.home-page \.footer-container \{[^}]*margin:/);
+    assert.doesNotMatch(css, /\.home-page \.footer-brand \{[^}]*padding-left:/);
+    assert.doesNotMatch(css, /\.home-page \.footer-bottom \{[^}]*width:/);
+    assert.doesNotMatch(css, /\.home-page \.footer-bottom \{[^}]*margin:/);
 });
 
 test('adopter favorites modal reads and removes favorites through the API', () => {
