@@ -280,6 +280,10 @@ onUnmounted(() => window.removeEventListener('pethop:shelter-updated', onShelter
     flex-direction: column;
     align-items: center;
     gap: 4px;
+    /* Sin la huellita de marca arriba, los iconos subían 60px: este margen
+       devuelve el grupo a la altura que tenía con ella (14px de relleno +
+       48px de la marca + 8px de su margen + 4px de separación = 74px). */
+    margin-top: 60px;
 }
 .side-rail-bottom {
     margin-top: auto;

@@ -244,6 +244,7 @@ test('the home page has a fixed side menu on desktop with sliding labels on hove
     assert.match(header, /const isHome = computed\(\(\) => route\.name === 'inicio'\)/);
     assert.match(header, /<nav v-if="isHome" class="side-rail" aria-label="Menú principal">/);
     assert.doesNotMatch(header, /side-rail-brand/);
+    assert.match(header, /\.side-rail-group \{[^}]*margin-top: 60px;/);
     assert.match(header, /v-for="item in links"/);
     assert.match(header, /class="side-rail-item"/);
     assert.match(header, /class="side-rail-label"/);
@@ -265,6 +266,8 @@ test('the home page footer aligns left with the copyright and the content stretc
     assert.match(css, /@media \(min-width: 1101px\) \{[\s\S]*?\.home-page \{[\s\S]*?padding-left: 72px;[\s\S]*?--container-width: 1600px;[\s\S]*?--max-width: 1600px;/);
     assert.match(css, /\.home-page \.footer-container \{\s*width: calc\(100% - 40px\);\s*margin: 0 0 0 20px;/);
     assert.match(css, /\.home-page \.footer-bottom \{\s*width: calc\(100% - 40px\);\s*margin: 45px 0 0 20px;/);
+    assert.match(css, /\.home-page \.footer-brand \{\s*padding-left: 24px;/);
+    assert.doesNotMatch(css, /\.home-page \.site-footer \.footer-bottom/);
 });
 
 test('adopter favorites modal reads and removes favorites through the API', () => {

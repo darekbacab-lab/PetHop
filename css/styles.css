@@ -222,12 +222,15 @@ ol {
     .home-page .site-header .menu-toggle {
         display: none;
     }
-    /* El pie va alineado a la izquierda, con la marca y el copyright en el
-       mismo borde, un poco separados del panel para que el copyright no
-       quede pegado a él. */
+    /* El pie va alineado a la izquierda. El copyright está donde debe
+       (con su padding de 24px, no se toca) y la marca —logo y texto— se
+       corre a la derecha para arrancar en el mismo borde que el ©. */
     .home-page .footer-container {
         width: calc(100% - 40px);
         margin: 0 0 0 20px;
+    }
+    .home-page .footer-brand {
+        padding-left: 24px;
     }
     .home-page .footer-bottom {
         width: calc(100% - 40px);
