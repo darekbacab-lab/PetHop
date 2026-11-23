@@ -37,7 +37,7 @@ export function useFocusTrap(dialogRef, isOpen, onClose) {
         dialogEl = dialogRef.value;
         if (!dialogEl) return;
         const target = focusableIn(dialogEl)[0] || dialogEl;
-        target.focus();
+        target.focus({ preventScroll: true });
         document.addEventListener('keydown', onKeyDown, true);
       });
     } else {

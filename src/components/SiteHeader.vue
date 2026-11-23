@@ -106,10 +106,24 @@ async function removeFavorite(id) {
   }
 }
 async function openNotifications() {
-  closeMenu(); notificationsOpen.value = true; notificationsLoading.value = true; notificationsError.value = '';
-  try { const page = await api('/notifications?page=0&size=30'); notifications.value = page?.content || []; }
-  catch (error) { notifications.value = []; notificationsError.value = error.message || 'No se pudieron cargar tus notificaciones.'; }
-  finally { notificationsLoading.value = false; }
+  closeMenu();
+  notificationsOpen.value = true;
+  notificationsError.value = '';
+  // Las notificaciones ya se cargan al montar el header; al reabrir no se
+  // esconde la lista con un "Cargando", el refresco corre en segundo plano.
+  const hadNotifications = notifications.value.length > 0;
+  if (!hadNotifications) notificationsLoading.value = true;
+  try {
+    const page = await api('/notifications?page=0&size=30');
+    notifications.value = page?.content || [];
+  } catch (error) {
+    if (!hadNotifications) {
+      notifications.value = [];
+      notificationsError.value = error.message || 'No se pudieron cargar tus notificaciones.';
+    }
+  } finally {
+    notificationsLoading.value = false;
+  }
 }
 function notificationDestination(item) {
   const refId = item.referenceId || '';
@@ -197,7 +211,7 @@ onUnmounted(() => window.removeEventListener('pethop:shelter-updated', onShelter
 .side-panel-content { width:min(420px,92vw); height:100dvh; max-height:none; overflow-y:auto; padding:32px; border-top:0; border-right:0; border-bottom:0; border-radius:20px 0 0 20px; box-shadow:-12px 0 30px rgba(0,0,0,.25); transform:translateX(100%); transition:transform .25s ease-out; }
 .dynamic-modal.open .side-panel-content { transform:translateX(0); }
 .side-panel-enter-active,.side-panel-leave-active { transition:opacity .25s ease-out; }
-.side-panel-enter-from,.side-panel-leave-to { opacity:0; }
+.side-panel-shell.side-panel-enter-from,.side-panel-shell.side-panel-leave-to { opacity:0; }
 .side-panel-shell.side-panel-enter-from .side-panel-content,.side-panel-shell.side-panel-leave-active .side-panel-content { transform:translateX(100%); }
 .side-panel-enter-active .side-panel-content,.side-panel-leave-active .side-panel-content { transition:transform .25s ease-out; }
 .main-nav .account-nav-signout { width:100%; min-height:44px; display:flex; align-items:center; gap:10px; padding:10px 14px; border:0; border-radius: var(--radius-sm); background:transparent; color:var(--danger); cursor:pointer; font:750 .82rem "Montserrat",Arial,sans-serif; text-align:left; transition:var(--transition); }

@@ -1529,6 +1529,23 @@ test('header shows the page title from route meta on every page except home; mes
   assert.doesNotMatch(explore, /max-width:920px/);
 });
 
+test('notifications panel opens smoothly: no backdrop blur, no reload flash, no focus scroll jump, robust fade', () => {
+    const css = fs.readFileSync(path.join(projectRoot, 'css/styles.css'), 'utf8');
+    const header = fs.readFileSync(path.join(projectRoot, 'src/components/SiteHeader.vue'), 'utf8');
+    const trap = fs.readFileSync(path.join(projectRoot, 'src/services/dialogFocus.js'), 'utf8');
+    // 1. El fondo del modal no desenfoca toda la pantalla en cada cuadro.
+    const modal = css.match(/\.dynamic-modal \{[\s\S]*?\n\}/);
+    assert.ok(modal, '.dynamic-modal rule missing');
+    assert.doesNotMatch(modal[0], /backdrop-filter/);
+    // 2. Al reabrir no se esconde la lista: solo muestra "Cargando" si no hay nada.
+    assert.match(header, /const hadNotifications = notifications\.value\.length > 0;/);
+    assert.match(header, /if \(!hadNotifications\) notificationsLoading\.value = true;/);
+    // 3. Enfocar el boton de cerrar no desplaza el panel a mitad de la animacion.
+    assert.match(trap, /target\.focus\(\{ preventScroll: true \}\)/);
+    // 4. El fundido gana siempre a .dynamic-modal.open, sin depender del orden de los CSS.
+    assert.match(header, /\.side-panel-shell\.side-panel-enter-from,.side-panel-shell\.side-panel-leave-to \{ opacity:0; \}/);
+});
+
 test('font shorthands never merge weight and size (font:600.75rem renders text at 600rem)', () => {
   // A missing space turns "600 .75rem" into "600.75rem": the browser reads it as a
   // single 600.75rem font-size, so the text becomes thousands of pixels tall and its
