@@ -226,6 +226,32 @@ test('the side menu items slide in on hover like a tooltip', () => {
     assert.match(header, /\.main-nav a\.active::before \{\s*display: none;/);
 });
 
+test('the drawer hover wipe uses a visible tint, not white on white', () => {
+    const header = fs.readFileSync(path.join(projectRoot, 'src/components/SiteHeader.vue'), 'utf8');
+    assert.match(header, /\.main-nav a::before,\s*\.main-nav \.favorites-button::before,\s*\.main-nav \.account-nav-signout::before \{\s*content: "";\s*position: absolute;\s*inset: 0;\s*border-radius: inherit;\s*background: var\(--tint\);/);
+});
+
+test('the home page has a fixed side menu on desktop with sliding labels on hover', () => {
+    const header = fs.readFileSync(path.join(projectRoot, 'src/components/SiteHeader.vue'), 'utf8');
+    assert.match(header, /const isHome = computed\(\(\) => route\.name === 'inicio'\)/);
+    assert.match(header, /<nav v-if="isHome" class="side-rail" aria-label="Menú principal">/);
+    assert.match(header, /class="side-rail-brand"/);
+    assert.match(header, /v-for="item in links"/);
+    assert.match(header, /class="side-rail-item"/);
+    assert.match(header, /class="side-rail-label"/);
+    assert.match(header, /<span class="side-rail-label" aria-hidden="true">Notificaciones<\/span>/);
+    assert.match(header, /<span class="side-rail-label" aria-hidden="true">Cerrar sesión<\/span>/);
+    assert.match(header, /<span class="side-rail-label" aria-hidden="true">Ingresar<\/span>/);
+    assert.match(header, /@media \(min-width: 1101px\) \{\s*\.home-page \.side-rail \{\s*position: fixed;/);
+    assert.match(header, /\.side-rail-label \{[^}]*transform: translate\(-8px, -50%\);/);
+    assert.match(header, /\.side-rail-item:hover \.side-rail-label,/);
+    assert.match(header, /transform: translate\(0, -50%\);/);
+    assert.match(header, /@media \(prefers-reduced-motion: reduce\) \{\s*\.side-rail-label \{\s*transition: none;/);
+    const css = fs.readFileSync(path.resolve(projectRoot, 'css/styles.css'), 'utf8');
+    assert.match(css, /@media \(min-width: 1101px\) \{[\s\S]*?\.home-page \{\s*padding-left: 72px;/);
+    assert.match(css, /\.home-page \.site-header \.menu-toggle \{\s*display: none;/);
+});
+
 test('adopter favorites modal reads and removes favorites through the API', () => {
     const source = fs.readFileSync(path.join(projectRoot, 'src/components/SiteHeader.vue'), 'utf8');
     assert.match(source, /from '\.\.\/services\/petApi\.js'/);

@@ -200,6 +200,22 @@ ol {
     backdrop-filter: blur(18px);
 }
 
+.home-page .site-header {
+    position: static;
+}
+
+@media (min-width: 1101px) {
+    /* El menú lateral fijo ocupa la franja izquierda en Inicio (desktop):
+       la página se recorre a la derecha y la hamburguesa sobra, el rail
+       ya es el menú. */
+    .home-page {
+        padding-left: 72px;
+    }
+    .home-page .site-header .menu-toggle {
+        display: none;
+    }
+}
+
 .header-container {
     position: relative;
     width: min(var(--max-width), calc(100% - 40px));

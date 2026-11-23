@@ -29,6 +29,7 @@ const unreadNotifications = computed(() => notifications.value.filter(item => !i
 const count = computed(() => favorites.value.length);
 const accountRoute = computed(() => '/perfil.html');
 const profileLabel = computed(() => 'Mi perfil');
+const isHome = computed(() => route.name === 'inicio');
 const pageTitleParts = computed(() => {
   const title = route.meta?.pageTitle;
   if (!title) return null;
@@ -159,7 +160,22 @@ onUnmounted(() => window.removeEventListener('pethop:shelter-updated', onShelter
       <button v-if="currentUser" type="button" class="nav-link account-nav-signout" @click="signOut"><Icon name="log-out" class="nav-item-icon" /><span>Cerrar sesión</span></button>
     </nav>
     <div class="header-right"><RouterLink to="/inicio.html#como-funciona" class="how-button">Cómo funciona</RouterLink><span v-if="currentUser" class="account-display-name" :title="accountDisplayName">{{ accountDisplayName }}</span><RouterLink v-if="!currentUser" to="/acceso.html" class="login-button"><Icon name="log-in" />Ingresar</RouterLink><template v-else><RouterLink :to="accountRoute" class="account-trigger" aria-label="Abrir mi perfil"><span class="account-avatar"><Icon name="user-round" /></span><span class="account-presence" aria-label="Sesión activa"></span></RouterLink><button type="button" class="notification-trigger" :aria-label="unreadNotifications ? `Abrir notificaciones, ${unreadNotifications} sin leer` : 'Abrir notificaciones'" :aria-expanded="notificationsOpen" @click="openNotifications"><Icon name="bell" /><span v-if="unreadNotifications" class="notification-badge">{{ unreadNotifications > 9 ? '9+' : unreadNotifications }}</span></button></template></div>
-  </div></header><button v-if="open" class="menu-backdrop is-visible" type="button" aria-label="Cerrar menú" @click="closeMenu(true)"></button>
+  </div></header>
+  <nav v-if="isHome" class="side-rail" aria-label="Menú principal">
+    <RouterLink to="/inicio.html" class="side-rail-brand" aria-label="PetHop, ir a Inicio"><Icon name="paw-print" class="side-rail-brand-icon" /></RouterLink>
+    <div class="side-rail-group">
+      <template v-for="item in links" :key="item.to"><RouterLink class="side-rail-item" :class="{ active: isNavActive(item) }" :to="item.to" :aria-current="isNavActive(item) ? 'page' : undefined" :aria-label="item.label"><Icon :name="item.icon" class="side-rail-icon" /><span class="side-rail-label" aria-hidden="true">{{ item.label }}</span></RouterLink></template>
+      <button v-if="!currentUser || currentUser.role === 'ADOPTER'" type="button" class="side-rail-item" aria-label="Favoritos" @click="openFavorites"><Icon name="heart" class="side-rail-icon" /><span v-if="count" class="side-rail-badge">{{ count > 9 ? '9+' : count }}</span><span class="side-rail-label" aria-hidden="true">Favoritos</span></button>
+    </div>
+    <div class="side-rail-group side-rail-bottom">
+      <button v-if="currentUser" type="button" class="side-rail-item" :aria-label="unreadNotifications ? `Abrir notificaciones, ${unreadNotifications} sin leer` : 'Abrir notificaciones'" :aria-expanded="notificationsOpen" @click="openNotifications"><Icon name="bell" class="side-rail-icon" /><span v-if="unreadNotifications" class="side-rail-badge">{{ unreadNotifications > 9 ? '9+' : unreadNotifications }}</span><span class="side-rail-label" aria-hidden="true">Notificaciones</span></button>
+      <RouterLink v-if="currentUser" class="side-rail-item" :class="{ active: route.path === accountRoute }" :to="accountRoute" :aria-current="route.path === accountRoute ? 'page' : undefined" aria-label="Mi perfil"><Icon name="user-round" class="side-rail-icon" /><span class="side-rail-label" aria-hidden="true">Mi perfil</span></RouterLink>
+      <RouterLink v-if="currentUser?.role === 'ADMIN'" class="side-rail-item" :class="{ active: route.path === '/admin.html' }" to="/admin.html" :aria-current="route.path === '/admin.html' ? 'page' : undefined" aria-label="Administración"><Icon name="shield-check" class="side-rail-icon" /><span class="side-rail-label" aria-hidden="true">Administración</span></RouterLink>
+      <RouterLink v-if="!currentUser" class="side-rail-item" to="/acceso.html" aria-label="Ingresar"><Icon name="log-in" class="side-rail-icon" /><span class="side-rail-label" aria-hidden="true">Ingresar</span></RouterLink>
+      <button v-if="currentUser" type="button" class="side-rail-item side-rail-signout" aria-label="Cerrar sesión" @click="signOut"><Icon name="log-out" class="side-rail-icon" /><span class="side-rail-label" aria-hidden="true">Cerrar sesión</span></button>
+    </div>
+  </nav>
+  <button v-if="open" class="menu-backdrop is-visible" type="button" aria-label="Cerrar menú" @click="closeMenu(true)"></button>
   <Transition name="side-panel"><div v-if="favoritesOpen" class="dynamic-modal open favorites-modal side-panel-shell" role="presentation" @click.self="favoritesOpen=false" @keydown.esc.window="favoritesOpen=false"><section ref="favoritesDialog" class="dynamic-modal-content favorites-modal-content side-panel-content" role="dialog" aria-modal="true" aria-labelledby="favorites-title" :aria-busy="favoritesLoading"><button type="button" class="dynamic-modal-close" aria-label="Cerrar favoritos" @click="favoritesOpen=false"><Icon name="x" /></button><span class="favorites-modal-eyebrow">TUS MASCOTAS GUARDADAS</span><h2 id="favorites-title">Favoritos <span class="favorites-modal-count">{{ count }}</span></h2><p v-if="favoritesLoading" class="favorites-empty-copy" role="status">Cargando tus mascotas guardadas…</p><p v-else-if="favoritesError" class="favorites-empty-copy" role="alert">{{ favoritesError }}</p><RouterLink v-if="favoritesLoginRequired" class="button button-primary favorites-login-link" to="/acceso.html" @click="favoritesOpen=false">Ingresar</RouterLink><p v-else-if="!favorites.length" class="favorites-empty-copy">Aún no tienes mascotas guardadas. Explora y guarda las que te gustaría conocer.</p><p v-if="favoritesActionError" class="favorites-empty-copy" role="alert">{{ favoritesActionError }}</p><template v-if="!favoritesLoading && !favoritesError && favorites.length"><p class="favorites-modal-intro">Tus mascotas guardadas están aquí para que vuelvas a ellas cuando quieras.</p><div class="dynamic-modal-list favorites-modal-list"><article v-for="pet in favorites" :key="pet.id" class="dynamic-modal-list-item favorites-modal-item"><img v-if="petPhoto(pet)" class="favorites-pet-thumbnail" :src="petPhoto(pet)" :alt="`Fotografía de ${pet.name}`" loading="lazy"><span v-else class="favorites-pet-thumbnail favorites-pet-thumbnail-empty" aria-hidden="true"><Icon name="paw-print" /></span><div class="favorites-pet-copy"><strong>{{ pet.name }}</strong><span>{{ pet.species }}<template v-if="pet.location"> · {{ pet.location }}</template></span></div><div class="favorites-pet-actions"><RouterLink class="pet-button favorites-profile-link" :to="{ path: '/mascota.html', query: { pet: pet.id } }" @click="favoritesOpen=false">Ver perfil</RouterLink><button class="favorites-remove-button" type="button" :aria-label="`Quitar a ${pet.name} de favoritos`" @click="removeFavorite(pet.id)"><Icon name="heart" :filled="true" /><span>Quitar</span></button></div></article></div></template><div v-if="!favoritesLoading && !favoritesError && !favorites.length" class="favorites-empty-state"><span class="favorites-empty-icon"><Icon name="paw-print" :size="27" /></span><RouterLink to="/explorar.html" class="primary-button favorites-explore-link" @click="favoritesOpen=false">Explorar mascotas<Icon name="arrow-right" :size="17" /></RouterLink></div></section></div></Transition>
   <Transition name="side-panel"><div v-if="notificationsOpen" class="dynamic-modal open favorites-modal side-panel-shell" role="presentation" @click.self="notificationsOpen=false" @keydown.esc.window="notificationsOpen=false"><section ref="notificationsDialog" class="dynamic-modal-content favorites-modal-content side-panel-content notification-modal" role="dialog" aria-modal="true" aria-labelledby="notifications-title" :aria-busy="notificationsLoading"><button type="button" class="dynamic-modal-close" aria-label="Cerrar notificaciones" @click="notificationsOpen=false"><Icon name="x" /></button><span class="favorites-modal-eyebrow">ACTIVIDAD DE PET HOP</span><h2 id="notifications-title">Notificaciones <span class="favorites-modal-count">{{ unreadNotifications }}</span></h2><p v-if="notificationsLoading" class="favorites-empty-copy" role="status">Cargando notificaciones…</p><p v-else-if="notificationsError" class="favorites-empty-copy" role="alert">{{ notificationsError }}</p><p v-else-if="!notifications.length" class="favorites-empty-copy">No tienes notificaciones nuevas.</p><div v-else class="notification-list"><button v-for="item in notifications" :key="item.id" type="button" class="notification-item" :class="{ 'is-unread': !item.readAt }" @click="openNotification(item)"><span class="notification-icon"><Icon name="bell" /></span><span><strong>{{ item.title }}</strong><small>{{ item.message }}</small><time>{{ new Date(item.createdAt).toLocaleString('es-MX') }}</time></span></button></div></section></div></Transition>
 </template>
@@ -205,7 +221,7 @@ onUnmounted(() => window.removeEventListener('pethop:shelter-updated', onShelter
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    background: var(--primary-soft);
+    background: var(--tint);
     transform: translateX(-102%);
     transition: transform .25s ease;
     pointer-events: none;
@@ -236,6 +252,147 @@ onUnmounted(() => window.removeEventListener('pethop:shelter-updated', onShelter
 }
 .main-nav .favorites-button {
     transition: color .25s ease;
+}
+/* Menú lateral fijo en Inicio (desktop): como el menú de la app, siempre
+   visible a la izquierda, con la etiqueta que se desliza al pasar el
+   cursor sobre cada icono. */
+.side-rail {
+    display: none;
+}
+@media (min-width: 1101px) {
+    .home-page .side-rail {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 1100;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        width: 72px;
+        padding: 14px 0 12px;
+        background: var(--white);
+        border-right: 1px solid var(--border);
+    }
+}
+.side-rail-brand {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 8px;
+    border-radius: var(--radius-sm);
+    color: var(--primary-strong);
+    text-decoration: none;
+    transition: background var(--transition);
+}
+.side-rail-brand:hover,
+.side-rail-brand:focus-visible {
+    background: var(--tint);
+}
+.side-rail-brand:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--primary) 45%, transparent);
+    outline-offset: 2px;
+}
+.side-rail-brand-icon {
+    width: 26px;
+    height: 26px;
+}
+.side-rail-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+.side-rail-bottom {
+    margin-top: auto;
+}
+.side-rail-item {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-soft);
+    cursor: pointer;
+    text-decoration: none;
+    transition: background var(--transition), color var(--transition);
+}
+.side-rail-item:hover,
+.side-rail-item:focus-visible {
+    background: var(--tint);
+    color: var(--primary-strong);
+}
+.side-rail-item:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--primary) 45%, transparent);
+    outline-offset: 2px;
+}
+.side-rail-item.active {
+    background: var(--tint);
+    color: var(--primary-strong);
+    box-shadow: inset 3px 0 var(--primary-strong);
+}
+.side-rail-icon {
+    width: 22px;
+    height: 22px;
+}
+.side-rail-signout {
+    color: var(--danger);
+}
+.side-rail-signout:hover,
+.side-rail-signout:focus-visible {
+    background: var(--danger-bg);
+    color: var(--danger);
+}
+.side-rail-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    display: grid;
+    min-width: 18px;
+    height: 18px;
+    place-items: center;
+    padding: 0 4px;
+    border: 2px solid var(--white);
+    border-radius: 99px;
+    background: var(--danger);
+    color: var(--white);
+    font-size: .75rem;
+    font-weight: 800;
+    line-height: 1;
+}
+.side-rail-label {
+    position: absolute;
+    left: calc(100% + 12px);
+    top: 50%;
+    z-index: 1;
+    padding: 7px 11px;
+    border-radius: var(--radius-xs);
+    background: var(--primary-dark);
+    color: var(--white);
+    font-size: .8rem;
+    font-weight: 700;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transform: translate(-8px, -50%);
+    transition: opacity .2s ease, transform .2s ease, visibility .2s ease;
+    pointer-events: none;
+}
+.side-rail-item:hover .side-rail-label,
+.side-rail-item:focus-visible .side-rail-label {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(0, -50%);
+}
+@media (prefers-reduced-motion: reduce) {
+    .side-rail-label {
+        transition: none;
+    }
 }
 .favorites-modal-content { width:min(560px,100%); padding:32px; }
 .favorites-modal-eyebrow { display:block; margin-bottom:5px; color:var(--primary-strong); font-size:.75rem; font-weight:800; letter-spacing:.09em; }
