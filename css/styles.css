@@ -222,24 +222,23 @@ ol {
     .home-page .site-header .menu-toggle {
         display: none;
     }
-    /* El pie va alineado a la izquierda. El copyright está donde debe
-       (con su padding de 24px, no se toca) y la marca —logo y texto— se
-       corre a la derecha para arrancar en el mismo borde que el ©. */
-    .home-page .footer-container {
+    /* El pie va alineado a la izquierda en todas las páginas (no solo en
+       Inicio). El copyright está donde debe (con su padding de 24px, no se
+       toca) y la marca —logo y texto— se corre a la derecha para arrancar
+       en el mismo borde que el ©. La imagen del logo trae aire
+       transparente a la izquierda, así que su margen negativo compensa
+       para que el logo visible arranque en esa misma línea. */
+    .site-footer .footer-container {
         width: calc(100% - 40px);
         margin: 0 0 0 20px;
     }
-    .home-page .footer-brand {
+    .site-footer .footer-brand {
         padding-left: 24px;
     }
-    /* La imagen del logo trae aire transparente a la izquierda, así que su
-       cuerpo visible queda unos 10px a la derecha del borde; este margen lo
-       compensa para que el logo arranque en la misma línea que el texto y
-       el copyright. */
-    .home-page .footer-brand img {
+    .site-footer .footer-brand img {
         margin-left: -10px;
     }
-    .home-page .footer-bottom {
+    .site-footer .footer-bottom {
         width: calc(100% - 40px);
         margin: 45px 0 0 20px;
     }
